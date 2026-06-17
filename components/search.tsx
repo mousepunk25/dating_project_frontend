@@ -1,4 +1,9 @@
-export default function Search() {
+'use client';
+
+import { useState } from 'react';
+
+export default function Search({defaultCity = ''}) {
+    const [city, setCity] = useState(defaultCity);
     return (
         <form action="/sons">
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -15,7 +20,9 @@ export default function Search() {
                                 name="city"
                                 type="text"
                                 placeholder="Paris"
-                                className="block min-w-md grow bg-white py-3 pr-3 pl-1 text-lg text-gray-900 placeholder:text-gray-400 focus:outline-none font-bold"
+                                className="block sm:min-w-md grow bg-white py-3 pr-3 pl-1 text-lg text-gray-900 placeholder:text-gray-400 focus:outline-none font-bold"
+                                value={city}
+                                onChange={e => setCity(e.target.value)}
                             />
                         </div>
                         <button
