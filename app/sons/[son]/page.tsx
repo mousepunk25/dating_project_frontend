@@ -7,19 +7,57 @@ interface SocialMedia {
     url: string
 }
 
+interface Candidate {
+  _id: string;
+  dateOfBirth: string;
+  fullName: string;
+  aboutYou: string;
+  job: {
+    position: string;
+    companyName: string;
+    location: {
+      _id: string;
+      city: string;
+      country: string;
+      longitude: string;
+      latitude: string;
+    };
+  };
+  education: {
+    schoolName: string;
+    educationLevel: string;
+    field: string;
+  };
+  address: {
+    _id: string;
+    city: string;
+    country: string;
+    longitude: string;
+    latitude: string;
+  };
+  image: {
+    _id: string;
+    url: string;
+    filename: string;
+  };
+  socialMedia: Array<SocialMedia>
+}
+
 export default async function Page({
     params,
 }: {
     params: Promise<{ son: string }>
 }) {
     const { son } = await params;
-    const data = await fetch(`https://dating-project-three.vercel.app/sons/${son}`);
-    const candidate = await data.json();
+    const url = 'http://localhost:5173';
+  // const url = 'https://dating-project-three.vercel.app';
+    const data = await fetch(`${url}/sons/${son}`);
+    const candidate: Candidate = await data.json();
     return (
         <div className='mt-12 font-serif'>
             <div className='flex justify-evenly'>
                 <Image
-                    src={candidate.images[0].url}
+                    src={candidate.image.url}
                     width={500}
                     height={500}
                     alt="Picture of the candidate"
@@ -64,15 +102,6 @@ export default async function Page({
             </div>
             <div className="text-lg mt-2">
                 <h3 className="font-bold">Hobbies:</h3>
-                <ul className="ml-4">
-                    {candidate.hobbies?.map((h: string) => {
-                        return (
-                            <li key={h}>
-                                {h}
-                            </li>
-                        )
-                    })}
-                </ul>
             </div>
         </div>
     )

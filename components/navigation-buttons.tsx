@@ -10,10 +10,10 @@ function classNames(...classes: string[]) {
 }
 
 let navigationInitial = [
-    { name: 'Home page', href: '/', current: false },
-    { name: 'My profile', href: '/myprofile', current: false },
-    { name: 'Logout', href: '#', current: false }
-  ];
+  { name: 'Home page', href: '/', current: false },
+  { name: 'My profile', href: '/myprofile', current: false },
+  { name: 'Login', href: '#', current: false }
+];
 
 export default function NavigationButtons({ version }: { version: 'web' | 'mobile' }) {
   const pathname = usePathname();
@@ -27,31 +27,36 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
   }
   const [navigation, setNavigation] = useState(navigationInitial);
 
-function navigationClick(navigationButton: string) {
-  const updatedNavigation = navigation.map(n => {
-    if (n.name === navigationButton) {
+  function navigationClick(navigationButton: string) {
+    const updatedNavigation = navigation.map(n => {
+      if (n.name === navigationButton) {
+        return {
+          ...n,
+          current: true
+        }
+      }
       return {
         ...n,
-        current: true
+        current: false
       }
-    }
-    return {
-      ...n,
-      current: false
-    }
-  })
-  setNavigation(updatedNavigation);
-}
+    })
+    setNavigation(updatedNavigation);
+  }
+
+  async function onLogout() {
+    const url = 'http://localhost:5173';
+  // const url = 'https://dating-project-three.vercel.app';
+    await fetch(`${url}/logout`);
+  }
 
   if (version === 'web') {
-    console.log(segments);
     return (
       <div className="flex space-x-4">
         {navigation.map((item) => (
           <Link
             key={item.name}
             href={item.href}
-            aria-current={item.current ? 'page' : undefined}
+            // aria-current={item.current ? 'page' : undefined}
             className={classNames(
               item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
               'rounded-md px-3 py-2 font-semibold',
@@ -61,6 +66,14 @@ function navigationClick(navigationButton: string) {
             {item.name}
           </Link>
         ))}
+        {/* <Link
+          key='logout'
+          href='#'
+          className='text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 font-semibold'
+          onClick={onLogout}
+        >
+          Logout
+        </Link> */}
       </div>
     )
   }
@@ -82,6 +95,14 @@ function navigationClick(navigationButton: string) {
           {item.name}
         </DisclosureButton>
       ))}
+      {/* <Link
+          key='logout'
+          href='#'
+          className='text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 font-semibold'
+          onClick={onLogout}
+        >
+          Logout
+        </Link> */}
     </div>
   )
 }

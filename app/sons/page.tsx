@@ -6,6 +6,7 @@ import Link from 'next/link';
 interface Candidate {
   _id: string;
   dateOfBirth: string;
+  fullName: string;
   job: {
     position: string;
     companyName: string;
@@ -17,10 +18,6 @@ interface Candidate {
       latitude: string;
     };
   };
-  owner: {
-    _id: string;
-    name: string;
-  };
   address: {
     _id: string;
     city: string;
@@ -28,11 +25,11 @@ interface Candidate {
     longitude: string;
     latitude: string;
   };
-  images: Array<{
+  image: {
     _id: string;
     url: string;
     filename: string;
-  }>;
+  };
 }
 
 export default async function Page({
@@ -42,7 +39,9 @@ export default async function Page({
 }) {
   const filters = await searchParams
   console.log(filters.city);
-  const data = await fetch(`https://dating-project-three.vercel.app/sons?city=${filters.city}`);
+  const url = 'http://localhost:5173';
+  // const url = 'https://dating-project-three.vercel.app';
+  const data = await fetch(`${url}/sons?city=${filters.city}`);
   const candidates: Array<Candidate> = await data.json();
   console.log(candidates[0]);
   return (
@@ -59,12 +58,12 @@ export default async function Page({
             >
               <div className='border-3'>
                 <Image
-                  src={candidate.images[0].url}
+                  src={candidate.image.url}
                   width={500}
                   height={500}
                   alt="Picture of the candidate"
                 />
-                <h2 className='mt-4 ml-2 font-bold'>{candidate.owner.name}<span className='font-normal'>, age: {candidate.dateOfBirth}</span></h2>
+                <h2 className='mt-4 ml-2 font-bold'>{candidate.fullName}<span className='font-normal'>, age: {candidate.dateOfBirth}</span></h2>
                 <h3 className='m-2 border-b border-gray-900/10'>{candidate.address.city}</h3>
                 <h3 className='flex items-center ml-1'>
                   <BriefcaseIcon className='size-8' />
