@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import SaveButton from '@/components/saveButton';
+import AddFriendButton from '@/components/addFriendButton';
 
 interface SocialMedia {
     _id: string;
@@ -80,12 +81,8 @@ export default async function Page({
                             )
                         })}
                     </div>
-                    <button className="rounded-md bg-indigo-600 px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-2 mt-6">
-                        Save but don't add to the friends list
-                    </button>
-                    <button className="rounded-md bg-indigo-600 px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-2 mt-12">
-                        Add to friends list
-                    </button>
+                    <SaveButton profileId={candidate._id}/>
+                    <AddFriendButton sonProfileId={candidate._id}/>
                 </div>
             </div>
             <div className='mt-4'>
@@ -99,9 +96,6 @@ export default async function Page({
             </div>
             <div className="text-lg mt-2 flex">
                 <h3 className="font-bold">Education: </h3> <span className="ml-2">{candidate.education.field}, {candidate.education.schoolName}, {candidate.education.educationLevel}</span>
-            </div>
-            <div className="text-lg mt-2">
-                <h3 className="font-bold">Hobbies:</h3>
             </div>
         </div>
     )

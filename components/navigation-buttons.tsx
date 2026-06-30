@@ -9,10 +9,14 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+const url = 'http://localhost:5173';
+// const url = 'https://dating-project-three.vercel.app';
+
 let navigationInitial = [
   { name: 'Home page', href: '/', current: false },
   { name: 'My profile', href: '/myprofile', current: false },
-  { name: 'Login', href: '#', current: false }
+  { name: 'Login', href: '#', current: false },
+  { name: 'Logout', href: `${url}/logout`, current: false }
 ];
 
 export default function NavigationButtons({ version }: { version: 'web' | 'mobile' }) {
@@ -43,12 +47,6 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
     setNavigation(updatedNavigation);
   }
 
-  async function onLogout() {
-    const url = 'http://localhost:5173';
-  // const url = 'https://dating-project-three.vercel.app';
-    await fetch(`${url}/logout`);
-  }
-
   if (version === 'web') {
     return (
       <div className="flex space-x-4">
@@ -56,7 +54,7 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
           <Link
             key={item.name}
             href={item.href}
-            // aria-current={item.current ? 'page' : undefined}
+            aria-current={item.current ? 'page' : undefined}
             className={classNames(
               item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
               'rounded-md px-3 py-2 font-semibold',
@@ -66,14 +64,6 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
             {item.name}
           </Link>
         ))}
-        {/* <Link
-          key='logout'
-          href='#'
-          className='text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 font-semibold'
-          onClick={onLogout}
-        >
-          Logout
-        </Link> */}
       </div>
     )
   }
@@ -95,14 +85,6 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
           {item.name}
         </DisclosureButton>
       ))}
-      {/* <Link
-          key='logout'
-          href='#'
-          className='text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 font-semibold'
-          onClick={onLogout}
-        >
-          Logout
-        </Link> */}
     </div>
   )
 }

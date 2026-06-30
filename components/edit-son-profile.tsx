@@ -9,7 +9,7 @@ export default function EditSonProfile({ profileId }: { profileId: string | unde
 
     const [userDetails, setUserDetails] = useState({});
     const url = 'http://localhost:5173';
-  // const url = 'https://dating-project-three.vercel.app';
+    // const url = 'https://dating-project-three.vercel.app';
 
     useEffect(() => {
         let ignore = false;
@@ -29,6 +29,7 @@ export default function EditSonProfile({ profileId }: { profileId: string | unde
 
     async function updateProfile(formData: FormData) {
         const aboutYou = formData.get('about');
+        console.log(aboutYou);
         const imageUrl = 'https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
         const fullName = formData.get('full-name');
         const addressCountry = formData.get('country');
@@ -83,23 +84,25 @@ export default function EditSonProfile({ profileId }: { profileId: string | unde
                 }
             ]
         }
+        console.log('updatedDetails:');
+        console.log(updatedUserDetails);
         setUserDetails(updatedUserDetails);
         try {
+            console.log(userDetails);
             const response = await fetch(`${url}/sons/edit/${profileId}`, {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
+                    // ✅ Tell the backend to expect JSON data
+                    "Content-Type": "application/json",
                 },
                 credentials: 'include',
-                // Automatically converted to "username=example&password=password"
-                body: new URLSearchParams(userDetails),
+                body: JSON.stringify(updatedUserDetails),
             });
             const message = await response.json();
             console.log(message);
         } catch (e) {
             console.log(e);
         }
-
     }
 
     return (

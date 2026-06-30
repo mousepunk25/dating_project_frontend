@@ -38,15 +38,14 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
   const filters = await searchParams
-  console.log(filters.city);
   const url = 'http://localhost:5173';
   // const url = 'https://dating-project-three.vercel.app';
-  const data = await fetch(`${url}/sons?city=${filters.city}`);
+  const data = await fetch(`${url}/sons?city=${filters.city}&ageMin=${filters.ageMin}&ageMax=${filters.ageMax}`);
   const candidates: Array<Candidate> = await data.json();
   console.log(candidates[0]);
   return (
     <div className='mt-12 font-serif'>
-      <Search defaultCity={filters.city} />
+      <Search defaultCity={filters.city} defaultAgeMin={filters.ageMin} defaultAgeMax={filters.ageMax} />
       <h2>Candidates:</h2>
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-32 my-6'>
         {candidates.map(candidate => {

@@ -36,7 +36,7 @@ export default function Login() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form action={login} className="space-y-6">
+        <form action={`${url}/login`} method="POST" className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
               Email address
