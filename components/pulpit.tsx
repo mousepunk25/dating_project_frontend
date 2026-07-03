@@ -11,7 +11,7 @@ import {
     XMarkIcon,
 } from '@heroicons/react/24/outline'
 
-import EditSonProfile from "./edit-son-profile";
+import EditUserProfile from "./edit-user-profile";
 import SonParentFriends from "./son-parent-friends";
 import SonParentRequests from "./son-parent-requests";
 import SonParentSaved from "./son-parent-saved";
@@ -23,23 +23,23 @@ export default function Pulpit({
     profileId,
     role
 }: {
-    profileId: string | undefined,
-    role: 'son' | 'parent' | undefined
+    profileId: string,
+    role: 'son' | 'parent'
 }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [panel, setPanel] = useState<PanelStatus>('friends-list');
     function panelToRender(panel: PanelStatus) {
         switch(panel) {
             case 'edit-profile':
-                return <EditSonProfile profileId={profileId}/>;
+                return <EditUserProfile profileId={profileId} role={role}/>;
             case 'friends-list':
-                return <SonParentFriends/>
+                return <SonParentFriends profileId={profileId} role={role}/>
             case 'friends-requests-received':
-                return <SonParentRequests/>
+                return <SonParentRequests profileId={profileId} role={role}/>
             case 'friends-requests-sent':
-                return <SonParentWaiting/>
+                return <SonParentWaiting profileId={profileId} role={role}/>
             case 'candidates-saved':
-                return <SonParentSaved/>
+                return <SonParentSaved profileId={profileId} role={role}/>
         }
     }
     return (

@@ -2,6 +2,10 @@ import { FaceSmileIcon } from '@heroicons/react/24/outline';
 import Search from '../components/search';
 
 export default async function Page() {
+  const url = 'http://localhost:5173';
+  // const url = 'https://dating-project-three.vercel.app';
+    const data = await fetch(`${url}/sons/count`);
+    const sonsNumber = await data.json();
   return (
     <div className="mt-12">
       <div className="space-y-2 font-serif">
@@ -9,7 +13,7 @@ export default async function Page() {
           Find perfect match
         </p>
         <h2 className="text-gray-600 text-2xl font-bold">
-          [number of candidates] great candidates is waiting for you
+          {sonsNumber.sonNumber} great candidates is waiting for you
           <FaceSmileIcon aria-hidden="true" className="block size-6 group-data-open:hidden inline ml-1" />
         </h2>
         <Search />

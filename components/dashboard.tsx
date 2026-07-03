@@ -15,7 +15,6 @@ export default function Dashboard({
 }) {
     const isLoggedIn = profileId && logout !== 'true';
 
-    // Move all document interactions safely inside useEffect
     useEffect(() => {
         if (isLoggedIn) {
             const date = new Date();
@@ -27,10 +26,9 @@ export default function Dashboard({
             document.cookie = "profileId=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure; path=/";
             document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure; path=/";
         }
-    }, [isLoggedIn, profileId]); // Re-run whenever login state or profileId changes
+    }, [isLoggedIn, profileId]);
 
-    // Keep your return statements clean and free of side-effects
-    if (isLoggedIn) {
+    if (isLoggedIn && role) {
         return <Pulpit profileId={profileId} role={role}/>;
     }
 

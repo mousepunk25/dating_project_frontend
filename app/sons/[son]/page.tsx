@@ -81,7 +81,7 @@ export default async function Page({
                             )
                         })}
                     </div>
-                    <SaveButton profileId={candidate._id}/>
+                    <SaveButton sonProfileId={candidate._id}/>
                     <AddFriendButton sonProfileId={candidate._id}/>
                 </div>
             </div>

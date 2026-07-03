@@ -25,7 +25,7 @@ export default function Search({ defaultCity = '', defaultAgeMin = '18', default
                                 id="city"
                                 name="city"
                                 type="text"
-                                placeholder="Paris"
+                                placeholder="All cities"
                                 className="block sm:min-w-md grow bg-white py-3 pr-3 pl-1 text-lg text-gray-900 placeholder:text-gray-400 focus:outline-none font-bold"
                                 value={city}
                                 onChange={e => setCity(e.target.value)}
@@ -43,7 +43,7 @@ export default function Search({ defaultCity = '', defaultAgeMin = '18', default
                         </div>
                         <div className="items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
                             <label htmlFor="ageMax">Select max age:</label>
-                            <select name="ageMax" id="ageMax" value={ageMax} onChange={e => {console.log(e.target.value); setAgeMax(e.target.value)}}>
+                            <select name="ageMax" id="ageMax" value={ageMax} onChange={e => {setAgeMax(e.target.value)}}>
                                 {age.map(a => {
                                     return (
                                         <option value={a} key={`ageMax_${a}`}>{a}</option>
