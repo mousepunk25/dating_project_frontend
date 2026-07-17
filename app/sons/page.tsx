@@ -1,7 +1,4 @@
 import Search from '../../components/search';
-import Image from 'next/image';
-import { BriefcaseIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 import CandidateCart from '@/components/candidate-cart';
 
 interface Candidate {
@@ -43,7 +40,7 @@ export default async function Page({
   // const url = 'https://dating-project-three.vercel.app';
   const data = await fetch(`${url}/sons?city=${filters.city}&ageMin=${filters.ageMin}&ageMax=${filters.ageMax}`);
   const candidates: Array<Candidate> = await data.json();
-  console.log(candidates[0]);
+  console.log(candidates);
   return (
     <div className='mt-12 font-serif'>
       <Search defaultCity={filters.city} defaultAgeMin={filters.ageMin} defaultAgeMax={filters.ageMax} />

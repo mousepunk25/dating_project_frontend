@@ -14,13 +14,13 @@ export default function Page() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form action={`${url}/register`} method="POST" className="space-y-6">
           <div>
-            <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
+            <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
               Email address
             </label>
             <div className="mt-2">
               <input
-                id="username"
-                name="username"
+                id="email"
+                name="email"
                 type="email"
                 required
                 autoComplete="email"
@@ -28,6 +28,20 @@ export default function Page() {
               />
             </div>
           </div>
+
+          <fieldset>
+            <legend>Select your role:</legend>
+
+            <div>
+              <input type="radio" id="parent" name="role" value="parent"/>
+              <label htmlFor="parent">Parent</label>
+            </div>
+
+            <div>
+              <input type="radio" id="son" name="role" value="son" />
+              <label htmlFor="son">Son</label>
+            </div>
+          </fieldset>
 
           <div>
             <div className="flex items-center justify-between">

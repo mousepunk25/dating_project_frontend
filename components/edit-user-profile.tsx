@@ -25,6 +25,17 @@ export default function EditUserProfile({
     const [ageMin, setAgeMin] = useState(18);
     const [ageMax, setAgeMax] = useState(80);
 
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 18);
+
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const maxDob = `${year}-${month}-${day}`;
+
+    // 1. Initialize state with your default value (18 years ago)
+    const [dob, setDob] = useState(maxDob);
+
     useEffect(() => {
         let ignore = false;
         async function fetchUserDetails() {
@@ -42,6 +53,10 @@ export default function EditUserProfile({
                 setUserDetails(userDetailsJSON);
                 setAgeMin(userDetailsJSON.sonAgeMin);
                 setAgeMax(userDetailsJSON.sonAgeMax);
+                if(userDetailsJSON.dateOfBirth) {
+                    console.log(userDetailsJSON.dateOfBirth.slice(0,10));
+                    setDob(userDetailsJSON.dateOfBirth.slice(0,10));
+                }
             }
         }
         fetchUserDetails();
@@ -52,7 +67,7 @@ export default function EditUserProfile({
 
     async function updateProfileSon(formData: FormData) {
         const aboutYou = formData.get('about');
-        const imageUrl = 'https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+        const dateOfBirth = new Date(formData.get('dob'));
         const fullName = formData.get('full-name');
         const addressCountry = formData.get('country');
         const addressCity = formData.get('city');
@@ -67,11 +82,8 @@ export default function EditUserProfile({
         const updatedUserDetails = {
             ...userDetails,
             aboutYou,
-            image: {
-                ...userDetails.image,
-                url: imageUrl
-            },
             fullName,
+            dateOfBirth,
             address: {
                 ...userDetails.address,
                 country: addressCountry,
@@ -172,6 +184,13 @@ export default function EditUserProfile({
                         </p>
 
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                            <div className="col-span-full">
+                                <div className="mt-2">
+                                    <label htmlFor="dob">Date of Birth:</label>
+                                    <input type="date" id="dob" name="dob" max={maxDob} value={dob} onChange={(e) => setDob(e.target.value)} required></input>
+                                </div>
+                            </div>
+
                             <div className="col-span-full">
                                 <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">
                                     About you
