@@ -2,10 +2,9 @@ import { FaceSmileIcon } from '@heroicons/react/24/outline';
 import Search from '../components/search';
 
 export default async function Page() {
-  const url = 'http://localhost:5173';
-  // const url = 'https://dating-project-three.vercel.app';
-    const data = await fetch(`${url}/sons/count`);
-    const sonsNumber = await data.json();
+  const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
+  const data = await fetch(`${url}/sons/count`);
+  const sonsNumber = await data.json();
   return (
     <div className="mt-12">
       <div className="space-y-2 font-serif">

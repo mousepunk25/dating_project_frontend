@@ -14,8 +14,7 @@ export default function EditUserProfile({
 }) {
 
     const [userDetails, setUserDetails] = useState({});
-    const url = 'http://localhost:5173';
-    // const url = 'https://dating-project-three.vercel.app';
+    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
     const age = [];
     for (let i = 18; i <= 100; i++) {
@@ -49,13 +48,11 @@ export default function EditUserProfile({
             }
             const userDetailsJSON = await userDetailsResponse.json();
             if (!ignore) {
-                console.log(userDetailsJSON);
                 setUserDetails(userDetailsJSON);
                 setAgeMin(userDetailsJSON.sonAgeMin);
                 setAgeMax(userDetailsJSON.sonAgeMax);
-                if(userDetailsJSON.dateOfBirth) {
-                    console.log(userDetailsJSON.dateOfBirth.slice(0,10));
-                    setDob(userDetailsJSON.dateOfBirth.slice(0,10));
+                if (userDetailsJSON.dateOfBirth) {
+                    setDob(userDetailsJSON.dateOfBirth.slice(0, 10));
                 }
             }
         }
@@ -129,7 +126,6 @@ export default function EditUserProfile({
                 body: JSON.stringify(updatedUserDetails),
             });
             const message = await response.json();
-            console.log(message);
         } catch (e) {
             console.log(e);
         }
@@ -165,7 +161,6 @@ export default function EditUserProfile({
                 body: JSON.stringify(updatedUserDetails),
             });
             const message = await response.json();
-            console.log(message);
             setAgeMin(Number(currentAgeMin));
             setAgeMax(Number(currentAgeMax));
         } catch (e) {

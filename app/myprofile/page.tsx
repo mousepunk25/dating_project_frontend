@@ -11,7 +11,6 @@ export default async function Page({
   const roleCookie = (await cookies()).get('role')?.value;
   const roleArray = ['son', 'parent'];
   if (params && params.profileid) {
-    console.log(params);
     const profileId = params.profileid;
     return (
       <Dashboard profileId={profileId} logout={params.logout} role={params && params.role && roleArray.includes(params.role) ? params.role : undefined} />

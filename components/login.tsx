@@ -2,8 +2,7 @@
 
 export default function Login() {
 
-  const url = 'http://localhost:5173';
-  // const url = 'https://dating-project-three.vercel.app';
+  const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
   async function login(formData: FormData) {
     const username = formData.get("username") as string;
@@ -16,12 +15,12 @@ export default function Login() {
       // Automatically converted to "username=example&password=password"
       body: new URLSearchParams({ username: username, password: password }),
     });
-    const profileId = await response.json() as {profileId: string};
+    const profileId = await response.json() as { profileId: string };
 
     if (profileId) {
       const date = new Date();
       date.setDate(date.getDate() + 7);
-      const cookieDate =  date.toUTCString();
+      const cookieDate = date.toUTCString();
       document.cookie = `profileId=${profileId.profileId}; expires=${cookieDate}; SameSite=None; Secure`;
     }
     window.location.reload();

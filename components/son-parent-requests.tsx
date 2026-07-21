@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import CandidateCart from './candidate-cart';
 
-const url = 'http://localhost:5173';
-// const url = 'https://dating-project-three.vercel.app';
+const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
 export default function SonParentRequests({
     profileId,
@@ -24,7 +23,6 @@ export default function SonParentRequests({
             });
             const userFriendsWhoWantToBeAddedJSON = await userFriendsWhoWantToBeAddedResponse.json();
             if (!ignore) {
-                console.log(userFriendsWhoWantToBeAddedJSON);
                 setUserFriendsWhoWantToBeAdded(userFriendsWhoWantToBeAddedJSON);
             }
         }

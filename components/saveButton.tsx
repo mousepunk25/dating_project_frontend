@@ -18,8 +18,7 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
         const roleCookieValue = roleCookie ? roleCookie.split("=")[1] : null;
 
         const oppositeRole = roleCookieValue === 'son' ? 'parents' : 'sons';
-        const url = 'http://localhost:5173';
-        // const url = 'https://dating-project-three.vercel.app';
+        const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
         if (profileIdCookieValue && roleCookieValue) {
             try {
                 const response = await fetch(`${url}/${roleCookieValue}s/${profileIdCookieValue}/${oppositeRole}saved/${sonProfileId}`, {

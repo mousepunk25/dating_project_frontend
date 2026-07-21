@@ -8,7 +8,7 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-const url = 'http://localhost:5173';
+const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
 // 1. Keep this strictly as static, read-only configuration data
 const NAVIGATION_ITEMS = [

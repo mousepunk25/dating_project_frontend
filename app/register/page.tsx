@@ -1,7 +1,8 @@
+import Link from 'next/link';
+
 export default function Page() {
 
-  const url = 'http://localhost:5173';
-  // const url = 'https://dating-project-three.vercel.app';
+  const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -33,7 +34,7 @@ export default function Page() {
             <legend>Select your role:</legend>
 
             <div>
-              <input type="radio" id="parent" name="role" value="parent"/>
+              <input type="radio" id="parent" name="role" value="parent" />
               <label htmlFor="parent">Parent</label>
             </div>
 
@@ -59,6 +60,15 @@ export default function Page() {
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
             </div>
+          </div>
+
+          <div>
+            By creating an account you agree to this set of rules:
+            <Link
+              href='/rules'
+            >
+              Link
+            </Link>
           </div>
 
           <div>

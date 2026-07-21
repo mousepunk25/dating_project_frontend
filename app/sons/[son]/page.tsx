@@ -9,39 +9,39 @@ interface SocialMedia {
 }
 
 interface Candidate {
-  _id: string;
-  dateOfBirth: string;
-  fullName: string;
-  aboutYou: string;
-  job: {
-    position: string;
-    companyName: string;
-    location: {
-      _id: string;
-      city: string;
-      country: string;
-      longitude: string;
-      latitude: string;
+    _id: string;
+    dateOfBirth: string;
+    fullName: string;
+    aboutYou: string;
+    job: {
+        position: string;
+        companyName: string;
+        location: {
+            _id: string;
+            city: string;
+            country: string;
+            longitude: string;
+            latitude: string;
+        };
     };
-  };
-  education: {
-    schoolName: string;
-    educationLevel: string;
-    field: string;
-  };
-  address: {
-    _id: string;
-    city: string;
-    country: string;
-    longitude: string;
-    latitude: string;
-  };
-  image: {
-    _id: string;
-    url: string;
-    filename: string;
-  };
-  socialMedia: Array<SocialMedia>
+    education: {
+        schoolName: string;
+        educationLevel: string;
+        field: string;
+    };
+    address: {
+        _id: string;
+        city: string;
+        country: string;
+        longitude: string;
+        latitude: string;
+    };
+    image: {
+        _id: string;
+        url: string;
+        filename: string;
+    };
+    socialMedia: Array<SocialMedia>
 }
 
 export default async function Page({
@@ -50,8 +50,7 @@ export default async function Page({
     params: Promise<{ son: string }>
 }) {
     const { son } = await params;
-    const url = 'http://localhost:5173';
-  // const url = 'https://dating-project-three.vercel.app';
+    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
     const data = await fetch(`${url}/sons/${son}`);
     const candidate: Candidate = await data.json();
     return (
@@ -81,8 +80,8 @@ export default async function Page({
                             )
                         })}
                     </div>
-                    <SaveButton sonProfileId={candidate._id}/>
-                    <AddFriendButton sonProfileId={candidate._id}/>
+                    <SaveButton sonProfileId={candidate._id} />
+                    <AddFriendButton sonProfileId={candidate._id} />
                 </div>
             </div>
             <div className='mt-4'>
