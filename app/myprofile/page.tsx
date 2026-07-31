@@ -13,11 +13,11 @@ export default async function Page({
   if (params && params.profileid) {
     const profileId = params.profileid;
     return (
-      <Dashboard profileId={profileId} logout={params.logout} role={params && params.role && roleArray.includes(params.role) ? params.role : undefined} />
+      <Dashboard profileId={profileId} logout={params.logout} role={params && params.role && roleArray.includes(params.role) && (params.role === 'son' || params.role === 'parent') ? params.role : undefined} />
     )
   } else if (profileIdCookie) {
     return (
-      <Dashboard profileId={profileIdCookie} logout={params.logout} role={roleCookie} />
+      <Dashboard profileId={profileIdCookie} logout={params.logout} role={roleCookie === 'son' || roleCookie === 'parent' ? roleCookie : undefined} />
     )
   }
   return (

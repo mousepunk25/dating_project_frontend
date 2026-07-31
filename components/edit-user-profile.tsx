@@ -5,6 +5,41 @@ import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useEffect, useState } from 'react';
 import Image from 'next/image'
 
+interface UserDetails {
+    aboutYou?: string,
+    fullName: string,
+    dateOfBirth?: Date | null,
+    address: {
+        country: string,
+        city: string
+    };
+    job?: string | {
+        position: string,
+        companyName: string
+    };
+    education?: {
+        schoolName: string,
+        educationLevel: string
+    };
+    socialMedia?: { website: string, url: string }[];
+    image?: {
+        url: string,
+        filename: string
+    }
+}
+
+// Converts FormDataEntryValue | null -> string
+function getFormString(formData: FormData, key: string): string {
+    const value = formData.get(key);
+    return typeof value === 'string' ? value : '';
+}
+
+// Or if your UserDetails interface allows null:
+function getFormStringOrNull(formData: FormData, key: string): string | null {
+    const value = formData.get(key);
+    return typeof value === 'string' && value ? value : null;
+}
+
 export default function EditUserProfile({
     profileId,
     role
@@ -13,7 +48,7 @@ export default function EditUserProfile({
     role: 'son' | 'parent'
 }) {
 
-    const [userDetails, setUserDetails] = useState({});
+    const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
     const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
     const age = [];
@@ -38,15 +73,12 @@ export default function EditUserProfile({
     useEffect(() => {
         let ignore = false;
         async function fetchUserDetails() {
-            let userDetailsResponse = {};
-            if (role === 'son') {
-                userDetailsResponse = await fetch(`${url}/sons/${profileId}`);
-            } else {
-                userDetailsResponse = await fetch(`${url}/parents/${profileId}`, {
-                    credentials: 'include'
-                });
-            }
+            const endpoint = role === 'son' ? `/sons/${profileId}` : `/parents/${profileId}`;
+            const options: RequestInit = role === 'son' ? {} : { credentials: 'include' };
+
+            const userDetailsResponse = await fetch(`${url}${endpoint}`, options);
             const userDetailsJSON = await userDetailsResponse.json();
+
             if (!ignore) {
                 setUserDetails(userDetailsJSON);
                 setAgeMin(userDetailsJSON.sonAgeMin);
@@ -63,55 +95,45 @@ export default function EditUserProfile({
     }, [profileId]);
 
     async function updateProfileSon(formData: FormData) {
-        const aboutYou = formData.get('about');
-        const dateOfBirth = new Date(formData.get('dob'));
-        const fullName = formData.get('full-name');
-        const addressCountry = formData.get('country');
-        const addressCity = formData.get('city');
-        const jobPosition = formData.get('job-position');
-        const companyName = formData.get('company');
-        const schoolName = formData.get('school-name');
-        const educationLevel = formData.get('education-level');
-        const facebook = formData.get('facebook');
-        const instagram = formData.get('instagram');
-        const linkedin = formData.get('linkedin');
-        const twitter = formData.get('twitter');
-        const updatedUserDetails = {
+        const jobData = typeof userDetails?.job === 'object' && userDetails.job !== null
+            ? { ...userDetails.job }
+            : {};
+        const updatedUserDetails: UserDetails = {
             ...userDetails,
-            aboutYou,
-            fullName,
-            dateOfBirth,
+            aboutYou: getFormString(formData, 'about'),
+            fullName: getFormString(formData, 'full-name'),
+            dateOfBirth: formData.get('dob') ? new Date(formData.get('dob') as string) : null,
             address: {
-                ...userDetails.address,
-                country: addressCountry,
-                city: addressCity
+                ...userDetails?.address,
+                country: getFormString(formData, 'country'),
+                city: getFormString(formData, 'city'),
             },
             job: {
-                ...userDetails.job,
-                position: jobPosition,
-                companyName
+                ...jobData,
+                position: getFormString(formData, 'job-position'),
+                companyName: getFormString(formData, 'company'),
             },
             education: {
-                ...userDetails.education,
-                schoolName,
-                educationLevel,
+                ...userDetails?.education,
+                schoolName: getFormString(formData, 'school-name'),
+                educationLevel: getFormString(formData, 'education-level'),
             },
             socialMedia: [
                 {
                     website: 'Facebook',
-                    url: facebook
+                    url: getFormString(formData, 'facebook'),
                 },
                 {
                     website: 'Twitter',
-                    url: twitter
+                    url: getFormString(formData, 'twitter'),
                 },
                 {
                     website: 'Instagram',
-                    url: instagram
+                    url: getFormString(formData, 'instagram'),
                 },
                 {
                     website: 'Linkedin',
-                    url: linkedin
+                    url: getFormString(formData, 'linkedin'),
                 }
             ]
         }
@@ -126,27 +148,24 @@ export default function EditUserProfile({
                 body: JSON.stringify(updatedUserDetails),
             });
             const message = await response.json();
+            console.log(message);
         } catch (e) {
             console.log(e);
         }
     }
 
     async function updateProfileParent(formData: FormData) {
-        const fullName = formData.get('full-name');
-        const addressCountry = formData.get('country');
-        const addressCity = formData.get('city');
-        const jobPosition = formData.get('job-position');
         const currentAgeMin = ageMin;
         const currentAgeMax = ageMax;
         const updatedUserDetails = {
             ...userDetails,
-            fullName,
+            fullName: getFormString(formData, 'full-name'),
             address: {
-                ...userDetails.address,
-                country: addressCountry,
-                city: addressCity
+                ...userDetails?.address,
+                country: getFormString(formData, 'country'),
+                city: getFormString(formData, 'city'),
             },
-            job: jobPosition,
+            job: getFormString(formData, 'job-position'),
             sonAgeMin: currentAgeMin,
             sonAgeMax: currentAgeMax
         }
@@ -196,7 +215,7 @@ export default function EditUserProfile({
                                         name="about"
                                         rows={3}
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.aboutYou}
+                                        defaultValue={userDetails?.aboutYou}
                                     />
                                 </div>
                                 <p className="mt-3 text-sm/6 text-gray-600">Write a few sentences about yourself.</p>
@@ -207,7 +226,7 @@ export default function EditUserProfile({
                                     Photo
                                 </label>
                                 <div className="mt-2 flex items-center gap-x-3">
-                                    {userDetails.image ? <Image
+                                    {userDetails?.image ? <Image
                                         src={userDetails.image.url}
                                         width={500}
                                         height={500}
@@ -240,7 +259,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.fullName}
+                                        defaultValue={userDetails?.fullName}
                                     />
                                 </div>
                             </div>
@@ -255,7 +274,7 @@ export default function EditUserProfile({
                                         name="country"
                                         autoComplete="country-name"
                                         className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.address ? userDetails.address.country : ''}
+                                        defaultValue={userDetails?.address ? userDetails.address.country : ''}
                                     >
                                         <option>United States</option>
                                         <option>Canada</option>
@@ -283,7 +302,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="address-level2"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.address ? userDetails.address.city : ''}
+                                        defaultValue={userDetails?.address ? userDetails.address.city : ''}
                                     />
                                 </div>
                             </div>
@@ -306,7 +325,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.job ? userDetails.job.position : ''}
+                                        defaultValue={userDetails?.job && typeof userDetails.job === 'object'? userDetails.job.position : ''}
                                     />
                                 </div>
                             </div>
@@ -322,7 +341,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="address-level2"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.job ? userDetails.job.companyName : ''}
+                                        defaultValue={userDetails?.job && typeof userDetails.job === 'object' ? userDetails.job.companyName : ''}
                                     />
                                 </div>
                             </div>
@@ -345,7 +364,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.education ? userDetails.education.schoolName : ''}
+                                        defaultValue={userDetails?.education ? userDetails.education.schoolName : ''}
                                     />
                                 </div>
                             </div>
@@ -360,7 +379,7 @@ export default function EditUserProfile({
                                         name="education-level"
                                         autoComplete="education-level-name"
                                         className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.education ? userDetails.education.educationLevel : ''}
+                                        defaultValue={userDetails?.education ? userDetails.education.educationLevel : ''}
                                     >
                                         <option>Elementary</option>
                                         <option>High School</option>
@@ -395,7 +414,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Facebook') ? userDetails.socialMedia.find(sm => sm.website === 'Facebook').url : '' : ''}
+                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Facebook')?.url : ''}
                                     />
                                 </div>
                             </div>
@@ -411,7 +430,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="address-level2"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Instagram') ? userDetails.socialMedia.find(sm => sm.website === 'Instagram').url : '' : ''}
+                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Instagram')?.url : ''}
                                     />
                                 </div>
                             </div>
@@ -427,7 +446,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="address-level2"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Twitter') ? userDetails.socialMedia.find(sm => sm.website === 'Twitter').url : '' : ''}
+                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Twitter')?.url : ''}
                                     />
                                 </div>
                             </div>
@@ -443,7 +462,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="address-level2"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Linkedin') ? userDetails.socialMedia.find(sm => sm.website === 'Linkedin').url : '' : ''}
+                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Linkedin')?.url : ''}
                                     />
                                 </div>
                             </div>
@@ -513,7 +532,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.fullName}
+                                        defaultValue={userDetails?.fullName}
                                     />
                                 </div>
                             </div>
@@ -528,7 +547,7 @@ export default function EditUserProfile({
                                         name="country"
                                         autoComplete="country-name"
                                         className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.address ? userDetails.address.country : ''}
+                                        defaultValue={userDetails?.address ? userDetails.address.country : ''}
                                     >
                                         <option>United States</option>
                                         <option>Canada</option>
@@ -556,7 +575,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="address-level2"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.address ? userDetails.address.city : ''}
+                                        defaultValue={userDetails?.address ? userDetails.address.city : ''}
                                     />
                                 </div>
                             </div>
@@ -579,7 +598,7 @@ export default function EditUserProfile({
                                         type="text"
                                         autoComplete="given-name"
                                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails.job ? userDetails.job : ''}
+                                        defaultValue={userDetails?.job && typeof userDetails.job === 'string' ? userDetails.job : ''}
                                     />
                                 </div>
                             </div>

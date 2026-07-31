@@ -5,6 +5,29 @@ import CandidateCart from './candidate-cart';
 
 const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
+interface Candidate {
+    _id: string;
+    fullName: string;
+    dateOfBirth: string | Date;
+    image: {
+        url: string;
+    };
+    address: {
+        city: string;
+    };
+    job: {
+        position: string;
+    };
+}
+
+function getAge(dob: string | Date | undefined): string {
+  if (!dob) return '';
+  const birthDate = new Date(dob);
+  const diff = Date.now() - birthDate.getTime();
+  const ageDate = new Date(diff);
+  return Math.abs(ageDate.getUTCFullYear() - 1970).toString();
+}
+
 export default function SonParentWaiting({
     profileId,
     role
@@ -12,7 +35,7 @@ export default function SonParentWaiting({
     profileId: string,
     role: 'son' | 'parent'
 }) {
-    const [userFriendsWithRequestSent, setUserFriendsWithRequestSent] = useState([]);
+    const [userFriendsWithRequestSent, setUserFriendsWithRequestSent] = useState<Candidate[]>([]);
     const oppositeRole = role === 'son' ? 'parent' : 'son';
     useEffect(() => {
         let ignore = false;
@@ -42,7 +65,7 @@ export default function SonParentWaiting({
                                 candidateId={candidate._id}
                                 candidateImage={candidate.image.url}
                                 candidateFullName={candidate.fullName}
-                                candidateAge={candidate.dateOfBirth}
+                                candidateAge={getAge(candidate.dateOfBirth)}
                                 candidateCity={candidate.address.city}
                                 candidateJob={candidate.job.position} />
                         );
