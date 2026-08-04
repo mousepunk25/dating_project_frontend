@@ -59,7 +59,7 @@ export default function SonParentSaved({
             <div>
                 <h2>Candidates:</h2>
                 <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-32 my-6'>
-                    {userFriendsSaved.map(candidate => {
+                    {Array.isArray(userFriendsSaved) && userFriendsSaved.map(candidate => {
                         return (
                             <CandidateCart key={candidate._id}
                                 candidateId={candidate._id}

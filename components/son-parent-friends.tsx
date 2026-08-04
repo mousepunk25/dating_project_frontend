@@ -59,7 +59,7 @@ export default function SonParentFriends({
             <div>
                 <h2>Candidates:</h2>
                 <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-32 my-6'>
-                    {userFriends.map(candidate => {
+                    {Array.isArray(userFriends) && userFriends.map(candidate => {
                         return (
                             <CandidateCart key={candidate._id}
                                 candidateId={candidate._id}
