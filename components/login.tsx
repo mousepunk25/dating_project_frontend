@@ -1,30 +1,6 @@
-'use client'
-
 export default function Login() {
 
   const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
-
-  async function login(formData: FormData) {
-    const username = formData.get("username") as string;
-    const password = formData.get("password") as string;
-    const response = await fetch(`${url}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      // Automatically converted to "username=example&password=password"
-      body: new URLSearchParams({ username: username, password: password }),
-    });
-    const profileId = await response.json() as { profileId: string };
-
-    if (profileId) {
-      const date = new Date();
-      date.setDate(date.getDate() + 7);
-      const cookieDate = date.toUTCString();
-      document.cookie = `profileId=${profileId.profileId}; expires=${cookieDate}; SameSite=None; Secure`;
-    }
-    window.location.reload();
-  }
 
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -57,11 +33,6 @@ export default function Login() {
               <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
                 Password
               </label>
-              <div className="text-sm">
-                <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                  Forgot password?
-                </a>
-              </div>
             </div>
             <div className="mt-2">
               <input
@@ -73,12 +44,17 @@ export default function Login() {
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               />
             </div>
+            <div className="text-sm mt-1">
+                <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                  Forgot password?
+                </a>
+              </div>
           </div>
 
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="flex w-full justify-center rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Sign in
             </button>

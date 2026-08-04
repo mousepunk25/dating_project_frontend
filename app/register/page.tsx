@@ -14,6 +14,21 @@ export default function Page() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form action={`${url}/register`} method="POST" className="space-y-6">
+
+          <fieldset>
+            <legend>Select your role:</legend>
+
+            <div className='mt-2'>
+              <input type="radio" id="parent" name="role" value="parent" />
+              <label htmlFor="parent" className='ml-2'>Parent</label>
+            </div>
+
+            <div className='mt-2'>
+              <input type="radio" id="son" name="role" value="son" />
+              <label htmlFor="son" className='ml-2'>Son</label>
+            </div>
+          </fieldset>
+
           <div>
             <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
               Email address
@@ -29,20 +44,6 @@ export default function Page() {
               />
             </div>
           </div>
-
-          <fieldset>
-            <legend>Select your role:</legend>
-
-            <div>
-              <input type="radio" id="parent" name="role" value="parent" />
-              <label htmlFor="parent">Parent</label>
-            </div>
-
-            <div>
-              <input type="radio" id="son" name="role" value="son" />
-              <label htmlFor="son">Son</label>
-            </div>
-          </fieldset>
 
           <div>
             <div className="flex items-center justify-between">
@@ -66,6 +67,7 @@ export default function Page() {
             By creating an account you agree to this set of rules:
             <Link
               href='/rules'
+              className='ml-1 text-cahir-blood'
             >
               Link
             </Link>
@@ -74,7 +76,7 @@ export default function Page() {
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="flex w-full justify-center rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Sign in
             </button>

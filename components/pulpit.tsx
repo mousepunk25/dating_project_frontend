@@ -1,14 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
     Dialog,
-    DialogPanel,
-    PopoverGroup,
+    DialogPanel
 } from '@headlessui/react'
 import {
-    Bars3Icon,
     XMarkIcon,
+    PencilSquareIcon,
+    ChatBubbleLeftRightIcon,
+    EnvelopeOpenIcon,
+    EnvelopeIcon,
+    BookmarkIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon
 } from '@heroicons/react/24/outline'
 
 import EditUserProfile from "./edit-user-profile";
@@ -29,50 +34,125 @@ export default function Pulpit({
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [panel, setPanel] = useState<PanelStatus>('friends-list');
     function panelToRender(panel: PanelStatus) {
-        switch(panel) {
+        switch (panel) {
             case 'edit-profile':
-                return <EditUserProfile profileId={profileId} role={role}/>;
+                return <EditUserProfile profileId={profileId} role={role} />;
             case 'friends-list':
-                return <SonParentFriends profileId={profileId} role={role}/>
+                return <SonParentFriends profileId={profileId} role={role} />
             case 'friends-requests-received':
-                return <SonParentRequests profileId={profileId} role={role}/>
+                return <SonParentRequests profileId={profileId} role={role} />
             case 'friends-requests-sent':
-                return <SonParentWaiting profileId={profileId} role={role}/>
+                return <SonParentWaiting profileId={profileId} role={role} />
             case 'candidates-saved':
-                return <SonParentSaved profileId={profileId} role={role}/>
+                return <SonParentSaved profileId={profileId} role={role} />
         }
     }
+
+    // Inside your component:
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(false);
+
+    const checkScroll = () => {
+        const el = scrollRef.current;
+        if (!el) return;
+        setShowLeftArrow(el.scrollLeft > 5);
+        setShowRightArrow(el.scrollLeft < el.scrollWidth - el.clientWidth - 5);
+    };
+
+    useEffect(() => {
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        return () => window.removeEventListener('resize', checkScroll);
+    }, []);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (!scrollRef.current) return;
+        const scrollAmount = 200;
+        scrollRef.current.scrollBy({
+            left: direction === 'left' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth',
+        });
+    };
+
     return (
         <div>
             <header className="bg-white">
-                <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
-                    <div className="flex lg:hidden">
+                <nav aria-label="Global" className="relative mx-auto max-w-7xl items-center lg:px-8 my-5">
+                    {/* Left Arrow */}
+                    {showLeftArrow && (
                         <button
-                            type="button"
-                            onClick={() => setMobileMenuOpen(true)}
-                            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+                            onClick={() => scroll('left')}
+                            aria-label="Scroll Left"
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center bg-gradient-to-r from-white via-white/80 to-transparent pr-4 pl-1 py-2 text-gray-700 hover:text-black cursor-pointer"
                         >
-                            <span className="sr-only">Open main menu</span>
-                            <Bars3Icon aria-hidden="true" className="size-6" />
+                            <ChevronLeftIcon className="size-6" />
                         </button>
+                    )}
+
+                    {/* Scrollable Container */}
+                    <div
+                        ref={scrollRef}
+                        onScroll={checkScroll}
+                        className="flex w-full overflow-x-auto whitespace-nowrap scrollbar-none py-2 scroll-smooth"
+                    >
+                        <div className="shrink-0">
+                            <button
+                                onClick={() => setPanel('edit-profile')}
+                                className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'edit-profile' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
+                            >
+                                <PencilSquareIcon className="size-6" />
+                                Edit Profile
+                            </button>
+                        </div>
+                        <div className="shrink-0">
+                            <button
+                                onClick={() => setPanel('friends-list')}
+                                className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-list' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
+                            >
+                                <ChatBubbleLeftRightIcon className="size-6" />
+                                Friends
+                            </button>
+                        </div>
+                        <div className="shrink-0">
+                            <button
+                                onClick={() => setPanel('friends-requests-received')}
+                                className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-requests-received' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
+                            >
+                                <EnvelopeOpenIcon className="size-6" />
+                                Requests Received
+                            </button>
+                        </div>
+                        <div className="shrink-0">
+                            <button
+                                onClick={() => setPanel('friends-requests-sent')}
+                                className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-requests-sent' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
+                            >
+                                <EnvelopeIcon className="size-6" />
+                                Requests Sent
+                            </button>
+                        </div>
+                        <div className="shrink-0">
+                            <button
+                                onClick={() => setPanel('candidates-saved')}
+                                className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'candidates-saved' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
+                            >
+                                <BookmarkIcon className="size-6" />
+                                Candidates Saved
+                            </button>
+                        </div>
                     </div>
-                    <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-                        <button onClick={() => setPanel('edit-profile')} className={`cursor-pointer text-sm/6 ${panel === 'edit-profile' && 'font-semibold'}`}>
-                            Edit Profile
+
+                    {/* Right Arrow */}
+                    {showRightArrow && (
+                        <button
+                            onClick={() => scroll('right')}
+                            aria-label="Scroll Right"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center bg-gradient-to-l from-white via-white/80 to-transparent pl-4 pr-1 py-2 text-gray-700 hover:text-black cursor-pointer"
+                        >
+                            <ChevronRightIcon className="size-6" />
                         </button>
-                        <button onClick={() => setPanel('friends-list')} className={`cursor-pointer text-sm/6 ${panel === 'friends-list' && 'font-semibold'}`}>
-                            Friends
-                        </button>
-                        <button onClick={() => setPanel('friends-requests-received')} className={`cursor-pointer text-sm/6 ${panel === 'friends-requests-received' && 'font-semibold'}`}>
-                            Friends Requests Received
-                        </button>
-                        <button onClick={() => setPanel('friends-requests-sent')} className={`cursor-pointer text-sm/6 ${panel === 'friends-requests-sent' && 'font-semibold'}`}>
-                            Friends Requests Sent
-                        </button>
-                        <button onClick={() => setPanel('candidates-saved')} className={`cursor-pointer text-sm/6 ${panel === 'candidates-saved' && 'font-semibold'}`}>
-                            Candidates Saved
-                        </button>
-                    </PopoverGroup>
+                    )}
                 </nav>
                 <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                     <div className="fixed inset-0 z-50" />
@@ -127,7 +207,7 @@ export default function Pulpit({
                 </Dialog>
             </header>
             <div>
-            {panelToRender(panel)}
+                {panelToRender(panel)}
             </div>
         </div>
     )

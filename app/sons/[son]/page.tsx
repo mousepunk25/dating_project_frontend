@@ -2,6 +2,19 @@ import Image from 'next/image';
 import SaveButton from '@/components/saveButton';
 import AddFriendButton from '@/components/addFriendButton';
 
+function calculateAge(birthDateString: string): number {
+    if (!birthDateString) return 0;
+    const birthDate = new Date(birthDateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 interface SocialMedia {
     _id: string;
     website: string;
@@ -53,16 +66,22 @@ export default async function Page({
     const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
     const data = await fetch(`${url}/sons/${son}`);
     const candidate: Candidate = await data.json();
+    const age = calculateAge(candidate.dateOfBirth);
     return (
-        <div className='mt-12 font-serif'>
-            <div className='flex justify-evenly'>
-                <Image
-                    src={candidate.image.url}
-                    width={500}
-                    height={500}
-                    alt="Picture of the candidate"
-                    className="max-h-120 w-auto max-w-64 sm:max-w-120 h-auto"
-                />
+        <div className='mt-6 font-serif'>
+            <div className='flex flex-col'>
+                <div className='flex justify-center'>
+                    <Image
+                        src={candidate.image.url}
+                        width={500}
+                        height={500}
+                        alt="Picture of the candidate"
+                        className="max-h-[500px] w-auto"
+                    />
+                </div>
+                <div className='mt-3 block'>
+                    <h1 className='text-xl font-bold'>{candidate.fullName}, age: {age}, city: {candidate.address.city}</h1>
+                </div>
                 <div>
                     <div>
                         {candidate.socialMedia?.map((sMedia: SocialMedia) => {
@@ -73,7 +92,7 @@ export default async function Page({
                                     target="_blank"
                                     className='underline m-4'
                                 >
-                                    <h3>
+                                    <h3 className='text-lg'>
                                         My {sMedia.website} profile - click here
                                     </h3>
                                 </a>
@@ -84,11 +103,11 @@ export default async function Page({
                     <AddFriendButton sonProfileId={candidate._id} />
                 </div>
             </div>
-            <div className='mt-4'>
-                <h1 className='text-xl font-bold'>Temporary, age: {candidate.dateOfBirth}, city: {candidate.address.city}</h1>
+            <div className="mt-2">
+                About {candidate.fullName}:
             </div>
-            <div className="mt-4 pb-2 border-b-1">
-                About Temporary: <span className="italic">{candidate.aboutYou}</span>
+            <div className="italic pb-2 border-b-1">
+                {candidate.aboutYou}
             </div>
             <div className="text-lg mt-2 flex">
                 <h3 className="font-bold">Job: </h3> <span className="ml-2">{candidate.job.position} at {candidate.job.companyName}</span>

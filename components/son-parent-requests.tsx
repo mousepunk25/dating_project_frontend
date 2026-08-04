@@ -8,7 +8,7 @@ const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUB
 interface Candidate {
     _id: string;
     fullName: string;
-    dateOfBirth: string | Date;
+    dateOfBirth: string;
     image: {
         url: string;
     };
@@ -18,14 +18,6 @@ interface Candidate {
     job: {
         position: string;
     };
-}
-
-function getAge(dob: string | Date | undefined): string {
-  if (!dob) return '';
-  const birthDate = new Date(dob);
-  const diff = Date.now() - birthDate.getTime();
-  const ageDate = new Date(diff);
-  return Math.abs(ageDate.getUTCFullYear() - 1970).toString();
 }
 
 export default function SonParentRequests({
@@ -65,7 +57,7 @@ export default function SonParentRequests({
                                 candidateId={candidate._id}
                                 candidateImage={candidate.image.url}
                                 candidateFullName={candidate.fullName}
-                                candidateAge={getAge(candidate.dateOfBirth)}
+                                candidateAge={candidate.dateOfBirth}
                                 candidateCity={candidate.address.city}
                                 candidateJob={candidate.job.position} />
                         );

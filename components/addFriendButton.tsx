@@ -54,14 +54,14 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
         <div className="flex flex-col items-start">
             <button
                 onClick={sendFriendRequest}
-                className="rounded-md bg-indigo-600 px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-2 mt-12"
+                className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-2 w-full"
             >
                 Add to the friends list
             </button>
 
             {/* 4. Conditionally render the message below the button */}
             {statusMessage && (
-                <p className={`mt-3 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
                     {statusMessage}
                 </p>
             )}
