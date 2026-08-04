@@ -11,7 +11,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="light">
       <body className="tracking-wide font-serif">
         <Disclosure as="nav" className="relative bg-cahir-armor font-serif text-base font-semibold">
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -45,9 +45,23 @@ export default function RootLayout({
             <NavigationButtons version='mobile' />
           </DisclosurePanel>
         </Disclosure>
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 min-h-[500px]">
           {children}
         </div>
+        <footer className="mt-8 border-t-1 border-cahir-armor/20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+          <small className='px-3 py-2'>
+            All Rights Reserved.
+          </small>
+          <div>
+            <Link
+              key='rules'
+              href='/rules'
+              className='px-3 py-2 font-semibold text-cahir-blood'
+            >
+              Rules
+            </Link>
+          </div>
+        </footer>
       </body>
     </html>
   )
