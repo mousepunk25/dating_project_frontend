@@ -4,7 +4,12 @@ import { Disclosure, DisclosureButton, DisclosurePanel, } from '@headlessui/reac
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import NavigationButtons from '@/components/navigation-buttons';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
+export const metadata: Metadata = {
+  title: 'Dating Website',
+  colorScheme: 'light',
+};
 export default function RootLayout({
   children,
 }: {
