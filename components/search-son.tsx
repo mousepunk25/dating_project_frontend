@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function Search({ defaultCity = '', defaultAgeMin = '18', defaultAgeMax = '100' }) {
+export default function SearchSon({ defaultCity = '', defaultAgeMin = '18', defaultAgeMax = '100' }) {
     const [city, setCity] = useState(defaultCity);
     const [ageMin, setAgeMin] = useState(defaultAgeMin);
     const [ageMax, setAgeMax] = useState(defaultAgeMax);

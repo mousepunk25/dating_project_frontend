@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import SaveButton from '@/components/saveButton';
-import AddFriendButton from '@/components/addFriendButton';
+import SaveButton from '@/components/save-button';
+import AddFriendButton from '@/components/add-friend-button';
 
 function calculateAge(birthDateString: string): number {
     if (!birthDateString) return 0;

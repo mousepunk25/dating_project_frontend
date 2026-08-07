@@ -1,4 +1,4 @@
-import Search from '../../components/search';
+import SearchSon from '../../components/search-son';
 import CandidateCart from '@/components/candidate-cart';
 
 interface Candidate {
@@ -41,7 +41,7 @@ export default async function Page({
   const candidates: Array<Candidate> = await data.json();
   return (
     <div className='mt-12 font-serif'>
-      <Search defaultCity={filters.city} defaultAgeMin={filters.ageMin} defaultAgeMax={filters.ageMax} />
+      <SearchSon defaultCity={filters.city} defaultAgeMin={filters.ageMin} defaultAgeMax={filters.ageMax} />
       <h2 className="mt-4">Candidates</h2>
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-32 my-6'>
         {candidates.map(candidate => {

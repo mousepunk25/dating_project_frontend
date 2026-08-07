@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import CandidateCart from './candidate-cart';
+import ParentCart from './parent-cart';
 
 const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
@@ -46,7 +47,7 @@ export default function SonParentWaiting({
             ignore = true;
         }
     }, [profileId]);
-    if (userFriendsWithRequestSent) {
+    if (userFriendsWithRequestSent && role === 'parent') {
         return (
             <div>
                 <h2>Candidates:</h2>
@@ -63,6 +64,21 @@ export default function SonParentWaiting({
                         );
                     })}
                 </div>
+            </div>
+        )
+    } else if (userFriendsWithRequestSent && role === 'son') {
+        return (
+            <div>
+                {Array.isArray(userFriendsWithRequestSent) && userFriendsWithRequestSent.map(parent => {
+                    return (
+                        <ParentCart key={parent._id}
+                            parentId={parent._id}
+                            parentFullName={parent.fullName}
+                            parentCity={parent.address.city}
+                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                        />
+                    );
+                })}
             </div>
         )
     } else {

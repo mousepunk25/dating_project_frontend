@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import CandidateCart from './candidate-cart';
+import ParentCart from './parent-cart';
 
 const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
@@ -15,9 +16,7 @@ interface Candidate {
     address: {
         city: string;
     };
-    job: {
-        position: string;
-    };
+    job: { position: string } | string;
 }
 
 export default function SonParentFriends({
@@ -46,22 +45,35 @@ export default function SonParentFriends({
             ignore = true;
         }
     }, [profileId]);
-    if (userFriends) {
+    if (userFriends && role === 'parent') {
+        return (
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-32 my-6'>
+                {Array.isArray(userFriends) && userFriends.map(candidate => {
+                    return (
+                        <CandidateCart key={candidate._id}
+                            candidateId={candidate._id}
+                            candidateImage={candidate.image.url}
+                            candidateFullName={candidate.fullName}
+                            candidateAge={candidate.dateOfBirth}
+                            candidateCity={candidate.address.city}
+                            candidateJob={typeof candidate.job !== 'string' ? candidate.job.position : candidate.job} />
+                    );
+                })}
+            </div>
+        )
+    } else if (userFriends && role === 'son') {
         return (
             <div>
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-32 my-6'>
-                    {Array.isArray(userFriends) && userFriends.map(candidate => {
-                        return (
-                            <CandidateCart key={candidate._id}
-                                candidateId={candidate._id}
-                                candidateImage={candidate.image.url}
-                                candidateFullName={candidate.fullName}
-                                candidateAge={candidate.dateOfBirth}
-                                candidateCity={candidate.address.city}
-                                candidateJob={candidate.job.position} />
-                        );
-                    })}
-                </div>
+                {Array.isArray(userFriends) && userFriends.map(parent => {
+                    return (
+                        <ParentCart key={parent._id}
+                        parentId={parent._id}
+                        parentFullName={parent.fullName}
+                        parentCity={parent.address.city}
+                        parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                        />
+                    );
+                })}
             </div>
         )
     } else {
