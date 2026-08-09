@@ -50,7 +50,7 @@ export default function HomePage() {
                 Find perfect match
             </p>
             <h2 className="text-gray-600 text-2xl font-bold">
-                {sonCount} great candidates is waiting for you
+                {sonCount} great candidates is waiting
                 <FaceSmileIcon aria-hidden="true" className="block size-6 group-data-open:hidden inline ml-1" />
             </h2>
             <SearchSon />
