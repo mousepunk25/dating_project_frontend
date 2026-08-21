@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { BriefcaseIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 function calculateAge(birthDateString: string): number {
   if (!birthDateString) return 0;
@@ -23,17 +23,22 @@ export default function CandidateCart({
   candidateFullName,
   candidateAge,
   candidateCity,
-  candidateJob
+  candidateJob,
+  showChat,
+  unreadConversations
 }: {
   candidateId: string,
   candidateImage: string,
   candidateFullName: string,
   candidateAge: string,
   candidateCity: string,
-  candidateJob: string
+  candidateJob: string,
+  showChat?: Function,
+  unreadConversations
 }) {
   // Calculate exact age from ISO string
   const age = calculateAge(candidateAge);
+  const isUnreadConversation = unreadConversations && unreadConversations.some(u => u.participantParent._id === candidateId || u.participantSon._id === candidateId);
 
   return (
     <Link
@@ -56,6 +61,24 @@ export default function CandidateCart({
           <BriefcaseIcon className='size-8' />
           {candidateJob}
         </h3>
+        {showChat &&
+          <div
+            className={`flex items-center justify-between border-t border-gray-900/10 font-bold py-3 px-1 cursor-pointer ${isUnreadConversation ? 'text-cahir-blood' : 'px-4'}`}
+            onClick={(e) => {
+              e.preventDefault();  // Prevents Next.js Link navigation
+              e.stopPropagation(); // Stops the event from reaching the parent Link element
+              showChat(candidateId);
+            }}
+          >
+            <ChatBubbleLeftRightIcon className="size-5" />
+            <h4>Open chat</h4>
+            {isUnreadConversation &&
+              <div className='border-2 px-1 rounded-lg'>
+                1
+              </div>
+            }
+          </div>
+        }
       </div>
     </Link>
   );

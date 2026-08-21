@@ -21,6 +21,9 @@ import SonParentFriends from "./son-parent-friends";
 import SonParentRequests from "./son-parent-requests";
 import SonParentSaved from "./son-parent-saved";
 import SonParentWaiting from "./son-parent-waiting";
+import Chat from "./chat";
+
+const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
 type PanelStatus = 'edit-profile' | 'friends-list' | 'friends-requests-received' | 'friends-requests-sent' | 'candidates-saved';
 
@@ -33,12 +36,23 @@ export default function Pulpit({
 }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [panel, setPanel] = useState<PanelStatus>('friends-list');
+    const [selectedChat, setSelectedChat] = useState('');
+    const [conversations, setConversations] = useState([]);
+    const [conversationsNotRead, setConversationsNotRead] = useState([]);
+    function selectChat(friend: string) {
+        if (selectedChat.length > 0) {
+            setSelectedChat('');
+        } else {
+            const conversationWithFriend = conversations.find(c => c.participantParent._id === friend || c.participantSon._id === friend);
+            setSelectedChat(conversationWithFriend._id);
+        }
+    }
     function panelToRender(panel: PanelStatus) {
         switch (panel) {
             case 'edit-profile':
                 return <EditUserProfile profileId={profileId} role={role} />;
             case 'friends-list':
-                return <SonParentFriends profileId={profileId} role={role} />
+                return <SonParentFriends profileId={profileId} role={role} showChat={selectChat} unreadConversations={conversationsNotRead}/>
             case 'friends-requests-received':
                 return <SonParentRequests profileId={profileId} role={role} />
             case 'friends-requests-sent':
@@ -66,6 +80,28 @@ export default function Pulpit({
         return () => window.removeEventListener('resize', checkScroll);
     }, []);
 
+    useEffect(() => {
+            let ignore = false;
+            async function fetchUserConversations() {
+                const userConversationsResponse = await fetch(`${url}/conversations`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const userConversationsJSON = await userConversationsResponse.json();
+                if (!ignore && userConversationsJSON && Array.isArray(userConversationsJSON.conversations) && userConversationsJSON.conversations.length > 0) {
+                    setConversations(userConversationsJSON.conversations);
+                    console.log(userConversationsJSON.conversations);
+                    const ownerId = userConversationsJSON.conversations[0].participantParent._id === profileId ? userConversationsJSON.conversations[0].participantParent.owner : userConversationsJSON.conversations[0].participantSon.owner;
+                    const conversationsNotRead = userConversationsJSON.conversations.filter(c => !c.lastMessage.readBy.includes(ownerId));
+                    setConversationsNotRead(conversationsNotRead);
+                }
+            }
+            fetchUserConversations();
+            return () => {
+                ignore = true;
+            }
+        }, []);
+
     const scroll = (direction: 'left' | 'right') => {
         if (!scrollRef.current) return;
         const scrollAmount = 200;
@@ -76,7 +112,7 @@ export default function Pulpit({
     };
 
     return (
-        <div>
+        <div className="relative min-h-screen">
             <header className="bg-white">
                 <nav aria-label="Global" className="relative mx-auto max-w-7xl items-center lg:px-8 my-5">
                     {/* Left Arrow */}
@@ -209,14 +245,13 @@ export default function Pulpit({
             <div>
                 {panelToRender(panel)}
             </div>
+
+            {/* Bottom Right Floating Chat Component */}
+            {selectedChat.length > 0 &&
+                <div className="fixed bottom-1 right-1 z-40">
+                    <Chat selectedChat={selectedChat} user={profileId} onClose={selectChat}/>
+                </div>
+            }
         </div>
     )
-    // if (role === 'son') {
-    //     return (
-    //         <EditSonProfile profileId={profileId} />
-    //     )
-    // }
-    // return (
-    //     <h1>Edit Parent Profile</h1>
-    // )
 }
