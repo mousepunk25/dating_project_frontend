@@ -37,16 +37,25 @@ export default function Pulpit({
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [panel, setPanel] = useState<PanelStatus>('friends-list');
     const [selectedChat, setSelectedChat] = useState('');
-    const [conversations, setConversations] = useState([]);
-    const [conversationsNotRead, setConversationsNotRead] = useState([]);
+    const [conversations, setConversations] = useState<any[]>([]);
+    const [conversationsNotRead, setConversationsNotRead] = useState<any[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+
     function selectChat(friend: string) {
         if (selectedChat.length > 0) {
             setSelectedChat('');
         } else {
+            console.log(conversations);
+            console.log(friend);
             const conversationWithFriend = conversations.find(c => c.participantParent._id === friend || c.participantSon._id === friend);
-            setSelectedChat(conversationWithFriend._id);
+            if (conversationWithFriend) {
+                console.log(conversationWithFriend);
+                setConversationsNotRead(conversationsNotRead.filter(c => c._id !== conversationWithFriend._id));
+                setSelectedChat(conversationWithFriend._id);
+            }
         }
     }
+
     function panelToRender(panel: PanelStatus) {
         switch (panel) {
             case 'edit-profile':
@@ -62,7 +71,6 @@ export default function Pulpit({
         }
     }
 
-    // Inside your component:
     const scrollRef = useRef<HTMLDivElement>(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(false);
@@ -80,27 +88,57 @@ export default function Pulpit({
         return () => window.removeEventListener('resize', checkScroll);
     }, []);
 
+    // 20-second Polling for Unread Messages
     useEffect(() => {
-            let ignore = false;
-            async function fetchUserConversations() {
+        let ignore = false;
+
+        async function fetchUserConversations() {
+            try {
                 const userConversationsResponse = await fetch(`${url}/conversations`, {
                     method: 'GET',
                     credentials: 'include'
                 });
                 const userConversationsJSON = await userConversationsResponse.json();
-                if (!ignore && userConversationsJSON && Array.isArray(userConversationsJSON.conversations) && userConversationsJSON.conversations.length > 0) {
-                    setConversations(userConversationsJSON.conversations);
-                    console.log(userConversationsJSON.conversations);
-                    const ownerId = userConversationsJSON.conversations[0].participantParent._id === profileId ? userConversationsJSON.conversations[0].participantParent.owner : userConversationsJSON.conversations[0].participantSon.owner;
-                    const conversationsNotRead = userConversationsJSON.conversations.filter(c => !c.lastMessage.readBy.includes(ownerId));
-                    setConversationsNotRead(conversationsNotRead);
+                
+                if (!ignore && userConversationsJSON && Array.isArray(userConversationsJSON.conversations)) {
+                    const fetchedConversations = userConversationsJSON.conversations;
+                    setConversations(fetchedConversations);
+
+                    if (fetchedConversations.length > 0) {
+                        const ownerId = fetchedConversations[0].participantParent._id === profileId 
+                            ? fetchedConversations[0].participantParent.owner 
+                            : fetchedConversations[0].participantSon.owner;
+
+                        const unread = fetchedConversations.filter(c => 
+                            c.lastMessage && 
+                            Array.isArray(c.lastMessage.readBy) && 
+                            !c.lastMessage.readBy.includes(ownerId)
+                        );
+                        setConversationsNotRead(unread);
+                    }
                 }
+            } catch (error) {
+                console.error("Error fetching user conversations:", error);
             }
+        }
+
+        // Fetch immediately
+        fetchUserConversations();
+
+        // Set up 20-second interval polling
+        const intervalId = setInterval(() => {
             fetchUserConversations();
-            return () => {
-                ignore = true;
-            }
-        }, []);
+        }, 20000);
+
+        return () => {
+            ignore = true;
+            clearInterval(intervalId);
+        };
+    }, [profileId]);
+
+    useEffect(() => {
+        setUnreadCount(conversationsNotRead.length);
+    }, [conversationsNotRead]);
 
     const scroll = (direction: 'left' | 'right') => {
         if (!scrollRef.current) return;
@@ -144,9 +182,16 @@ export default function Pulpit({
                         <div className="shrink-0">
                             <button
                                 onClick={() => setPanel('friends-list')}
-                                className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-list' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
+                                className={`relative cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-list' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
                             >
-                                <ChatBubbleLeftRightIcon className="size-6" />
+                                <div className="relative">
+                                    <ChatBubbleLeftRightIcon className="size-6" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1.5 -right-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-cahir-blood text-[12px] font-bold text-white shadow-xs">
+                                            {unreadCount}
+                                        </span>
+                                    )}
+                                </div>
                                 Friends
                             </button>
                         </div>
@@ -214,9 +259,14 @@ export default function Pulpit({
                                     </button>
                                     <button
                                         onClick={() => setPanel('friends-list')}
-                                        className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'friends-list' && 'font-semibold'}`}
+                                        className={`-mx-3 flex items-center justify-between w-full rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'friends-list' && 'font-semibold'}`}
                                     >
-                                        Friends
+                                        <span>Friends</span>
+                                        {unreadCount > 0 && (
+                                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cahir-blood text-[10px] font-bold text-white">
+                                                {unreadCount}
+                                            </span>
+                                        )}
                                     </button>
                                     <button
                                         onClick={() => setPanel('friends-requests-received')}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, FormEvent } from "react";
 import { PaperAirplaneIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
@@ -51,6 +51,8 @@ interface ChatProps {
 export default function Chat({ selectedChat, user, onClose }: ChatProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [conversation, setConversation] = useState<Conversation | null>(null);
+    const [text, setText] = useState<string>('');
+    const [isSending, setIsSending] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const conversationId = typeof selectedChat === 'object'
@@ -66,7 +68,7 @@ export default function Chat({ selectedChat, user, onClose }: ChatProps) {
     const profileId = conversation
         ? (conversation.participantParent._id === user
             ? conversation.participantParent.owner
-            : conversation.participantParent.owner)
+            : conversation.participantSon.owner)
         : null;
 
     const scrollToBottom = () => {
@@ -95,15 +97,12 @@ export default function Chat({ selectedChat, user, onClose }: ChatProps) {
             }
         }
 
-        // Fetch immediately on initial render
         fetchConversation();
 
-        // Set up polling interval every 10 seconds (10000ms)
         const intervalId = setInterval(() => {
             fetchConversation();
         }, 10000);
 
-        // Cleanup interval on unmount or conversationId change
         return () => {
             ignore = true;
             clearInterval(intervalId);
@@ -113,6 +112,40 @@ export default function Chat({ selectedChat, user, onClose }: ChatProps) {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    const handleSendMessage = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        
+        const trimmedText = text.trim();
+        if (!trimmedText || !conversationId || isSending) return;
+
+        try {
+            setIsSending(true);
+
+            const response = await fetch(`${url}/conversations/${conversationId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ text: trimmedText })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Append the newly created message returned by backend
+                setMessages((prev) => [...prev, data.message]);
+                setText('');
+            } else {
+                console.error("Failed to send message:", data.message);
+            }
+        } catch (error) {
+            console.error("Error submitting message:", error);
+        } finally {
+            setIsSending(false);
+        }
+    };
 
     return (
         <div className="flex flex-col justify-between border-2 border-solid h-140 w-xs bg-white shadow-lg rounded-lg overflow-hidden">
@@ -159,18 +192,22 @@ export default function Chat({ selectedChat, user, onClose }: ChatProps) {
             </div>
 
             {/* Message Input Footer */}
-            <form className="flex items-center border-t pr-3 bg-white">
+            <form onSubmit={handleSendMessage} className="flex items-center border-t pr-3 bg-white">
                 <input
                     id="message"
                     name="message"
                     type="text"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
                     placeholder="Send a message"
-                    className="flex-1 bg-white py-3 pl-3 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none"
+                    disabled={isSending}
+                    className="flex-1 bg-white py-3 pl-3 text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none disabled:opacity-50"
                 />
                 <button
                     type="submit"
+                    disabled={!text.trim() || isSending}
                     aria-label="Send message"
-                    className="text-cahir-blood hover:opacity-80 transition-opacity cursor-pointer p-1"
+                    className="text-cahir-blood hover:opacity-80 transition-opacity cursor-pointer p-1 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                     <PaperAirplaneIcon className="size-7" />
                 </button>

@@ -62,6 +62,8 @@ export default function SonParentFriends({
                         parentFullName={parent.fullName}
                         parentCity={parent.address.city}
                         parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                        showChat={showChat}
+                        unreadConversations={unreadConversations}
                         />
                     );
                 })}
