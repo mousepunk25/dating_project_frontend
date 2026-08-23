@@ -2,112 +2,171 @@
 
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { useEffect, useState } from 'react';
-import Image from 'next/image'
+import { useEffect, useState, FormEvent } from 'react';
+import Image from 'next/image';
 
 interface UserDetails {
-    aboutYou?: string,
-    fullName: string,
-    dateOfBirth?: Date | null,
+    aboutYou?: string;
+    fullName: string;
+    dateOfBirth?: Date | null;
     address: {
-        country: string,
-        city: string
+        city: string;
     };
     job?: string | {
-        position: string,
-        companyName: string
+        position: string;
+        companyName: string;
     };
     education?: {
-        schoolName: string,
-        educationLevel: string
+        educationLevel: string;
     };
-    socialMedia?: { website: string, url: string }[];
+    socialMedia?: { website: string; url: string }[];
     image?: {
-        url: string,
-        filename: string
-    }
+        url: string;
+        filename: string;
+    };
 }
 
-// Converts FormDataEntryValue | null -> string
 function getFormString(formData: FormData, key: string): string {
     const value = formData.get(key);
     return typeof value === 'string' ? value : '';
-}
-
-// Or if your UserDetails interface allows null:
-function getFormStringOrNull(formData: FormData, key: string): string | null {
-    const value = formData.get(key);
-    return typeof value === 'string' && value ? value : null;
 }
 
 export default function EditUserProfile({
     profileId,
     role
 }: {
-    profileId: string,
-    role: 'son' | 'parent'
+    profileId: string;
+    role: 'son' | 'parent';
 }) {
-
     const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
-    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
 
-    const age = [];
-    for (let i = 18; i <= 100; i++) {
-        age.push(i);
-    }
+    // Validation & State Management
+    const [validCities, setValidCities] = useState<string[]>([]);
+    const [cityInput, setCityInput] = useState('');
+    const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
+        ? process.env.NEXT_PUBLIC_DEV_API_URL
+        : process.env.NEXT_PUBLIC_PROD_API_URL;
+
+    const age = Array.from({ length: 83 }, (_, i) => i + 18); // 18 to 100
     const [ageMin, setAgeMin] = useState(18);
     const [ageMax, setAgeMax] = useState(80);
 
     const today = new Date();
     today.setFullYear(today.getFullYear() - 18);
-
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const maxDob = `${year}-${month}-${day}`;
-
-    // 1. Initialize state with your default value (18 years ago)
+    const maxDob = today.toISOString().split('T')[0];
     const [dob, setDob] = useState(maxDob);
+    const [educationLevel, setEducationLevel] = useState<string>('High School');
 
+    // Load CSV for City Validation
+    useEffect(() => {
+        async function loadCities() {
+            try {
+                const response = await fetch('/poland.csv');
+                if (!response.ok) return;
+                const text = await response.text();
+                const lines = text.split('\n');
+                const list = lines
+                    .map((line, idx) => {
+                        if (idx === 0 && line.toLowerCase().includes('city')) return '';
+                        return line.split(',')[0]?.trim();
+                    })
+                    .filter(Boolean);
+                setValidCities(list);
+            } catch (e) {
+                console.error('Failed to load cities:', e);
+            }
+        }
+        loadCities();
+    }, []);
+
+    // Load User Details
     useEffect(() => {
         let ignore = false;
         async function fetchUserDetails() {
             const endpoint = role === 'son' ? `/sons/${profileId}` : `/parents/${profileId}`;
             const options: RequestInit = role === 'son' ? {} : { credentials: 'include' };
 
-            const userDetailsResponse = await fetch(`${url}${endpoint}`, options);
-            const userDetailsJSON = await userDetailsResponse.json();
+            const response = await fetch(`${url}${endpoint}`, options);
+            const data = await response.json();
+            console.log(data);
 
-            if (!ignore) {
-                setUserDetails(userDetailsJSON);
-                setAgeMin(userDetailsJSON.sonAgeMin);
-                setAgeMax(userDetailsJSON.sonAgeMax);
-                if (userDetailsJSON.dateOfBirth) {
-                    setDob(userDetailsJSON.dateOfBirth.slice(0, 10));
+            if (!ignore && data) {
+                setUserDetails(data);
+                setAgeMin(data.sonAgeMin ?? 18);
+                setAgeMax(data.sonAgeMax ?? 80);
+                if (data.address?.city) setCityInput(data.address.city);
+                if (data.dateOfBirth) setDob(data.dateOfBirth.slice(0, 10));
+
+                // Decode entities like &#x2F; to / so it matches <option value="Doctorate/Ph.D">
+                if (data.education?.educationLevel) {
+                    setEducationLevel(decodeHTMLEntities(data.education.educationLevel));
                 }
             }
         }
         fetchUserDetails();
-        return () => {
-            ignore = true;
-        }
-    }, [profileId]);
+        return () => { ignore = true; };
+    }, [profileId, role, url]);
 
-    async function updateProfileSon(formData: FormData) {
-        const jobData = typeof userDetails?.job === 'object' && userDetails.job !== null
-            ? { ...userDetails.job }
-            : {};
+    // Handle City Input & Autocomplete
+    const handleCityChange = (val: string) => {
+        setCityInput(val);
+        setErrors(prev => ({ ...prev, city: '' }));
+
+        if (val.trim().length > 1) {
+            const matches = validCities
+                .filter(c => c.toLowerCase().startsWith(val.toLowerCase()))
+                .slice(0, 5);
+            setCitySuggestions(matches);
+        } else {
+            setCitySuggestions([]);
+        }
+    };
+
+    // Form Validation Rules
+    const validateForm = (formData: FormData): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        // Full Name
+        const fullName = getFormString(formData, 'full-name');
+        if (!fullName.trim()) {
+            newErrors.fullName = 'Full name is required.';
+        }
+
+        // City Validation
+        const city = cityInput.trim();
+        if (!city) {
+            newErrors.city = 'City is required.';
+        } else if (validCities.length > 0 && !validCities.some(c => c.toLowerCase() === city.toLowerCase())) {
+            newErrors.city = 'Please select a valid city from the list.';
+        }
+
+        // Parent Age Range Validation
+        if (role === 'parent' && ageMin > ageMax) {
+            newErrors.age = 'Min age cannot be greater than Max age.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+
+        if (!validateForm(formData)) return;
+        setIsSubmitting(true);
+
+        const jobData = typeof userDetails?.job === 'object' && userDetails.job !== null ? { ...userDetails.job } : {};
         const updatedUserDetails: UserDetails = {
             ...userDetails,
             aboutYou: getFormString(formData, 'about'),
             fullName: getFormString(formData, 'full-name'),
             dateOfBirth: formData.get('dob') ? new Date(formData.get('dob') as string) : null,
-            address: {
-                ...userDetails?.address,
-                country: getFormString(formData, 'country'),
-                city: getFormString(formData, 'city'),
-            },
+            address: { ...userDetails?.address, city: cityInput },
             job: {
                 ...jobData,
                 position: getFormString(formData, 'job-position'),
@@ -115,129 +174,110 @@ export default function EditUserProfile({
             },
             education: {
                 ...userDetails?.education,
-                schoolName: getFormString(formData, 'school-name'),
-                educationLevel: getFormString(formData, 'education-level'),
+                educationLevel: getFormString(formData, 'education-level')
             },
             socialMedia: [
-                {
-                    website: 'Facebook',
-                    url: getFormString(formData, 'facebook'),
-                },
-                {
-                    website: 'Twitter',
-                    url: getFormString(formData, 'twitter'),
-                },
-                {
-                    website: 'Instagram',
-                    url: getFormString(formData, 'instagram'),
-                },
-                {
-                    website: 'Linkedin',
-                    url: getFormString(formData, 'linkedin'),
-                }
+                { website: 'Facebook', url: getFormString(formData, 'facebook') },
+                { website: 'Twitter', url: getFormString(formData, 'twitter') },
+                { website: 'Instagram', url: getFormString(formData, 'instagram') },
+                { website: 'Linkedin', url: getFormString(formData, 'linkedin') }
             ]
-        }
-        setUserDetails(updatedUserDetails);
+        };
+
         try {
-            const response = await fetch(`${url}/sons/edit/${profileId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+            await fetch(`${url}/sons/edit/${profileId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(updatedUserDetails),
             });
-            const message = await response.json();
-            console.log(message);
-        } catch (e) {
-            console.log(e);
+            setUserDetails(updatedUserDetails);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
-    async function updateProfileParent(formData: FormData) {
-        const currentAgeMin = ageMin;
-        const currentAgeMax = ageMax;
+    async function handleParentSubmit(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+
+        if (!validateForm(formData)) return;
+        setIsSubmitting(true);
+
         const updatedUserDetails = {
             ...userDetails,
             fullName: getFormString(formData, 'full-name'),
-            address: {
-                ...userDetails?.address,
-                country: getFormString(formData, 'country'),
-                city: getFormString(formData, 'city'),
-            },
+            address: { ...userDetails?.address, city: cityInput },
             job: getFormString(formData, 'job-position'),
-            sonAgeMin: currentAgeMin,
-            sonAgeMax: currentAgeMax
-        }
-        setUserDetails(updatedUserDetails);
+            sonAgeMin: ageMin,
+            sonAgeMax: ageMax
+        };
+
         try {
-            const response = await fetch(`${url}/parents/edit/${profileId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+            await fetch(`${url}/parents/edit/${profileId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(updatedUserDetails),
             });
-            const message = await response.json();
-            setAgeMin(Number(currentAgeMin));
-            setAgeMax(Number(currentAgeMax));
-        } catch (e) {
-            console.log(e);
+            setUserDetails(updatedUserDetails);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
+    }
+
+    function decodeHTMLEntities(text: string): string {
+        if (!text) return '';
+        const parser = new DOMParser();
+        const decoded = parser.parseFromString(text, 'text/html');
+        return decoded.body.textContent || '';
     }
 
     if (role === 'son') {
         return (
-            <form action={updateProfileSon}>
+            <form onSubmit={handleSonSubmit}>
                 <div className="space-y-12">
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base/7 font-semibold text-gray-900">Profile</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">
-                            This information will be displayed publicly so be careful what you share.
-                        </p>
-
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="col-span-full">
-                                <div className="mt-2">
-                                    <label htmlFor="dob">Date of Birth:</label>
-                                    <input type="date" id="dob" name="dob" max={maxDob} value={dob} onChange={(e) => setDob(e.target.value)} required></input>
-                                </div>
+                                <label htmlFor="dob" className="block text-sm/6 font-medium text-gray-900">Date of Birth</label>
+                                <input
+                                    type="date"
+                                    id="dob"
+                                    name="dob"
+                                    max={maxDob}
+                                    value={dob}
+                                    onChange={(e) => setDob(e.target.value)}
+                                    className="mt-2 block rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    required
+                                />
                             </div>
 
                             <div className="col-span-full">
-                                <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">
-                                    About you
-                                </label>
-                                <div className="mt-2">
-                                    <textarea
-                                        id="about"
-                                        name="about"
-                                        rows={3}
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.aboutYou}
-                                    />
-                                </div>
-                                <p className="mt-3 text-sm/6 text-gray-600">Write a few sentences about yourself.</p>
+                                <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">About you</label>
+                                <textarea
+                                    id="about"
+                                    name="about"
+                                    rows={3}
+                                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    defaultValue={userDetails?.aboutYou}
+                                />
                             </div>
 
                             <div className="col-span-full">
-                                <label htmlFor="photo" className="block text-sm/6 font-medium text-gray-900">
-                                    Photo
-                                </label>
+                                <label className="block text-sm/6 font-medium text-gray-900">Photo</label>
                                 <div className="mt-2 flex items-center gap-x-3">
-                                    {userDetails?.image ? <Image
-                                        src={userDetails.image.url}
-                                        width={500}
-                                        height={500}
-                                        alt="Picture of the candidate"
-                                    /> : <PhotoIcon aria-hidden="true" className="size-12 text-gray-300" />}
-                                    <button
-                                        type="button"
-                                        className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs inset-ring inset-ring-gray-300 hover:bg-gray-50"
-                                    >
-                                        Change
-                                    </button>
+                                    {userDetails?.image ? (
+                                        <Image src={userDetails.image.url} width={100} height={100} alt="Profile" className="rounded-full" />
+                                    ) : (
+                                        <PhotoIcon className="size-12 text-gray-300" />
+                                    )}
+                                    <button type="button" className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">Change</button>
                                 </div>
                             </div>
                         </div>
@@ -245,317 +285,38 @@ export default function EditUserProfile({
 
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base/7 font-semibold text-gray-900">Personal Information</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">Write correct name of your city. It will be used to find you.</p>
-
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                             <div className="sm:col-span-3">
-                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">
-                                    Full name
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="full-name"
-                                        name="full-name"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.fullName}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="country" className="block text-sm/6 font-medium text-gray-900">
-                                    Country
-                                </label>
-                                <div className="mt-2 grid grid-cols-1">
-                                    <select
-                                        id="country"
-                                        name="country"
-                                        autoComplete="country-name"
-                                        className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.address ? userDetails.address.country : ''}
-                                    >
-                                        <option>United States</option>
-                                        <option>Canada</option>
-                                        <option>Mexico</option>
-                                        <option>France</option>
-                                        <option>Germany</option>
-                                        <option>Poland</option>
-                                        <option>Spain</option>
-                                    </select>
-                                    <ChevronDownIcon
-                                        aria-hidden="true"
-                                        className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">
-                                    City
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="city"
-                                        name="city"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.address ? userDetails.address.city : ''}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Your job</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">Your job can important to someone</p>
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="sm:col-span-3">
-                                <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
-                                    Title
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="job-position"
-                                        name="job-position"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.job && typeof userDetails.job === 'object'? userDetails.job.position : ''}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="company" className="block text-sm/6 font-medium text-gray-900">
-                                    Company
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="company"
-                                        name="company"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.job && typeof userDetails.job === 'object' ? userDetails.job.companyName : ''}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Education</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">Your education can be important to someone.</p>
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="sm:col-span-3">
-                                <label htmlFor="school-name" className="block text-sm/6 font-medium text-gray-900">
-                                    School name
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="school-name"
-                                        name="school-name"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.education ? userDetails.education.schoolName : ''}
-                                    />
-                                </div>
+                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                                <input
+                                    id="full-name"
+                                    name="full-name"
+                                    type="text"
+                                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    defaultValue={userDetails?.fullName}
+                                />
+                                {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
                             </div>
 
                             <div className="sm:col-span-3">
                                 <label htmlFor="education-level" className="block text-sm/6 font-medium text-gray-900">
-                                    Education level
+                                    Education
                                 </label>
                                 <div className="mt-2 grid grid-cols-1">
                                     <select
                                         id="education-level"
                                         name="education-level"
-                                        autoComplete="education-level-name"
-                                        className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.education ? userDetails.education.educationLevel : ''}
+                                        value={educationLevel}
+                                        onChange={(e) => setEducationLevel(e.target.value)}
+                                        className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white border border-gray-300 py-1.5 pr-8 pl-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                                     >
-                                        <option>Elementary</option>
-                                        <option>High School</option>
-                                        <option>Certificate</option>
-                                        <option>Associate's Degree</option>
-                                        <option>Bachelor's Degree</option>
-                                        <option>Master's Degree</option>
-                                        <option>Doctorate/Ph.D</option>
-                                    </select>
-                                    <ChevronDownIcon
-                                        aria-hidden="true"
-                                        className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Social media</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">Maybe someone would like to know even more about you</p>
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="sm:col-span-3">
-                                <label htmlFor="facebook" className="block text-sm/6 font-medium text-gray-900">
-                                    Facebook
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="facebook"
-                                        name="facebook"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Facebook')?.url : ''}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="instagram" className="block text-sm/6 font-medium text-gray-900">
-                                    Instagram
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="instagram"
-                                        name="instagram"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Instagram')?.url : ''}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="twitter" className="block text-sm/6 font-medium text-gray-900">
-                                    Twitter
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="twitter"
-                                        name="twitter"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Twitter')?.url : ''}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="linkedin" className="block text-sm/6 font-medium text-gray-900">
-                                    Linkedin
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="linkedin"
-                                        name="linkedin"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.socialMedia ? userDetails.socialMedia.find(sm => sm.website === 'Linkedin')?.url : ''}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <button type="button" className="text-sm/6 font-semibold text-gray-900">
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            Save
-                        </button>
-                    </div>
-                </div>
-            </form>
-        )
-    } else {
-        return (
-            <form action={updateProfileParent}>
-                <div className="space-y-12">
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Profile</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">
-                            This information will be displayed publicly so be careful what you share.
-                        </p>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Personal Information</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">Write correct name of your city. It will be used to find you.</p>
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-
-                            <div className="items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-                                <label htmlFor="ageMin">Select min age:</label>
-                                <select name="ageMin" id="ageMin" value={ageMin} onChange={e => setAgeMin(Number(e.target.value))}>
-                                    {age.map(a => {
-                                        return (
-                                            <option value={a} key={`ageMin_${a}`}>{a}</option>
-                                        )
-                                    })}
-                                </select>
-                            </div>
-
-                            <div className="items-center rounded-md bg-white pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
-                                <label htmlFor="ageMax">Select max age:</label>
-                                <select name="ageMax" id="ageMax" value={ageMax} onChange={e => setAgeMax(Number(e.target.value))}>
-                                    {age.map(a => {
-                                        return (
-                                            <option value={a} key={`ageMax_${a}`}>{a}</option>
-                                        )
-                                    })}
-                                </select>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">
-                                    Full name
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="full-name"
-                                        name="full-name"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.fullName}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="country" className="block text-sm/6 font-medium text-gray-900">
-                                    Country
-                                </label>
-                                <div className="mt-2 grid grid-cols-1">
-                                    <select
-                                        id="country"
-                                        name="country"
-                                        autoComplete="country-name"
-                                        className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.address ? userDetails.address.country : ''}
-                                    >
-                                        <option>United States</option>
-                                        <option>Canada</option>
-                                        <option>Mexico</option>
-                                        <option>France</option>
-                                        <option>Germany</option>
-                                        <option>Poland</option>
-                                        <option>Spain</option>
+                                        <option value="Elementary">Elementary</option>
+                                        <option value="High School">High School</option>
+                                        <option value="Certificate">Certificate</option>
+                                        <option value="Associate's Degree">Associate's Degree</option>
+                                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                        <option value="Master's Degree">Master's Degree</option>
+                                        <option value="Doctorate/Ph.D">Doctorate/Ph.D</option>
                                     </select>
                                     <ChevronDownIcon
                                         aria-hidden="true"
@@ -564,60 +325,121 @@ export default function EditUserProfile({
                                 </div>
                             </div>
 
-                            <div className="sm:col-span-2 sm:col-start-1">
-                                <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">
-                                    City
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="city"
-                                        name="city"
-                                        type="text"
-                                        autoComplete="address-level2"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.address ? userDetails.address.city : ''}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Your job</h2>
-                        <p className="mt-1 text-sm/6 text-gray-600">Your job can important to someone</p>
-
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                            <div className="sm:col-span-3">
-                                <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
-                                    Title
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="job-position"
-                                        name="job-position"
-                                        type="text"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                        defaultValue={userDetails?.job && typeof userDetails.job === 'string' ? userDetails.job : ''}
-                                    />
-                                </div>
+                            <div className="sm:col-span-2 sm:col-start-1 relative">
+                                <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">City</label>
+                                <input
+                                    id="city"
+                                    name="city"
+                                    type="text"
+                                    value={cityInput}
+                                    onChange={(e) => handleCityChange(e.target.value)}
+                                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    placeholder="Start typing your city..."
+                                />
+                                {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
+                                {citySuggestions.length > 0 && (
+                                    <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto mt-1">
+                                        {citySuggestions.map((suggestion) => (
+                                            <li
+                                                key={suggestion}
+                                                onClick={() => {
+                                                    setCityInput(suggestion);
+                                                    setCitySuggestions([]);
+                                                }}
+                                                className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
+                                            >
+                                                {suggestion}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <button type="button" className="text-sm/6 font-semibold text-gray-900">
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            Save
+                        <button type="button" className="text-sm/6 font-semibold text-gray-900">Cancel</button>
+                        <button type="submit" disabled={isSubmitting} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50">
+                            {isSubmitting ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 </div>
             </form>
-        )
+        );
     }
+
+    return (
+        <form onSubmit={handleParentSubmit}>
+            <div className="space-y-12">
+                <div className="border-b border-gray-900/10 pb-12">
+                    <h2 className="text-base/7 font-semibold text-gray-900">Personal Information</h2>
+                    {errors.age && <p className="mt-2 text-sm text-red-500">{errors.age}</p>}
+
+                    <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div className="sm:col-span-2">
+                            <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Min Age</label>
+                            <select id="ageMin" name="ageMin" value={ageMin} onChange={e => setAgeMin(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
+                                {age.map(a => <option key={`min_${a}`} value={a}>{a}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Max Age</label>
+                            <select id="ageMax" name="ageMax" value={ageMax} onChange={e => setAgeMax(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
+                                {age.map(a => <option key={`max_${a}`} value={a}>{a}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="sm:col-span-3 col-start-1">
+                            <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                            <input
+                                id="full-name"
+                                name="full-name"
+                                type="text"
+                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                defaultValue={userDetails?.fullName}
+                            />
+                            {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
+                        </div>
+
+                        <div className="sm:col-span-2 sm:col-start-1 relative">
+                            <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">City</label>
+                            <input
+                                id="city"
+                                name="city"
+                                type="text"
+                                value={cityInput}
+                                onChange={(e) => handleCityChange(e.target.value)}
+                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                            />
+                            {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
+                            {citySuggestions.length > 0 && (
+                                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto mt-1">
+                                    {citySuggestions.map((suggestion) => (
+                                        <li
+                                            key={suggestion}
+                                            onClick={() => {
+                                                setCityInput(suggestion);
+                                                setCitySuggestions([]);
+                                            }}
+                                            className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
+                                        >
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-end gap-x-6">
+                    <button type="button" className="text-sm/6 font-semibold text-gray-900">Cancel</button>
+                    <button type="submit" disabled={isSubmitting} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50">
+                        {isSubmitting ? 'Saving...' : 'Save'}
+                    </button>
+                </div>
+            </div>
+        </form>
+    );
 }

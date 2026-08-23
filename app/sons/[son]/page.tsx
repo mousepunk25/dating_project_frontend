@@ -38,9 +38,7 @@ interface Candidate {
         };
     };
     education: {
-        schoolName: string;
         educationLevel: string;
-        field: string;
     };
     address: {
         _id: string;
@@ -113,7 +111,7 @@ export default async function Page({
                 <h3 className="font-bold">Job: </h3> <span className="ml-2">{candidate.job.position} at {candidate.job.companyName}</span>
             </div>
             <div className="text-lg mt-2 flex">
-                <h3 className="font-bold">Education: </h3> <span className="ml-2">{candidate.education.field}, {candidate.education.schoolName}, {candidate.education.educationLevel}</span>
+                <h3 className="font-bold">Education: </h3> <span className="ml-2">{candidate.education.educationLevel}</span>
             </div>
         </div>
     )
