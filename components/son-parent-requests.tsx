@@ -18,7 +18,7 @@ interface Candidate {
     };
     job: {
         position: string;
-    };
+    } | string;
 }
 
 export default function SonParentRequests({
@@ -30,6 +30,7 @@ export default function SonParentRequests({
 }) {
     const [userFriendsWhoWantToBeAdded, setUserFriendsWhoWantToBeAdded] = useState<Candidate[]>([]);
     const oppositeRole = role === 'son' ? 'parent' : 'son';
+
     useEffect(() => {
         let ignore = false;
         async function fetchUserFriendsWhoWantToBeAdded() {
@@ -46,7 +47,17 @@ export default function SonParentRequests({
         return () => {
             ignore = true;
         }
-    }, [profileId]);
+    }, [profileId, role, oppositeRole]);
+
+    // Check if the array is empty
+    if (Array.isArray(userFriendsWhoWantToBeAdded) && userFriendsWhoWantToBeAdded.length === 0) {
+        return (
+            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+                No one sent you request yet :/ Wait for someone to send you a request to add you to the friends' list
+            </div>
+        );
+    }
+
     if (userFriendsWhoWantToBeAdded && role === 'parent') {
         return (
             <SonsList sons={userFriendsWhoWantToBeAdded}/>
@@ -59,8 +70,8 @@ export default function SonParentRequests({
                         <ParentCart key={parent._id}
                             parentId={parent._id}
                             parentFullName={parent.fullName}
-                            parentCity={parent.address.city}
-                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                            parentCity={parent.address?.city}
+                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
                         />
                     );
                 })}

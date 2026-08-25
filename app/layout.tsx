@@ -3,6 +3,7 @@ import './globals.css';
 import { Disclosure, DisclosureButton, DisclosurePanel, } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import NavigationButtons from '@/components/navigation-buttons';
+import CookieConsent from '@/components/cookie-consent';
 import Link from 'next/link';
 
 export default function RootLayout({
@@ -12,13 +13,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light">
-      <body className="tracking-wide font-serif">
-        <Disclosure as="nav" className="relative bg-cahir-armor font-serif text-base font-semibold">
-          <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-            <div className="relative flex h-16 items-center justify-between">
-              <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+      <body className="tracking-wide font-serif min-h-screen flex flex-col">
+        <Disclosure as="nav" className="relative bg-white font-serif text-base font-semibold">
+          <div className="mx-auto">
+            <div className="relative flex h-16 items-center justify-between border-b-1 border-cahir-armor/25 shadow-md px-2 sm:px-6 lg:px-8">
+              <div className="absolute flex items-center sm:hidden">
                 {/* Mobile menu button*/}
-                <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
+                <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-cahir-armor hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-cahir-blood">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
@@ -35,19 +36,23 @@ export default function RootLayout({
                     Title
                   </Link>
                 </div>
-                <div className="hidden sm:ml-6 sm:block absolute right-0">
+                <div className="hidden sm:ml-6 sm:block absolute right-0 bg-cahir-armor">
                   <NavigationButtons version='web' />
                 </div>
               </div>
             </div>
           </div>
-          <DisclosurePanel className="sm:hidden">
-            <NavigationButtons version='mobile' />
+          <DisclosurePanel className="sm:hidden border-1 bg-cahir-armor">
+            <NavigationButtons version='mobile'/>
           </DisclosurePanel>
         </Disclosure>
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 min-h-[500px]">
+
+        {/* Added flex-1 and w-full to expand and take up remaining space */}
+        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 min-h-[500px] flex-1 w-full">
           {children}
         </div>
+        <CookieConsent />
+
         <footer className="mt-8 border-t-1 border-cahir-armor/20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <small className='px-3 py-2'>
             All Rights Reserved.

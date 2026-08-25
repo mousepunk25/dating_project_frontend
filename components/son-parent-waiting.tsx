@@ -18,7 +18,7 @@ interface Candidate {
     };
     job: {
         position: string;
-    };
+    } | string;
 }
 
 export default function SonParentWaiting({
@@ -30,6 +30,7 @@ export default function SonParentWaiting({
 }) {
     const [userFriendsWithRequestSent, setUserFriendsWithRequestSent] = useState<Candidate[]>([]);
     const oppositeRole = role === 'son' ? 'parent' : 'son';
+
     useEffect(() => {
         let ignore = false;
         async function fetchUserFriendsWithRequestSent() {
@@ -46,7 +47,17 @@ export default function SonParentWaiting({
         return () => {
             ignore = true;
         }
-    }, [profileId]);
+    }, [profileId, role, oppositeRole]);
+
+    // Check if the array is empty
+    if (Array.isArray(userFriendsWithRequestSent) && userFriendsWithRequestSent.length === 0) {
+        return (
+            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+                You haven't sent a request to anyone yet. Please do it :)
+            </div>
+        );
+    }
+
     if (userFriendsWithRequestSent && role === 'parent') {
         return (
             <SonsList sons={userFriendsWithRequestSent}/>
@@ -59,8 +70,8 @@ export default function SonParentWaiting({
                         <ParentCart key={parent._id}
                             parentId={parent._id}
                             parentFullName={parent.fullName}
-                            parentCity={parent.address.city}
-                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                            parentCity={parent.address?.city}
+                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
                         />
                     );
                 })}

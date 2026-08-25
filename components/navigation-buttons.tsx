@@ -60,7 +60,7 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
           href={item.href}
           aria-current={active ? 'page' : undefined}
           className={classNames(
-            active ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
+            active ? 'bg-white text-cahir-blood' : 'text-white hover:bg-grey/5 hover:text-white',
             isMobile
               ? 'block rounded-md px-3 py-2 text-base font-medium'
               : 'rounded-md px-3 py-2 font-semibold'

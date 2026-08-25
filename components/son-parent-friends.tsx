@@ -27,10 +27,12 @@ export default function SonParentFriends({
 }: {
     profileId: string,
     role: 'son' | 'parent',
-    showChat: Function
+    showChat: Function,
+    unreadConversations?: any
 }) {
     const [userFriends, setUserFriends] = useState<Candidate[]>([]);
     const oppositeRole = role === 'son' ? 'parent' : 'son';
+
     useEffect(() => {
         let ignore = false;
         async function fetchUserFriends() {
@@ -47,7 +49,17 @@ export default function SonParentFriends({
         return () => {
             ignore = true;
         }
-    }, [profileId]);
+    }, [profileId, role, oppositeRole]);
+
+    // Handle empty state
+    if (Array.isArray(userFriends) && userFriends.length === 0) {
+        return (
+            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+                You still have no friends added :/ Send someone a request and wait for them to accept.
+            </div>
+        );
+    }
+
     if (userFriends && role === 'parent') {
         return (
             <SonsList sons={userFriends} showChat={showChat} unreadConversations={unreadConversations}/>
@@ -60,8 +72,8 @@ export default function SonParentFriends({
                         <ParentCart key={parent._id}
                         parentId={parent._id}
                         parentFullName={parent.fullName}
-                        parentCity={parent.address.city}
-                        parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                        parentCity={parent.address?.city}
+                        parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
                         showChat={showChat}
                         unreadConversations={unreadConversations}
                         />

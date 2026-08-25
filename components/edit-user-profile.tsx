@@ -2,13 +2,13 @@
 
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 
 interface UserDetails {
     aboutYou?: string;
     fullName: string;
-    dateOfBirth?: Date | null;
+    dateOfBirth?: Date | string | null;
     address: {
         city: string;
     };
@@ -31,6 +31,19 @@ function getFormString(formData: FormData, key: string): string {
     return typeof value === 'string' ? value : '';
 }
 
+// Calculate min and max dates for birthdate boundaries (18 to 100 years old)
+function getDobLimits() {
+    const today = new Date();
+
+    const maxDateObj = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    const maxDob = maxDateObj.toISOString().split('T')[0];
+
+    const minDateObj = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
+    const minDob = minDateObj.toISOString().split('T')[0];
+
+    return { minDob, maxDob };
+}
+
 export default function EditUserProfile({
     profileId,
     role
@@ -47,18 +60,23 @@ export default function EditUserProfile({
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Son Image Upload State
+    const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
     const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
         ? process.env.NEXT_PUBLIC_DEV_API_URL
         : process.env.NEXT_PUBLIC_PROD_API_URL;
 
-    const age = Array.from({ length: 83 }, (_, i) => i + 18); // 18 to 100
+    const ageRange = Array.from({ length: 83 }, (_, i) => i + 18); // 18 to 100
     const [ageMin, setAgeMin] = useState(18);
     const [ageMax, setAgeMax] = useState(80);
 
-    const today = new Date();
-    today.setFullYear(today.getFullYear() - 18);
-    const maxDob = today.toISOString().split('T')[0];
+    const { minDob, maxDob } = getDobLimits();
     const [dob, setDob] = useState(maxDob);
+    const [aboutYou, setAboutYou] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [jobPosition, setJobPosition] = useState('');
     const [educationLevel, setEducationLevel] = useState<string>('High School');
 
     // Load CSV for City Validation
@@ -92,16 +110,25 @@ export default function EditUserProfile({
 
             const response = await fetch(`${url}${endpoint}`, options);
             const data = await response.json();
-            console.log(data);
 
             if (!ignore && data) {
                 setUserDetails(data);
                 setAgeMin(data.sonAgeMin ?? 18);
                 setAgeMax(data.sonAgeMax ?? 80);
-                if (data.address?.city) setCityInput(data.address.city);
-                if (data.dateOfBirth) setDob(data.dateOfBirth.slice(0, 10));
+                if (data.fullName) setFullName(decodeHTMLEntities(data.fullName));
 
-                // Decode entities like &#x2F; to / so it matches <option value="Doctorate/Ph.D">
+                // Decode HTML entities for aboutYou here
+                if (data.aboutYou) setAboutYou(decodeHTMLEntities(data.aboutYou));
+
+                // Handle job parsing depending on data format (string vs object)
+                if (data.job) {
+                    const parsedJob = typeof data.job === 'string' ? data.job : data.job.position;
+                    if (parsedJob) setJobPosition(decodeHTMLEntities(parsedJob));
+                }
+
+                if (data.address?.city) setCityInput(data.address.city);
+                if (data.dateOfBirth) setDob(String(data.dateOfBirth).slice(0, 10));
+
                 if (data.education?.educationLevel) {
                     setEducationLevel(decodeHTMLEntities(data.education.educationLevel));
                 }
@@ -110,6 +137,26 @@ export default function EditUserProfile({
         fetchUserDetails();
         return () => { ignore = true; };
     }, [profileId, role, url]);
+
+    // Handle Image Selection and Conversion to Base64 (Son only)
+    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            setErrors(prev => ({ ...prev, image: 'Image size should be less than 5MB.' }));
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            setSelectedImageBase64(base64String);
+            setPreviewUrl(base64String);
+            setErrors(prev => ({ ...prev, image: '' }));
+        };
+        reader.readAsDataURL(file);
+    };
 
     // Handle City Input & Autocomplete
     const handleCityChange = (val: string) => {
@@ -130,10 +177,40 @@ export default function EditUserProfile({
     const validateForm = (formData: FormData): boolean => {
         const newErrors: Record<string, string> = {};
 
-        // Full Name
-        const fullName = getFormString(formData, 'full-name');
-        if (!fullName.trim()) {
+        // Full Name Validation (max 50 chars)
+        const nameVal = getFormString(formData, 'full-name').trim();
+        if (!nameVal) {
             newErrors.fullName = 'Full name is required.';
+        } else if (nameVal.length > 50) {
+            newErrors.fullName = 'Full name cannot exceed 50 characters.';
+        }
+
+        // Son Specific Validations
+        if (role === 'son') {
+            // DOB Validation (18 to 100 years old)
+            const dobVal = formData.get('dob') as string;
+            if (!dobVal) {
+                newErrors.dob = 'Date of birth is required.';
+            } else {
+                const birthDate = new Date(dobVal);
+                const today = new Date();
+
+                let ageCalculated = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    ageCalculated--;
+                }
+
+                if (ageCalculated < 18 || ageCalculated > 100) {
+                    newErrors.dob = 'You must be between 18 and 100 years old.';
+                }
+            }
+
+            // About You Validation (max 1000 chars)
+            const aboutVal = getFormString(formData, 'about');
+            if (aboutVal.length > 1000) {
+                newErrors.about = 'About section cannot exceed 1,000 characters.';
+            }
         }
 
         // City Validation
@@ -161,7 +238,8 @@ export default function EditUserProfile({
         setIsSubmitting(true);
 
         const jobData = typeof userDetails?.job === 'object' && userDetails.job !== null ? { ...userDetails.job } : {};
-        const updatedUserDetails: UserDetails = {
+
+        const payload: Record<string, unknown> = {
             ...userDetails,
             aboutYou: getFormString(formData, 'about'),
             fullName: getFormString(formData, 'full-name'),
@@ -184,14 +262,22 @@ export default function EditUserProfile({
             ]
         };
 
+        // Pass Base64 string if son selected a new image
+        if (selectedImageBase64) {
+            payload.image = selectedImageBase64;
+        }
+
         try {
-            await fetch(`${url}/sons/edit/${profileId}`, {
+            const res = await fetch(`${url}/sons/edit/${profileId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(updatedUserDetails),
+                body: JSON.stringify(payload),
             });
-            setUserDetails(updatedUserDetails);
+            const data = await res.json();
+            if (data.profile) {
+                setUserDetails(data.profile);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -206,23 +292,26 @@ export default function EditUserProfile({
         if (!validateForm(formData)) return;
         setIsSubmitting(true);
 
-        const updatedUserDetails = {
+        const payload = {
             ...userDetails,
             fullName: getFormString(formData, 'full-name'),
             address: { ...userDetails?.address, city: cityInput },
-            job: getFormString(formData, 'job-position'),
+            job: jobPosition,
             sonAgeMin: ageMin,
             sonAgeMax: ageMax
         };
 
         try {
-            await fetch(`${url}/parents/edit/${profileId}`, {
+            const res = await fetch(`${url}/parents/edit/${profileId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(updatedUserDetails),
+                body: JSON.stringify(payload),
             });
-            setUserDetails(updatedUserDetails);
+            const data = await res.json();
+            if (data.profile) {
+                setUserDetails(data.profile);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -237,6 +326,8 @@ export default function EditUserProfile({
         return decoded.body.textContent || '';
     }
 
+    const currentPhotoSrc = previewUrl || userDetails?.image?.url;
+
     if (role === 'son') {
         return (
             <form onSubmit={handleSonSubmit}>
@@ -244,41 +335,69 @@ export default function EditUserProfile({
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base/7 font-semibold text-gray-900">Profile</h2>
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                            {/* Date of Birth Input */}
                             <div className="col-span-full">
                                 <label htmlFor="dob" className="block text-sm/6 font-medium text-gray-900">Date of Birth</label>
                                 <input
                                     type="date"
                                     id="dob"
                                     name="dob"
+                                    min={minDob}
                                     max={maxDob}
                                     value={dob}
-                                    onChange={(e) => setDob(e.target.value)}
+                                    onChange={(e) => {
+                                        setDob(e.target.value);
+                                        setErrors(prev => ({ ...prev, dob: '' }));
+                                    }}
                                     className="mt-2 block rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
                                     required
                                 />
+                                {errors.dob && <p className="mt-1 text-xs text-red-500">{errors.dob}</p>}
                             </div>
 
+                            {/* About You Input with 1000 char counter */}
                             <div className="col-span-full">
-                                <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">About you</label>
+                                <div className="flex justify-between items-center">
+                                    <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">About you</label>
+                                    <span className="text-xs text-gray-500">{aboutYou.length}/1000</span>
+                                </div>
                                 <textarea
                                     id="about"
                                     name="about"
-                                    rows={3}
+                                    rows={4}
+                                    maxLength={1000}
+                                    value={aboutYou}
+                                    onChange={(e) => {
+                                        setAboutYou(e.target.value);
+                                        setErrors(prev => ({ ...prev, about: '' }));
+                                    }}
                                     className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                    defaultValue={userDetails?.aboutYou}
                                 />
+                                {errors.about && <p className="mt-1 text-xs text-red-500">{errors.about}</p>}
                             </div>
 
+                            {/* Son Profile Image Picker */}
                             <div className="col-span-full">
                                 <label className="block text-sm/6 font-medium text-gray-900">Photo</label>
                                 <div className="mt-2 flex items-center gap-x-3">
-                                    {userDetails?.image ? (
-                                        <Image src={userDetails.image.url} width={100} height={100} alt="Profile" className="rounded-full" />
+                                    {currentPhotoSrc ? (
+                                        <Image src={currentPhotoSrc} width={100} height={100} alt="Profile" className="size-24 rounded-full object-cover" />
                                     ) : (
-                                        <PhotoIcon className="size-12 text-gray-300" />
+                                        <PhotoIcon className="size-16 text-gray-300" />
                                     )}
-                                    <button type="button" className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">Change</button>
+                                    <label htmlFor="photo-upload" className="cursor-pointer rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">
+                                        Change
+                                    </label>
+                                    <input
+                                        id="photo-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                    />
                                 </div>
+                                {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image}</p>}
                             </div>
                         </div>
                     </div>
@@ -286,14 +405,24 @@ export default function EditUserProfile({
                     <div className="border-b border-gray-900/10 pb-12">
                         <h2 className="text-base/7 font-semibold text-gray-900">Personal Information</h2>
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                            {/* Full Name Input (max 50 chars) */}
                             <div className="sm:col-span-3">
-                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                                <div className="flex justify-between items-center">
+                                    <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                                    <span className="text-xs text-gray-500">{fullName.length}/50</span>
+                                </div>
                                 <input
                                     id="full-name"
                                     name="full-name"
                                     type="text"
+                                    maxLength={50}
+                                    value={fullName}
+                                    onChange={(e) => {
+                                        setFullName(e.target.value);
+                                        setErrors(prev => ({ ...prev, fullName: '' }));
+                                    }}
                                     className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                    defaultValue={userDetails?.fullName}
                                 />
                                 {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
                             </div>
@@ -377,29 +506,54 @@ export default function EditUserProfile({
 
                     <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                         <div className="sm:col-span-2">
-                            <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Min Age</label>
+                            <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Son Min Age</label>
                             <select id="ageMin" name="ageMin" value={ageMin} onChange={e => setAgeMin(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
-                                {age.map(a => <option key={`min_${a}`} value={a}>{a}</option>)}
+                                {ageRange.map(a => <option key={`min_${a}`} value={a}>{a}</option>)}
                             </select>
                         </div>
 
                         <div className="sm:col-span-2">
-                            <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Max Age</label>
+                            <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Son Max Age</label>
                             <select id="ageMax" name="ageMax" value={ageMax} onChange={e => setAgeMax(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
-                                {age.map(a => <option key={`max_${a}`} value={a}>{a}</option>)}
+                                {ageRange.map(a => <option key={`max_${a}`} value={a}>{a}</option>)}
                             </select>
                         </div>
 
+                        {/* Full Name Input (max 50 chars) */}
                         <div className="sm:col-span-3 col-start-1">
-                            <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                            <div className="flex justify-between items-center">
+                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                                <span className="text-xs text-gray-500">{fullName.length}/50</span>
+                            </div>
                             <input
                                 id="full-name"
                                 name="full-name"
                                 type="text"
+                                maxLength={50}
+                                value={fullName}
+                                onChange={(e) => {
+                                    setFullName(e.target.value);
+                                    setErrors(prev => ({ ...prev, fullName: '' }));
+                                }}
                                 className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                defaultValue={userDetails?.fullName}
                             />
                             {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
+                        </div>
+
+                        {/* Parent Job Position Input */}
+                        <div className="sm:col-span-3">
+                            <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
+                                Job Position
+                            </label>
+                            <input
+                                id="job-position"
+                                name="job-position"
+                                type="text"
+                                value={jobPosition}
+                                onChange={(e) => setJobPosition(e.target.value)}
+                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                placeholder="e.g. Engineer, Teacher, Retired..."
+                            />
                         </div>
 
                         <div className="sm:col-span-2 sm:col-start-1 relative">

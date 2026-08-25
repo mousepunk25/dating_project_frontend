@@ -27,7 +27,7 @@ export default function RegisterUser() {
     const [isParent, setIsParent] = useState<boolean>(true);
     const [aboutYou, setAboutYou] = useState<string>('');
     const [cities, setCities] = useState<string[]>([]);
-    
+
     // Image state (stores Base64 string and preview URL)
     const [imageBase64, setImageBase64] = useState<string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -473,7 +473,12 @@ export default function RegisterUser() {
 
             <div>
                 By creating an account you agree to this set of rules:
-                <Link href='/rules' className='ml-1 text-cahir-blood'>
+                <Link
+                    href='/rules'
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className='ml-1 text-cahir-blood'
+                >
                     Link
                 </Link>
             </div>

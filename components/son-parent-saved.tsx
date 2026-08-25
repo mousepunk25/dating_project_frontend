@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import CandidateCart from './candidate-cart';
 import ParentCart from './parent-cart';
 import SonsList from './sons-list';
 
@@ -19,7 +18,7 @@ interface Candidate {
     };
     job: {
         position: string;
-    };
+    } | string;
 }
 
 export default function SonParentSaved({
@@ -31,6 +30,7 @@ export default function SonParentSaved({
 }) {
     const [userFriendsSaved, setUserFriendsSaved] = useState<Candidate[]>([]);
     const oppositeRole = role === 'son' ? 'parent' : 'son';
+
     useEffect(() => {
         let ignore = false;
         async function fetchUserFriendsSaved() {
@@ -47,7 +47,17 @@ export default function SonParentSaved({
         return () => {
             ignore = true;
         }
-    }, [profileId]);
+    }, [profileId, role, oppositeRole]);
+
+    // Check if the array is empty
+    if (Array.isArray(userFriendsSaved) && userFriendsSaved.length === 0) {
+        return (
+            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+                You haven't add anyone to the saved users' list. You can do it anytime.
+            </div>
+        );
+    }
+
     if (userFriendsSaved && role === 'parent') {
         return (
             <SonsList sons={userFriendsSaved}/>
@@ -60,8 +70,8 @@ export default function SonParentSaved({
                         <ParentCart key={parent._id}
                             parentId={parent._id}
                             parentFullName={parent.fullName}
-                            parentCity={parent.address.city}
-                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job.position}
+                            parentCity={parent.address?.city}
+                            parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
                         />
                     );
                 })}
