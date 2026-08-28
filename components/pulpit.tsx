@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, ReactNode } from 'react';
 import {
     Dialog,
     DialogPanel
-} from '@headlessui/react'
+} from '@headlessui/react';
 import {
     XMarkIcon,
     PencilSquareIcon,
@@ -14,7 +14,7 @@ import {
     BookmarkIcon,
     ChevronLeftIcon,
     ChevronRightIcon
-} from '@heroicons/react/24/outline'
+} from '@heroicons/react/24/outline';
 
 import EditUserProfile from "./edit-user-profile";
 import SonParentFriends from "./son-parent-friends";
@@ -23,23 +23,44 @@ import SonParentSaved from "./son-parent-saved";
 import SonParentWaiting from "./son-parent-waiting";
 import Chat from "./chat";
 
-const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
+const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
+    ? process.env.NEXT_PUBLIC_DEV_API_URL
+    : process.env.NEXT_PUBLIC_PROD_API_URL;
 
 type PanelStatus = 'edit-profile' | 'friends-list' | 'friends-requests-received' | 'friends-requests-sent' | 'candidates-saved';
+
+interface Participant {
+    _id: string;
+    owner: string;
+}
+
+interface Message {
+    _id: string;
+    readBy?: string[];
+}
+
+interface Conversation {
+    _id: string;
+    participantParent: Participant;
+    participantSon: Participant;
+    lastMessage?: Message;
+}
+
+interface PulpitProps {
+    profileId: string;
+    role: 'son' | 'parent';
+}
 
 export default function Pulpit({
     profileId,
     role
-}: {
-    profileId: string,
-    role: 'son' | 'parent'
-}) {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+}: PulpitProps) {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
     const [panel, setPanel] = useState<PanelStatus>('friends-list');
-    const [selectedChat, setSelectedChat] = useState('');
-    const [conversations, setConversations] = useState<any[]>([]);
-    const [conversationsNotRead, setConversationsNotRead] = useState<any[]>([]);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [selectedChat, setSelectedChat] = useState<string>('');
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [conversationsNotRead, setConversationsNotRead] = useState<Conversation[]>([]);
+    const [unreadCount, setUnreadCount] = useState<number>(0);
 
     function selectChat(friend: string) {
         if (selectedChat.length > 0) {
@@ -47,33 +68,35 @@ export default function Pulpit({
         } else {
             console.log(conversations);
             console.log(friend);
-            const conversationWithFriend = conversations.find(c => c.participantParent._id === friend || c.participantSon._id === friend);
+            const conversationWithFriend = conversations.find(
+                (c) => c.participantParent._id === friend || c.participantSon._id === friend
+            );
             if (conversationWithFriend) {
                 console.log(conversationWithFriend);
-                setConversationsNotRead(conversationsNotRead.filter(c => c._id !== conversationWithFriend._id));
+                setConversationsNotRead((prev) => prev.filter((c) => c._id !== conversationWithFriend._id));
                 setSelectedChat(conversationWithFriend._id);
             }
         }
     }
 
-    function panelToRender(panel: PanelStatus) {
-        switch (panel) {
+    function panelToRender(currentPanel: PanelStatus): ReactNode {
+        switch (currentPanel) {
             case 'edit-profile':
                 return <EditUserProfile profileId={profileId} role={role} />;
             case 'friends-list':
-                return <SonParentFriends profileId={profileId} role={role} showChat={selectChat} unreadConversations={conversationsNotRead}/>
+                return <SonParentFriends profileId={profileId} role={role} showChat={selectChat} unreadConversations={conversationsNotRead} />;
             case 'friends-requests-received':
-                return <SonParentRequests profileId={profileId} role={role} />
+                return <SonParentRequests profileId={profileId} role={role} />;
             case 'friends-requests-sent':
-                return <SonParentWaiting profileId={profileId} role={role} />
+                return <SonParentWaiting profileId={profileId} role={role} />;
             case 'candidates-saved':
-                return <SonParentSaved profileId={profileId} role={role} />
+                return <SonParentSaved profileId={profileId} role={role} />;
         }
     }
 
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [showLeftArrow, setShowLeftArrow] = useState(false);
-    const [showRightArrow, setShowRightArrow] = useState(false);
+    const [showLeftArrow, setShowLeftArrow] = useState<boolean>(false);
+    const [showRightArrow, setShowRightArrow] = useState<boolean>(false);
 
     const checkScroll = () => {
         const el = scrollRef.current;
@@ -99,19 +122,19 @@ export default function Pulpit({
                     credentials: 'include'
                 });
                 const userConversationsJSON = await userConversationsResponse.json();
-                
+
                 if (!ignore && userConversationsJSON && Array.isArray(userConversationsJSON.conversations)) {
-                    const fetchedConversations = userConversationsJSON.conversations;
+                    const fetchedConversations: Conversation[] = userConversationsJSON.conversations;
                     setConversations(fetchedConversations);
 
                     if (fetchedConversations.length > 0) {
-                        const ownerId = fetchedConversations[0].participantParent._id === profileId 
-                            ? fetchedConversations[0].participantParent.owner 
+                        const ownerId = fetchedConversations[0].participantParent._id === profileId
+                            ? fetchedConversations[0].participantParent.owner
                             : fetchedConversations[0].participantSon.owner;
 
-                        const unread = fetchedConversations.filter(c => 
-                            c.lastMessage && 
-                            Array.isArray(c.lastMessage.readBy) && 
+                        const unread = fetchedConversations.filter((c) =>
+                            c.lastMessage &&
+                            Array.isArray(c.lastMessage.readBy) &&
                             !c.lastMessage.readBy.includes(ownerId)
                         );
                         setConversationsNotRead(unread);
@@ -297,11 +320,12 @@ export default function Pulpit({
             </div>
 
             {/* Bottom Right Floating Chat Component */}
-            {selectedChat.length > 0 &&
+            {selectedChat.length > 0 && (
                 <div className="fixed bottom-1 right-1 z-40">
-                    <Chat selectedChat={selectedChat} user={profileId} onClose={selectChat}/>
+                    {/* ✅ Wrap it in a zero-argument function */}
+                    <Chat selectedChat={selectedChat} user={profileId} onClose={() => selectChat('')} />
                 </div>
-            }
+            )}
         </div>
-    )
+    );
 }

@@ -6,7 +6,7 @@ export interface SonCandidate {
     url: string;
   };
   fullName: string;
-  dateOfBirth: string; // Updated from string | number | Date
+  dateOfBirth: string;
   address: {
     city: string;
   };
@@ -15,8 +15,8 @@ export interface SonCandidate {
 
 interface Participant {
   _id: string;
-  owner: string;
-  fullName: string;
+  owner?: string;
+  fullName?: string;
 }
 
 interface LastMessage {
@@ -27,40 +27,46 @@ interface LastMessage {
   createdAt: string;
 }
 
-interface ChatConversation {
+export interface ChatConversation {
   _id: string;
   participantParent: Participant;
   participantSon: Participant;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-  lastMessage?: LastMessage; // Made optional for brand-new conversations
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+  lastMessage?: LastMessage;
 }
 
 interface SonsListProps {
   sons: SonCandidate[];
-  showChat?: Function;
-  unreadConversations?: ChatConversation
+  showChat?: (candidateId: string) => void;
+  unreadConversations?: ChatConversation[];
 }
 
-export default function SonsList({ sons, showChat, unreadConversations }: SonsListProps){
+export default function SonsList({ sons, showChat, unreadConversations }: SonsListProps) {
   return (
-    <div className='grid grid-cols-2 md:grid-cols-3 gap-2 my-6'>
-      {Array.isArray(sons) && sons.map(candidate => {
-        return (
-          <CandidateCart 
-            key={candidate._id}
-            candidateId={candidate._id}
-            candidateImage={candidate.image.url}
-            candidateFullName={candidate.fullName}
-            candidateAge={candidate.dateOfBirth}
-            candidateCity={candidate.address.city}
-            candidateJob={typeof candidate.job !== 'string' ? candidate.job.position : candidate.job}
-            showChat={showChat}
-            unreadConversations={unreadConversations}
-          />
-        );
-      })}
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 my-6">
+      {Array.isArray(sons) &&
+        sons.map((candidate) => {
+          const jobTitle =
+            typeof candidate.job === 'string'
+              ? candidate.job
+              : candidate.job?.position || '';
+
+          return (
+            <CandidateCart
+              key={candidate._id}
+              candidateId={candidate._id}
+              candidateImage={candidate.image?.url || ''}
+              candidateFullName={candidate.fullName}
+              candidateAge={candidate.dateOfBirth}
+              candidateCity={candidate.address?.city || ''}
+              candidateJob={jobTitle}
+              showChat={showChat}
+              unreadConversations={unreadConversations}
+            />
+          );
+        })}
     </div>
   );
 }
