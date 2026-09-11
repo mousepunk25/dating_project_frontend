@@ -59,7 +59,7 @@ export default function ParentsList({
         )
     } else {
         return (
-            <h2>Candidates:</h2>
+            <h2>Kandydaci:</h2>
         )
     }
 }

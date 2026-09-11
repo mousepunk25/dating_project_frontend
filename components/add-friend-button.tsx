@@ -35,16 +35,16 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
                     setStatusMessage(responseMessage.message);
                     setIsSuccess(true);
                 } else {
-                    setStatusMessage("User was not successfully added.");
+                    setStatusMessage("Coś poszło nie tak. Użytkownik nie został dodany.");
                     setIsSuccess(false);
                 }
             } catch (error) {
                 console.error(error);
-                setStatusMessage("A network error occurred. Please try again.");
+                setStatusMessage("Wystąpił problem. Proszę spróbować później.");
                 setIsSuccess(false);
             }
         } else {
-            setStatusMessage('You have to be logged in!');
+            setStatusMessage('Musisz być zalogowany!');
             setIsSuccess(false);
         }
 
@@ -56,7 +56,7 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
                 onClick={sendFriendRequest}
                 className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-2 w-full"
             >
-                Add to the friends list
+                Wyślij zaproszenie do listy znajomych
             </button>
 
             {/* 4. Conditionally render the message below the button */}

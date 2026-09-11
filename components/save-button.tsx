@@ -46,7 +46,7 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
     return (
         <div className="flex flex-col items-start">
             <button onClick={saveFriend} className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-2 w-full">
-                Save but don't add to the friends list
+                Zapisz, ale nie wysyłaj zaproszenia do znajomych
             </button>
             {
                 statusMessage && (

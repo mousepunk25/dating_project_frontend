@@ -77,7 +77,7 @@ export default function SonParentFriends({
   if (Array.isArray(userFriends) && userFriends.length === 0) {
     return (
       <div className="mt-6 text-center text-gray-600 font-serif text-lg">
-        You still have no friends added :/ Send someone a request and wait for them to accept.
+        Wciąż nie masz dodanych znajomych :/ Wyślij do kogoś zaproszenie i zaczekaj aż zostanie zaakceptowane.
       </div>
     );
   }
@@ -111,10 +111,6 @@ export default function SonParentFriends({
           );
         })}
       </div>
-    );
-  } else {
-    return (
-      <h2>Candidates:</h2>
     );
   }
 }

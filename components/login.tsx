@@ -18,10 +18,10 @@ function NotificationBanners() {
       {status === 'verification-sent' && (
         <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
           <p className="text-sm font-medium text-blue-800">
-            Verification email sent!
+            Wiadomość z weryfikacją adresu email została wysłana!
           </p>
           <p className="mt-1 text-sm text-blue-700">
-            Please check your inbox and click the link to verify your account before logging in.
+            Sprawdź swoją skrzynkę i kliknij link potwierdzający Twój adres email zanim się zalogujesz.
           </p>
         </div>
       )}
@@ -30,10 +30,10 @@ function NotificationBanners() {
       {verified === 'true' && (
         <div className="rounded-md bg-green-50 p-4 border border-green-200">
           <p className="text-sm font-medium text-green-800">
-            Email verified successfully!
+            Email został zweryfikowany!
           </p>
           <p className="mt-1 text-sm text-green-700">
-            Your account is active. You can now sign in below.
+            Twoje konto jest aktywne. Możesz się zalogować poniżej.
           </p>
         </div>
       )}
@@ -42,10 +42,10 @@ function NotificationBanners() {
       {error === 'missing-token' && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm font-medium text-red-800">
-            Invalid verification link
+            Nieprawidłowy link weryfikacyjny
           </p>
           <p className="mt-1 text-sm text-red-700">
-            The link was missing required parameters. Please request a new verification email.
+            W linku brakowało wymaganego parametru. Wyślij kolejną wiadomość z weryfikacją adresu email.
           </p>
         </div>
       )}
@@ -54,10 +54,10 @@ function NotificationBanners() {
       {error === 'invalid-or-expired-token' && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm font-medium text-red-800">
-            Link expired or invalid
+            Link się przedawnił lub jest nieprawidłowy.
           </p>
           <p className="mt-1 text-sm text-red-700">
-            Your verification link has expired. Please log in or request a new verification link.
+            Twoj link weryfikacyjny się przedawnił. Zaloguj się albo poproś o wysłanie nowego linku.
           </p>
         </div>
       )}
@@ -66,10 +66,10 @@ function NotificationBanners() {
       {error === 'email-not-verified' && (
         <div className="rounded-md bg-amber-50 p-4 border border-amber-200">
           <p className="text-sm font-medium text-amber-800">
-            Account unverified
+            Adres email niezweryfikowany.
           </p>
           <p className="mt-1 text-sm text-amber-700">
-            You must verify your email address before logging in.
+            Musisz zweryfikować adres email zanim się zalogujesz.
           </p>
         </div>
       )}
@@ -78,10 +78,10 @@ function NotificationBanners() {
       {error === 'invalid-credentials' && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm font-medium text-red-800">
-            Invalid credentials
+            Nieprawidłowe dane logowania.
           </p>
           <p className="mt-1 text-sm text-red-700">
-            Incorrect email address or password. Please try again.
+            Nieprawidłowy email lub hasło. Spróbuj jeszcze raz.
           </p>
         </div>
       )}
@@ -98,7 +98,7 @@ export default function Login() {
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-          Sign in to your account
+          Zaloguj się
         </h2>
       </div>
 
@@ -110,7 +110,7 @@ export default function Login() {
         <form action={`${url}/login`} method="POST" className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
-              Email address
+              Email
             </label>
             <div className="mt-2">
               <input
@@ -127,7 +127,7 @@ export default function Login() {
           <div>
             <div className="flex items-center justify-between">
               <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                Password
+                Hasło
               </label>
             </div>
             <div className="mt-2">
@@ -142,7 +142,7 @@ export default function Login() {
             </div>
             <div className="text-sm mt-1">
               <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                Forgot password?
+                Nie pamiętasz hasła?
               </a>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function Login() {
               type="submit"
               className="flex w-full justify-center rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              Sign in
+              Zaloguj
             </button>
           </div>
         </form>

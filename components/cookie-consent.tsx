@@ -30,10 +30,10 @@ export default function CookieConsent() {
       <div className="flex flex-col gap-4">
         <div>
           <h3 className="text-lg font-bold text-gray-900 font-serif">
-            We value your privacy 🍪
+            Cenimy Twoją prywatność 🍪
           </h3>
           <p className="mt-1 text-sm text-gray-600">
-            This website uses cookies to enhance your browsing experience, remember your preferences, and ensure optimal performance.
+            Ta strona korzysta z plików cookie, aby usprawnić korzystanie z serwisu, zapamiętać Twoje preferencje oraz zapewnić optymalne działanie strony.
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export default function CookieConsent() {
             onClick={handleAccept}
             className="rounded-full bg-cahir-armor px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-cahir-blood focus:ring-offset-2"
           >
-            Close
+            Zamknij
           </button>
           {/* <button
             onClick={handleDecline}

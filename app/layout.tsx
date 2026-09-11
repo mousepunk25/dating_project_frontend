@@ -21,7 +21,7 @@ export default function RootLayout({
                 {/* Mobile menu button*/}
                 <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-cahir-armor hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-cahir-blood">
                   <span className="absolute -inset-0.5" />
-                  <span className="sr-only">Open main menu</span>
+                  <span className="sr-only">Otwórz menu główne</span>
                   <Bars3Icon aria-hidden="true" className="block size-6 group-data-open:hidden" />
                   <XMarkIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
                 </DisclosureButton>
@@ -33,7 +33,7 @@ export default function RootLayout({
                     href='/'
                     className='rounded-md px-3 py-2 font-semibold'
                   >
-                    Title
+                    Kawaliry
                   </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:block absolute right-0 bg-cahir-armor">
@@ -55,7 +55,7 @@ export default function RootLayout({
 
         <footer className="mt-8 border-t-1 border-cahir-armor/20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <small className='px-3 py-2'>
-            All Rights Reserved.
+            Wszystkie prawa zastrzeżone.
           </small>
           <div>
             <Link
@@ -63,7 +63,7 @@ export default function RootLayout({
               href='/rules'
               className='px-3 py-2 font-semibold text-cahir-blood'
             >
-              Rules
+              Zasady korzystania z portalu.
             </Link>
           </div>
         </footer>

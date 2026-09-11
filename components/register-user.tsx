@@ -97,8 +97,8 @@ export default function RegisterUser() {
         const textOnlyFields: (keyof FormDataState)[] = ['fullNameParent', 'fullNameSon', 'jobParent', 'jobSon'];
 
         if (textOnlyFields.includes(name)) {
-            if (/\d/.test(value)) return 'Cannot contain numbers.';
-            if (value.length > 50) return 'Must be 50 characters or less.';
+            if (/\d/.test(value)) return 'Nie może zawierać liczb ani znaków specjalnych';
+            if (value.length > 50) return 'Może mieć co najwyżej 50 znaków.';
         }
 
         const cityFields: (keyof FormDataState)[] = ['cityParent', 'citySon'];
@@ -107,7 +107,7 @@ export default function RegisterUser() {
                 const cityExists = cities.some(
                     (c) => c.toLowerCase() === value.trim().toLowerCase()
                 );
-                if (!cityExists) return 'Please select a valid city from the list.';
+                if (!cityExists) return 'Wybierz miasto z listy, która pokaże się, gdy zaczniesz wpisywać swoje miasto.';
             }
         }
 
@@ -168,7 +168,7 @@ export default function RegisterUser() {
             <input type="hidden" name="image" value={imageBase64} />
 
             <fieldset>
-                <legend>Select your role:</legend>
+                <legend>Wybierz swoją rolę:</legend>
 
                 <div className='mt-2'>
                     <input
@@ -179,7 +179,7 @@ export default function RegisterUser() {
                         checked={isParent === true}
                         onChange={() => handleRoleChange(true)}
                     />
-                    <label htmlFor="parent" className='ml-2'>Parent</label>
+                    <label htmlFor="parent" className='ml-2'>Rodzic (szukam zięcia)</label>
                 </div>
 
                 <div className='mt-2'>
@@ -191,7 +191,7 @@ export default function RegisterUser() {
                         checked={isParent === false}
                         onChange={() => handleRoleChange(false)}
                     />
-                    <label htmlFor="son" className='ml-2'>Son</label>
+                    <label htmlFor="son" className='ml-2'>Zięć (szukam żony)</label>
                 </div>
             </fieldset>
 
@@ -199,7 +199,7 @@ export default function RegisterUser() {
                 <div className="parent-section space-y-4">
                     <div>
                         <label htmlFor="fullNameParent" className="block text-sm/6 font-medium text-gray-900">
-                            Name (required - can be only the first name):
+                            Imię (wymagane):
                         </label>
                         <div className="mt-2">
                             <input
@@ -222,7 +222,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="cityParent" className="block text-sm/6 font-medium text-gray-900">
-                            City (required):
+                            Miasto (wymagane):
                         </label>
                         <div className="mt-2">
                             <input
@@ -245,7 +245,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="jobParent" className="block text-sm/6 font-medium text-gray-900">
-                            Job (optional):
+                            Praca (opcjonalnie):
                         </label>
                         <div className="mt-2">
                             <input
@@ -272,7 +272,7 @@ export default function RegisterUser() {
                     {/* Profile Image Upload Field */}
                     <div>
                         <label className="block text-sm/6 font-medium text-gray-900">
-                            Profile Picture (optional):
+                            Zdjęcie profilowe (opcjonalnie):
                         </label>
                         <div className="mt-2 flex items-center gap-x-4">
                             {imagePreview ? (
@@ -288,7 +288,7 @@ export default function RegisterUser() {
                                 htmlFor="file-upload"
                                 className="cursor-pointer rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                             >
-                                <span>Upload photo</span>
+                                <span>Wybierze zdjęcie</span>
                                 <input
                                     id="file-upload"
                                     type="file"
@@ -302,7 +302,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="fullNameSon" className="block text-sm/6 font-medium text-gray-900">
-                            Full Name:
+                            Imię i nazwisko (wymagane):
                         </label>
                         <div className="mt-2">
                             <input
@@ -325,7 +325,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="citySon" className="block text-sm/6 font-medium text-gray-900">
-                            City:
+                            Miasto (wymagane):
                         </label>
                         <div className="mt-2">
                             <input
@@ -347,7 +347,7 @@ export default function RegisterUser() {
                     </div>
 
                     <div>
-                        <label htmlFor="dateOfBirth" className="text-lg">Date of birth:</label>
+                        <label htmlFor="dateOfBirth" className="text-lg">Data urodzenia (wymagane):</label>
                         <input
                             type="date"
                             name="dateOfBirth"
@@ -361,7 +361,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="aboutYou" className="block text-sm/6 font-medium text-gray-900">
-                            About You:
+                            O Tobie (opcjonalnie):
                         </label>
                         <div className="mt-2">
                             <textarea
@@ -383,7 +383,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="jobSon" className="block text-sm/6 font-medium text-gray-900">
-                            Job:
+                            Praca (opcjonalnie):
                         </label>
                         <div className="mt-2">
                             <input
@@ -406,7 +406,7 @@ export default function RegisterUser() {
 
                     <div>
                         <label htmlFor="education-level" className="block text-sm/6 font-medium text-gray-900">
-                            Education:
+                            Wykształcenie (wymagane):
                         </label>
                         <div className="mt-2 grid grid-cols-1">
                             <select
@@ -416,13 +416,12 @@ export default function RegisterUser() {
                                 onChange={handleChange}
                                 className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                             >
-                                <option>Elementary</option>
-                                <option>High School</option>
-                                <option>Certificate</option>
-                                <option>Associate's Degree</option>
-                                <option>Bachelor's Degree</option>
-                                <option>Master's Degree</option>
-                                <option>Doctorate/Ph.D</option>
+                                <option>Podstawowe</option>
+                                <option>Średnie</option>
+                                <option>Średnie techniczne</option>
+                                <option>Licencjat/Inżynier</option>
+                                <option>Magister</option>
+                                <option>Doktor</option>
                             </select>
                             <ChevronDownIcon
                                 aria-hidden="true"
@@ -435,7 +434,7 @@ export default function RegisterUser() {
 
             <div>
                 <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                    Email address:
+                    Email (wymagane):
                 </label>
                 <div className="mt-2">
                     <input
@@ -454,7 +453,7 @@ export default function RegisterUser() {
             <div>
                 <div className="flex items-center justify-between">
                     <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                        Password:
+                        Hasło (wymagane):
                     </label>
                 </div>
                 <div className="mt-2">
@@ -472,7 +471,7 @@ export default function RegisterUser() {
             </div>
 
             <div>
-                By creating an account you agree to this set of rules:
+                Tworząc konto zgadzasz się z zasadami korzystania z portalu:
                 <Link
                     href='/rules'
                     target="_blank"
@@ -488,7 +487,7 @@ export default function RegisterUser() {
                     type="submit"
                     className="flex w-full justify-center rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                    Sign in
+                    Zarejestruj się
                 </button>
             </div>
         </form>

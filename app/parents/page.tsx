@@ -10,7 +10,7 @@ export default async function Page({
   return (
     <div className='mt-12 font-serif'>
       <SearchParent defaultCity={filters.city} defaultSonAge={filters.sonAge} />
-      <h2 className="mt-4">Candidates</h2>
+      <h2 className="mt-4">Kandydaci na zięciów:</h2>
       <ParentsList city={filters.city} sonAge={filters.sonAge}/>
     </div>
   )

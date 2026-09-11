@@ -53,7 +53,7 @@ export default function SonParentSaved({
     if (Array.isArray(userFriendsSaved) && userFriendsSaved.length === 0) {
         return (
             <div className="mt-6 text-center text-gray-600 font-serif text-lg">
-                You haven't add anyone to the saved users' list. You can do it anytime.
+                Nie masz jeszcze nikogo zapisanego. Możesz to zrobić w każdej chwili odwiedzają profil kandydata.
             </div>
         );
     }
@@ -80,7 +80,7 @@ export default function SonParentSaved({
     } else {
         return (
             <div>
-                No users saved
+                Nie masz jeszcze nikogo zapisanego. Możesz to zrobić w każdej chwili odwiedzają profil kandydata.
             </div>
         )
     }

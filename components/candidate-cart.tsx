@@ -65,11 +65,11 @@ export default function CandidateCart({
           src={candidateImage}
           width={500}
           height={500}
-          alt="Picture of the candidate"
+          alt="Zdjęcie kandydata"
         />
         <h2 className="mt-2 ml-2 font-bold">
           {candidateFullName}
-          <span className="font-normal">, age: <span className="font-bold">{age}</span></span>
+          <span className="font-normal">, wiek: <span className="font-bold">{age}</span></span>
         </h2>
         <h3 className="ml-2 border-b border-gray-900/10">{candidateCity}</h3>
         <h3 className="flex items-center ml-1">
@@ -88,7 +88,7 @@ export default function CandidateCart({
             }}
           >
             <ChatBubbleLeftRightIcon className="size-5" />
-            <h4>Open chat</h4>
+            <h4>Otwórz czat</h4>
             {isUnreadConversation && (
               <div className="border-2 px-1 rounded-lg">
                 1

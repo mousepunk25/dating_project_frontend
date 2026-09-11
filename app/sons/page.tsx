@@ -56,7 +56,7 @@ export default async function Page({
         <SonsList sons={candidates} />
       ) : (
         <div className="mt-8 text-center text-lg text-gray-600">
-          No candidates found :(. Try changing the criteria.
+          Nie znaleziono kandydatów :(. Spróbuj zmienić kryteria wyszukiwania.
         </div>
       )}
     </div>

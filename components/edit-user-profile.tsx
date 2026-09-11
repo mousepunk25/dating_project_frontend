@@ -180,9 +180,9 @@ export default function EditUserProfile({
         // Full Name Validation (max 50 chars)
         const nameVal = getFormString(formData, 'full-name').trim();
         if (!nameVal) {
-            newErrors.fullName = 'Full name is required.';
+            newErrors.fullName = 'Imię jest wymagane.';
         } else if (nameVal.length > 50) {
-            newErrors.fullName = 'Full name cannot exceed 50 characters.';
+            newErrors.fullName = 'Imię nie może przekraczać 50 znaków.';
         }
 
         // Son Specific Validations
@@ -190,7 +190,7 @@ export default function EditUserProfile({
             // DOB Validation (18 to 100 years old)
             const dobVal = formData.get('dob') as string;
             if (!dobVal) {
-                newErrors.dob = 'Date of birth is required.';
+                newErrors.dob = 'Data urodzenia jest wymagana.';
             } else {
                 const birthDate = new Date(dobVal);
                 const today = new Date();
@@ -202,14 +202,14 @@ export default function EditUserProfile({
                 }
 
                 if (ageCalculated < 18 || ageCalculated > 100) {
-                    newErrors.dob = 'You must be between 18 and 100 years old.';
+                    newErrors.dob = 'Musisz mieć więcej niż 18 i mniej niż 100 lat.';
                 }
             }
 
             // About You Validation (max 1000 chars)
             const aboutVal = getFormString(formData, 'about');
             if (aboutVal.length > 1000) {
-                newErrors.about = 'About section cannot exceed 1,000 characters.';
+                newErrors.about = 'Tekst w sekcji O mnie nie może być dłuższy niż 1000 znaków.';
             }
         }
 
@@ -218,12 +218,12 @@ export default function EditUserProfile({
         if (!city) {
             newErrors.city = 'City is required.';
         } else if (validCities.length > 0 && !validCities.some(c => c.toLowerCase() === city.toLowerCase())) {
-            newErrors.city = 'Please select a valid city from the list.';
+            newErrors.city = 'Wybierze prawidłowe miasto z listy, która się pojawi, gdy zaczniesz wpisywać swoje miasto.';
         }
 
         // Parent Age Range Validation
         if (role === 'parent' && ageMin > ageMax) {
-            newErrors.age = 'Min age cannot be greater than Max age.';
+            newErrors.age = 'Wiek minimalny nie może być większy niż wiek maksymalny.';
         }
 
         setErrors(newErrors);
@@ -359,7 +359,7 @@ export default function EditUserProfile({
                             {/* About You Input with 1000 char counter */}
                             <div className="col-span-full">
                                 <div className="flex justify-between items-center">
-                                    <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">About you</label>
+                                    <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">O mnie</label>
                                     <span className="text-xs text-gray-500">{aboutYou.length}/1000</span>
                                 </div>
                                 <textarea
@@ -379,7 +379,7 @@ export default function EditUserProfile({
 
                             {/* Son Profile Image Picker */}
                             <div className="col-span-full">
-                                <label className="block text-sm/6 font-medium text-gray-900">Photo</label>
+                                <label className="block text-sm/6 font-medium text-gray-900">Zdjęcie</label>
                                 <div className="mt-2 flex items-center gap-x-3">
                                     {currentPhotoSrc ? (
                                         <Image src={currentPhotoSrc} width={100} height={100} alt="Profile" className="size-24 rounded-full object-cover" />
@@ -387,7 +387,7 @@ export default function EditUserProfile({
                                         <PhotoIcon className="size-16 text-gray-300" />
                                     )}
                                     <label htmlFor="photo-upload" className="cursor-pointer rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">
-                                        Change
+                                        Zmień
                                     </label>
                                     <input
                                         id="photo-upload"
@@ -403,13 +403,13 @@ export default function EditUserProfile({
                     </div>
 
                     <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Personal Information</h2>
+                        <h2 className="text-base/7 font-semibold text-gray-900">Informacje szczegółowe</h2>
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
                             {/* Full Name Input (max 50 chars) */}
                             <div className="sm:col-span-3">
                                 <div className="flex justify-between items-center">
-                                    <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                                    <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię i nazwisko</label>
                                     <span className="text-xs text-gray-500">{fullName.length}/50</span>
                                 </div>
                                 <input
@@ -429,7 +429,7 @@ export default function EditUserProfile({
 
                             <div className="sm:col-span-3">
                                 <label htmlFor="education-level" className="block text-sm/6 font-medium text-gray-900">
-                                    Education
+                                    Wykształcenie
                                 </label>
                                 <div className="mt-2 grid grid-cols-1">
                                     <select
@@ -439,13 +439,12 @@ export default function EditUserProfile({
                                         onChange={(e) => setEducationLevel(e.target.value)}
                                         className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white border border-gray-300 py-1.5 pr-8 pl-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                                     >
-                                        <option value="Elementary">Elementary</option>
-                                        <option value="High School">High School</option>
-                                        <option value="Certificate">Certificate</option>
-                                        <option value="Associate's Degree">Associate's Degree</option>
-                                        <option value="Bachelor's Degree">Bachelor's Degree</option>
-                                        <option value="Master's Degree">Master's Degree</option>
-                                        <option value="Doctorate/Ph.D">Doctorate/Ph.D</option>
+                                        <option value="Elementary">Podstawowe</option>
+                                        <option value="High School">Średnie</option>
+                                        <option value="Certificate">Średnie techniczne</option>
+                                        <option value="Bachelor's Degree">Licencjat/Inżynier</option>
+                                        <option value="Master's Degree">Magister</option>
+                                        <option value="Doctorate/Ph.D">Doktor</option>
                                     </select>
                                     <ChevronDownIcon
                                         aria-hidden="true"
@@ -455,7 +454,7 @@ export default function EditUserProfile({
                             </div>
 
                             <div className="sm:col-span-2 sm:col-start-1 relative">
-                                <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">City</label>
+                                <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">Miasto</label>
                                 <input
                                     id="city"
                                     name="city"
@@ -487,9 +486,9 @@ export default function EditUserProfile({
                     </div>
 
                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <button type="button" className="text-sm/6 font-semibold text-gray-900">Cancel</button>
+                        <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
                         <button type="submit" disabled={isSubmitting} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50">
-                            {isSubmitting ? 'Saving...' : 'Save'}
+                            {isSubmitting ? 'Zaspisuję...' : 'Zapisz'}
                         </button>
                     </div>
                 </div>
@@ -501,19 +500,19 @@ export default function EditUserProfile({
         <form onSubmit={handleParentSubmit}>
             <div className="space-y-12">
                 <div className="border-b border-gray-900/10 pb-12">
-                    <h2 className="text-base/7 font-semibold text-gray-900">Personal Information</h2>
+                    <h2 className="text-base/7 font-semibold text-gray-900">Informacje o Tobie</h2>
                     {errors.age && <p className="mt-2 text-sm text-red-500">{errors.age}</p>}
 
                     <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                         <div className="sm:col-span-2">
-                            <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Son Min Age</label>
+                            <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Minimalny wiek zięcia:</label>
                             <select id="ageMin" name="ageMin" value={ageMin} onChange={e => setAgeMin(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
                                 {ageRange.map(a => <option key={`min_${a}`} value={a}>{a}</option>)}
                             </select>
                         </div>
 
                         <div className="sm:col-span-2">
-                            <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Son Max Age</label>
+                            <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Maksymalny wiek zięcia:</label>
                             <select id="ageMax" name="ageMax" value={ageMax} onChange={e => setAgeMax(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
                                 {ageRange.map(a => <option key={`max_${a}`} value={a}>{a}</option>)}
                             </select>
@@ -522,7 +521,7 @@ export default function EditUserProfile({
                         {/* Full Name Input (max 50 chars) */}
                         <div className="sm:col-span-3 col-start-1">
                             <div className="flex justify-between items-center">
-                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Full name</label>
+                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię</label>
                                 <span className="text-xs text-gray-500">{fullName.length}/50</span>
                             </div>
                             <input
@@ -543,7 +542,7 @@ export default function EditUserProfile({
                         {/* Parent Job Position Input */}
                         <div className="sm:col-span-3">
                             <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
-                                Job Position
+                                Praca
                             </label>
                             <input
                                 id="job-position"
@@ -552,7 +551,7 @@ export default function EditUserProfile({
                                 value={jobPosition}
                                 onChange={(e) => setJobPosition(e.target.value)}
                                 className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                placeholder="e.g. Engineer, Teacher, Retired..."
+                                placeholder="e.g. Inżynie, Nauczyciel, Emeryt..."
                             />
                         </div>
 
@@ -588,9 +587,9 @@ export default function EditUserProfile({
                 </div>
 
                 <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm/6 font-semibold text-gray-900">Cancel</button>
+                    <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
                     <button type="submit" disabled={isSubmitting} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50">
-                        {isSubmitting ? 'Saving...' : 'Save'}
+                        {isSubmitting ? 'Zapisuję...' : 'Zapisz'}
                     </button>
                 </div>
             </div>

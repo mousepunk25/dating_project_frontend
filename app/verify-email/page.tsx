@@ -32,13 +32,13 @@ function VerifyEmailContent() {
           <div className="space-y-4">
             {/* Loading Spinner */}
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent align-[-0.125em]" role="status">
-              <span className="sr-only">Loading...</span>
+              <span className="sr-only">Ładowanie...</span>
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Verifying your email...
+              Weryfikowanie twojego adresu email...
             </h2>
             <p className="text-sm text-gray-500">
-              Please wait while we confirm your account details.
+              Proszę czekać zanim potwierdzimy szczegóły twojego konta.
             </p>
           </div>
         ) : (
@@ -56,7 +56,7 @@ export default function VerifyEmailPage() {
     <Suspense
       fallback={
         <div className="flex min-h-full items-center justify-center p-12 text-center text-sm text-gray-500">
-          Loading verification...
+          Weryfikacja...
         </div>
       }
     >

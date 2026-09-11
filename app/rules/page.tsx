@@ -24,10 +24,10 @@ export default function RulesPage() {
             </svg>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            Community Rules & Disclaimer
+            Zasady Społeczności i Wyłączenie Odpowiedzialności
           </h1>
           <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-            These standards exist to ensure a safe, respectful, and authentic environment for everyone.
+            Te standardy istnieją, aby zapewnić bezpieczne, pełne szacunku i autentyczne środowisko dla każdego.
           </p>
         </header>
 
@@ -37,71 +37,71 @@ export default function RulesPage() {
           <section>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              1. Eligibility & Genuine Identity
+              1. Wymagania dotyczące wieku i prawdziwa tożsamość
             </h2>
             <ul className="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
-              <li>You must be at least <strong>18 years old</strong> (or the legal age in your jurisdiction) to join.</li>
-              <li>Only one active profile per individual is permitted.</li>
-              <li>Profiles must represent your real identity using accurate personal details and recent photos of yourself.</li>
-              <li>Impersonation, creating fake accounts, or using unauthorized AI-generated likenesses is strictly prohibited.</li>
+              <li>Musisz mieć ukończone co najmniej <strong>18 lat</strong> (lub być pełnoletnim w swojej jurysdykcji), aby dołączyć.</li>
+              <li>Dozwolony jest tylko jeden aktywny profil na osobę.</li>
+              <li>Profile muszą reprezentować Twoją prawdziwą tożsamość przy użyciu dokładnych danych osobowych oraz Twoich aktualnych zdjęć.</li>
+              <li>Podszywanie się pod innych, tworzenie fałszywych kont oraz używanie nieautoryzowanego wizerunku wygenerowanego przez AI jest surowo zabronione.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              2. Respectful Behavior & Safety
+              2. Szacunek i Bezpieczeństwo
             </h2>
             <ul className="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
-              <li>Zero tolerance for harassment, hate speech, bullying, threats, or discrimination of any kind.</li>
-              <li>Keep all communication respectful and consensual. Unsolicited sexually explicit messages or photos are strictly forbidden.</li>
-              <li>Do not post or upload violent, pornographic, or illegal material.</li>
+              <li>Brak tolerancji dla nękania, mowy nienawiści, zastraszania, gróźb lub jakiejkolwiek formy dyskryminacji.</li>
+              <li>Dbaj o to, aby cała komunikacja odbywała się z szacunkiem i za obopólną zgodą. Niezamówione wiadomości lub zdjęcia o jednoznacznym charakterze seksualnym są surowo zabronione.</li>
+              <li>Nie publikuj ani nie przesyłaj treści zawierających przemoc, pornografię lub materiały nielegalne.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              3. Commercial Activity & Anti-Scam Policy
+              3. Działalność Komercyjna i Polityka Przeciwko Oszustwom
             </h2>
             <ul className="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
-              <li><strong>Never ask other members for money</strong>, gifts, loans, or financial assistance under any circumstances.</li>
-              <li>Commercial promotion, selling goods/services, self-promotion, or spam messaging is strictly prohibited.</li>
-              <li>Fraudulent activities, scams, or deceptive behavior will be reported to legal authorities.</li>
+              <li><strong>Nigdy nie proś innych użytkowników o pieniądze</strong>, prezenty, pożyczki ani pomoc finansową pod żadnym pozorem.</li>
+              <li>Promocja komercyjna, sprzedaż towarów/usług, autopromocja oraz wysyłanie spamu są surowo zabronione.</li>
+              <li>Działania przestępcze, oszustwa lub wprowadzanie w błąd będą zgłaszane odpowiednim organom ścigania.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              4. Personal Responsibility & Offline Safety
+              4. Odpowiedzialność Osobista i Bezpieczeństwo Offline
             </h2>
             <ul className="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
-              <li><strong>User Interaction:</strong> You are solely responsible for your interactions with other users, whether online or offline.</li>
-              <li><strong>Background Checks:</strong> The platform does not conduct criminal background checks or identity verifications on all members. Exercise caution at all times.</li>
-              <li><strong>Off-Platform Meetings:</strong> Meeting in person or continuing conversations on external platforms is done entirely at your own risk. Always meet in public places and inform someone you trust of your plans.</li>
+              <li><strong>Interakcje z użytkownikami:</strong> Ponosisz wyłączną odpowiedzialność za swoje relacje z innymi użytkownikami, zarówno w sieci, jak i poza nią.</li>
+              <li><strong>Weryfikacja przeszłości:</strong> Platforma nie przeprowadza kontroli przeszłości karnej ani weryfikacji tożsamości wszystkich użytkowników. Zawsze zachowuj ostrożność.</li>
+              <li><strong>Spotkania poza platformą:</strong> Spotkania osobiste lub kontynuowanie rozmów na zewnętrznych platformach odbywają się wyłącznie na Twoje własne ryzyko. Zawsze spotykaj się w miejscach publicznych i poinformuj kogoś zaufanego o swoich planach.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              5. Limitation of Liability & Disclaimers
+              5. Ograniczenie Odpowiedzialności i Wyłączenia
             </h2>
             <ul className="list-disc pl-6 space-y-1.5 text-slate-600 dark:text-slate-400">
-              <li><strong>Platform Provided "As Is":</strong> The app and its services are provided on an "as is" and "as available" basis without warranties of any kind. We do not guarantee match success, compatibility, or uninterrupted service.</li>
-              <li><strong>Third-Party Actions:</strong> The app operator/owner assumes no liability for any conduct, statement, content, or harm caused by users or third parties on or off the platform.</li>
-              <li><strong>Financial & Data Losses:</strong> The platform is not responsible for any monetary losses, personal injury, emotional distress, or unauthorized access to user accounts caused by third parties.</li>
+              <li><strong>Platforma dostarczana w stanie "Taki, jaki jest":</strong> Aplikacja i jej usługi są dostarczane w stanie "taki, jaki jest" i "w miarę dostępności" bez jakichkolwiek gwarancji. Nie gwarantujemy sukcesu w dopasowaniach, kompatybilności ani nieprzerwanego działania serwisu.</li>
+              <li><strong>Działania osób trzecich:</strong> Operator/właściciel aplikacji nie ponosi żadnej odpowiedzialności za jakiekolwiek zachowania, wypowiedzi, treści lub szkody wyrządzone przez użytkowników bądź osoby trzecie na platformie lub poza nią.</li>
+              <li><strong>Straty finansowe i dane:</strong> Platforma nie ponosi odpowiedzialności za jakiekolwiek straty materialne, uszczerbek na zdrowiu, straty emocjonalne ani nieautoryzowany dostęp do kont użytkowników spowodowany przez osoby trzecie.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              6. Enforcement & Account Termination
+              6. Egzekwowanie Zasad i Zamknięcie Konta
             </h2>
             <p className="pl-5 text-slate-600 dark:text-slate-400">
-              We reserve the right, but are not obligated, to investigate reports and temporarily suspend or permanently ban any account that violates these community rules without prior notice or liability.
+              Zastrzegamy sobie prawo, ale nie obowiązek, do badania zgłoszeń oraz tymczasowego zawieszenia lub trwałego zablokowania każdego konta, które narusza niniejsze zasady społeczności, bez wcześniejszego powiadomienia i bez ponoszenia odpowiedzialności.
             </p>
           </section>
 
@@ -113,7 +113,7 @@ export default function RulesPage() {
             href="/"
             className="inline-flex items-center text-sm font-medium text-rose-600 dark:text-rose-400 hover:underline"
           >
-            ← Back to Home
+            ← Powrót do Strony Główniej
           </Link>
         </footer>
 

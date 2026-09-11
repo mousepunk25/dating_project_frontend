@@ -61,7 +61,7 @@ export default function ParentCart({
             }}
           >
             <ChatBubbleLeftRightIcon className="size-5" />
-            <h4>Open chat</h4>
+            <h4>Otwórz czat</h4>
             {isUnreadConversation && (
               <div className="border-2 px-1 rounded-lg">
                 1

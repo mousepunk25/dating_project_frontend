@@ -199,7 +199,7 @@ export default function Pulpit({
                                 className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'edit-profile' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
                             >
                                 <PencilSquareIcon className="size-6" />
-                                Edit Profile
+                                Edytuj profil
                             </button>
                         </div>
                         <div className="shrink-0">
@@ -215,7 +215,7 @@ export default function Pulpit({
                                         </span>
                                     )}
                                 </div>
-                                Friends
+                                Znajomi
                             </button>
                         </div>
                         <div className="shrink-0">
@@ -224,7 +224,7 @@ export default function Pulpit({
                                 className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-requests-received' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
                             >
                                 <EnvelopeOpenIcon className="size-6" />
-                                Requests Received
+                                Zaproszenia do znajomych otrzymane
                             </button>
                         </div>
                         <div className="shrink-0">
@@ -233,7 +233,7 @@ export default function Pulpit({
                                 className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'friends-requests-sent' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
                             >
                                 <EnvelopeIcon className="size-6" />
-                                Requests Sent
+                                Zaproszenia do znajomych wysłane
                             </button>
                         </div>
                         <div className="shrink-0">
@@ -242,7 +242,7 @@ export default function Pulpit({
                                 className={`cursor-pointer text-sm/6 px-4 pt-2 grid grid-flow-row justify-items-center ${panel === 'candidates-saved' ? 'font-semibold border-2 border-cahir-blood text-cahir-blood rounded-lg' : ''}`}
                             >
                                 <BookmarkIcon className="size-6" />
-                                Candidates Saved
+                                Zapisani kandydaci
                             </button>
                         </div>
                     </div>
@@ -267,7 +267,7 @@ export default function Pulpit({
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="-m-2.5 rounded-md p-2.5 text-gray-700"
                             >
-                                <span className="sr-only">Close menu</span>
+                                <span className="sr-only">Zamknij menu</span>
                                 <XMarkIcon aria-hidden="true" className="size-6" />
                             </button>
                         </div>
@@ -278,13 +278,13 @@ export default function Pulpit({
                                         onClick={() => setPanel('edit-profile')}
                                         className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'edit-profile' && 'font-semibold'}`}
                                     >
-                                        Edit Profile
+                                        Edytuj profil
                                     </button>
                                     <button
                                         onClick={() => setPanel('friends-list')}
                                         className={`-mx-3 flex items-center justify-between w-full rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'friends-list' && 'font-semibold'}`}
                                     >
-                                        <span>Friends</span>
+                                        <span>Znajomi</span>
                                         {unreadCount > 0 && (
                                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cahir-blood text-[10px] font-bold text-white">
                                                 {unreadCount}
@@ -295,19 +295,19 @@ export default function Pulpit({
                                         onClick={() => setPanel('friends-requests-received')}
                                         className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'friends-requests-received' && 'font-semibold'}`}
                                     >
-                                        Friends Requests Received
+                                        Zaproszenia do znajomych otrzymane
                                     </button>
                                     <button
                                         onClick={() => setPanel('friends-requests-sent')}
                                         className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'friends-requests-sent' && 'font-semibold'}`}
                                     >
-                                        Friends Requests Sent
+                                        Zaproszenia do znajomych wysłane
                                     </button>
                                     <button
                                         onClick={() => setPanel('candidates-saved')}
                                         className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 hover:bg-gray-50 ${panel === 'candidates-saved' && 'font-semibold'}`}
                                     >
-                                        Candidates Saved
+                                        Zapisani kandydaci
                                     </button>
                                 </div>
                             </div>

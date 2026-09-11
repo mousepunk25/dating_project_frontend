@@ -14,11 +14,11 @@ const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
   : process.env.NEXT_PUBLIC_PROD_API_URL;
 
 const NAVIGATION_ITEMS = [
-  { name: 'Home page', href: '/' },
-  { name: 'My profile', href: '/myprofile' },
-  { name: 'Login', href: '/myprofile' },
-  { name: 'Logout', href: `${url}/logout` },
-  { name: 'Register', href: '/register'}
+  { name: 'Strona główna', href: '/' },
+  { name: 'Mój profil', href: '/myprofile' },
+  { name: 'Logowanie', href: '/myprofile' },
+  { name: 'Wyloguj się', href: `${url}/logout` },
+  { name: 'Rejestracja', href: '/register'}
 ];
 
 export default function NavigationButtons({ version }: { version: 'web' | 'mobile' }) {
@@ -45,8 +45,8 @@ export default function NavigationButtons({ version }: { version: 'web' | 'mobil
       const active = isCurrent(item.href);
 
       // Determine visibility rules
-      const isProfileOrLogout = item.name === 'My profile' || item.name === 'Logout';
-      const isLoginOrRegister = item.name === 'Login' || item.name === 'Register';
+      const isProfileOrLogout = item.name === 'Mój profil' || item.name === 'Wyloguj się';
+      const isLoginOrRegister = item.name === 'Logowanie' || item.name === 'Rejestracja';
 
       if (isProfileOrLogout && !isLoggedIn) return null;
       if (isLoginOrRegister && isLoggedIn) return null;

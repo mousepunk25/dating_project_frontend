@@ -53,7 +53,7 @@ export default function SonParentRequests({
     if (Array.isArray(userFriendsWhoWantToBeAdded) && userFriendsWhoWantToBeAdded.length === 0) {
         return (
             <div className="mt-6 text-center text-gray-600 font-serif text-lg">
-                No one sent you request yet :/ Wait for someone to send you a request to add you to the friends' list
+                Nie masz nowych zaproszeń :/ Zaczekaj, aż ktoś przyśle Tobie zaproszenie, żeby dodać Cię do listy znajomych.
             </div>
         );
     }
@@ -80,7 +80,7 @@ export default function SonParentRequests({
     } else {
         return (
             <div>
-                No candidates sent a request yet.
+                Nie masz nowych zaproszeń :/ Zaczekaj, aż ktoś przyśle Tobie zaproszenie, żeby dodać Cię do listy znajomych.
             </div>
         )
     }

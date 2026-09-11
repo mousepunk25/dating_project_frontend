@@ -105,7 +105,7 @@ export default async function Page({
                     />
                 </div>
                 <div className='mt-3 block'>
-                    <h1 className='text-xl font-bold'>{decodedFullName}, age: {age}, city: {candidate.address.city}</h1>
+                    <h1 className='text-xl font-bold'>{decodedFullName}, wiek: {age}, miasto: {candidate.address.city}</h1>
                 </div>
                 <div>
                     {hasSocialMedia && (
@@ -120,7 +120,7 @@ export default async function Page({
                                         className='underline m-4 inline-block'
                                     >
                                         <h3 className='text-lg'>
-                                            My {sMedia.website} profile - click here
+                                            Mój profil {sMedia.website} - kliknij tutaj.
                                         </h3>
                                     </a>
                                 )
@@ -132,7 +132,7 @@ export default async function Page({
                 </div>
             </div>
             <div className="mt-2">
-                About {decodedFullName}:
+                O mnie:
             </div>
             <div className="italic pb-2 border-b-1">
                 {decodedAboutYou}
@@ -140,7 +140,7 @@ export default async function Page({
             
             {hasJob && (
                 <div className="text-lg mt-2 flex">
-                    <h3 className="font-bold">Job: </h3> 
+                    <h3 className="font-bold">Praca: </h3> 
                     <span className="ml-2">
                         {decodedJobPosition}
                         {decodedJobPosition && decodedCompanyName ? ' at ' : ''}
@@ -150,7 +150,7 @@ export default async function Page({
             )}
 
             <div className="text-lg mt-2 flex">
-                <h3 className="font-bold">Education: </h3> <span className="ml-2">{decodedEducation}</span>
+                <h3 className="font-bold">Wykształcenie: </h3> <span className="ml-2">{decodedEducation}</span>
             </div>
         </div>
     )

@@ -38,7 +38,7 @@ export default function HomePage() {
         return (
             <div className="space-y-2 font-serif">
             <p className="text-gray-900 text-xl">
-                Find perfect match
+                Stwórz rodzinę
             </p>
             <SearchParent />
         </div>
@@ -47,10 +47,10 @@ export default function HomePage() {
     return (
         <div className="space-y-2 font-serif">
             <p className="text-gray-900 text-xl">
-                Find perfect match
+                Znajdź perfekcyjnego zięcia
             </p>
             <h2 className="text-gray-600 text-2xl font-bold">
-                {sonCount} great candidates is waiting
+                {sonCount} wspaniałych kandydatów czeka
                 <FaceSmileIcon aria-hidden="true" className="block size-6 group-data-open:hidden inline ml-1" />
             </h2>
             <SearchSon />

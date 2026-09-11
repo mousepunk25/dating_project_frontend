@@ -47,7 +47,7 @@ export default function ParentProfile({
             <div className='mt-6 font-serif'>
                 <div className='flex flex-col'>
                     <div className='mt-3 block'>
-                        <h1 className='text-xl font-bold'>{parent.fullName}, city: {parent.address.city}</h1>
+                        <h1 className='text-xl font-bold'>{parent.fullName}, miasto: {parent.address.city}</h1>
                     </div>
                     <div>
                         <SaveButton sonProfileId={parent._id} />
@@ -55,13 +55,13 @@ export default function ParentProfile({
                     </div>
                 </div>
                 <div className="text-lg mt-2 flex">
-                    <h3 className="font-bold">Job: </h3> <span className="ml-2">{parent.job}</span>
+                    <h3 className="font-bold">Praca: </h3> <span className="ml-2">{parent.job}</span>
                 </div>
             </div>
         )
     } else {
         return (
-            <h2>No parent found</h2>
+            <h2>Nie znaleziono użytkowników</h2>
         )
     }
 }

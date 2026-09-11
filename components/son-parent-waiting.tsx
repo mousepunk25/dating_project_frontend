@@ -53,7 +53,7 @@ export default function SonParentWaiting({
     if (Array.isArray(userFriendsWithRequestSent) && userFriendsWithRequestSent.length === 0) {
         return (
             <div className="mt-6 text-center text-gray-600 font-serif text-lg">
-                You haven't sent a request to anyone yet. Please do it :)
+                Nie ma tutaj żadnych zaproszeń do listy znajomych. Możesz raz dziennie wysłać je dowolnemu kandydatowi :)
             </div>
         );
     }
@@ -80,7 +80,7 @@ export default function SonParentWaiting({
     } else {
         return (
             <div>
-                You haven't sent a request to any candidate yet.
+                Nie ma tutaj żadnych zaproszeń do listy znajomych. Możesz raz dziennie wysłać je dowolnemu kandydatowi :)
             </div>
         )
     }
