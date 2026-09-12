@@ -9,19 +9,19 @@ export default async function Page({
   const filters = await searchParams;
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-serif text-gray-900 dark:text-gray-100">
+    <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900">
       {/* Container with max-width constraints for big screens */}
       <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         
         {/* Search Panel Section */}
-        <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+        <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
           <SearchParent defaultCity={filters.city} defaultSonAge={filters.sonAge} />
         </section>
 
         {/* Header & List Section */}
         <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-4">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
               Kandydaci na zięciów
             </h2>
           </div>
