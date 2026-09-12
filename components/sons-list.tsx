@@ -41,9 +41,11 @@ interface SonsListProps {
   sons: SonCandidate[];
   showChat?: (candidateId: string) => void;
   unreadConversations?: ChatConversation[];
+  addedStatus?: 'friend' | 'request-received' | 'saved' | 'request-sent';
+  parentProfileId: string
 }
 
-export default function SonsList({ sons, showChat, unreadConversations }: SonsListProps) {
+export default function SonsList({ sons, showChat, unreadConversations, addedStatus, parentProfileId }: SonsListProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 my-6">
       {Array.isArray(sons) &&
@@ -64,6 +66,8 @@ export default function SonsList({ sons, showChat, unreadConversations }: SonsLi
               candidateJob={jobTitle}
               showChat={showChat}
               unreadConversations={unreadConversations}
+              addedStatus={addedStatus}
+              parentProfileId={parentProfileId}
             />
           );
         })}

@@ -77,7 +77,7 @@ export default function SonParentFriends({
   if (Array.isArray(userFriends) && userFriends.length === 0) {
     return (
       <div className="mt-6 text-center text-gray-600 font-serif text-lg">
-        Wciąż nie masz dodanych znajomych :/ Wyślij do kogoś zaproszenie i zaczekaj aż zostanie zaakceptowane.
+        Wciąż nie masz dodanych znajomych :/ Wyślij komuś zaproszenie i zaczekaj aż zostanie zaakceptowane.
       </div>
     );
   }
@@ -88,6 +88,8 @@ export default function SonParentFriends({
         sons={userFriends} 
         showChat={showChat} 
         unreadConversations={unreadConversations}
+        addedStatus='friend'
+        parentProfileId={profileId}
       />
     );
   } else if (userFriends && role === 'son') {
@@ -107,6 +109,7 @@ export default function SonParentFriends({
               parentJob={jobTitle}
               showChat={showChat}
               unreadConversations={unreadConversations}
+              addedStatus='friend'
             />
           );
         })}

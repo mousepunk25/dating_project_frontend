@@ -60,7 +60,11 @@ export default function SonParentRequests({
 
     if (userFriendsWhoWantToBeAdded && role === 'parent') {
         return (
-            <SonsList sons={userFriendsWhoWantToBeAdded}/>
+            <SonsList
+            sons={userFriendsWhoWantToBeAdded}
+            addedStatus='request-received'
+            parentProfileId={profileId}
+            />
         )
     } else if (userFriendsWhoWantToBeAdded && role === 'son') {
         return (
@@ -72,6 +76,7 @@ export default function SonParentRequests({
                             parentFullName={parent.fullName}
                             parentCity={parent.address?.city}
                             parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
+                            addedStatus='request-received'
                         />
                     );
                 })}

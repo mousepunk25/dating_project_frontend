@@ -20,6 +20,7 @@ interface ParentCartProps {
   parentJob: string;
   showChat?: (parentId: string) => void;
   unreadConversations?: UnreadConversation[];
+  addedStatus?: 'friend' | 'request-received' | 'saved' | 'request-sent'
 }
 
 export default function ParentCart({
@@ -28,7 +29,8 @@ export default function ParentCart({
   parentCity,
   parentJob,
   showChat,
-  unreadConversations
+  unreadConversations,
+  addedStatus
 }: ParentCartProps) {
   const isUnreadConversation = unreadConversations?.some(
     (u) => u.participantSon._id === parentId || u.participantParent._id === parentId

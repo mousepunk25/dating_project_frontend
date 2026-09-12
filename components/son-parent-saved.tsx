@@ -60,7 +60,11 @@ export default function SonParentSaved({
 
     if (userFriendsSaved && role === 'parent') {
         return (
-            <SonsList sons={userFriendsSaved}/>
+            <SonsList
+            sons={userFriendsSaved}
+            addedStatus='saved'
+            parentProfileId={profileId}
+            />
         )
     } else if (userFriendsSaved && role === 'son') {
         return (
@@ -72,6 +76,7 @@ export default function SonParentSaved({
                             parentFullName={parent.fullName}
                             parentCity={parent.address?.city}
                             parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
+                            addedStatus='saved'
                         />
                     );
                 })}

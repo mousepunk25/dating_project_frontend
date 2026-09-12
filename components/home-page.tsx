@@ -7,7 +7,7 @@ import { FaceSmileIcon } from '@heroicons/react/24/outline';
 
 export default function HomePage() {
     const [role, setRole] = useState('parent');
-    const [sonCount, setSonCount] = useState('Many');
+    const [sonCount, setSonCount] = useState('Wielu');
 
     useEffect(() => {
         let ignore = false;

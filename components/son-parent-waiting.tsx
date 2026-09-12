@@ -60,7 +60,11 @@ export default function SonParentWaiting({
 
     if (userFriendsWithRequestSent && role === 'parent') {
         return (
-            <SonsList sons={userFriendsWithRequestSent}/>
+            <SonsList
+            sons={userFriendsWithRequestSent}
+            addedStatus='request-sent'
+            parentProfileId={profileId}
+            />
         )
     } else if (userFriendsWithRequestSent && role === 'son') {
         return (
@@ -72,6 +76,7 @@ export default function SonParentWaiting({
                             parentFullName={parent.fullName}
                             parentCity={parent.address?.city}
                             parentJob={typeof parent.job === 'string' ? parent.job : parent.job?.position}
+                            addedStatus='request-sent'
                         />
                     );
                 })}
