@@ -6,12 +6,33 @@ export default async function Page({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
-  const filters = await searchParams
+  const filters = await searchParams;
+
   return (
-    <div className='mt-12 font-serif'>
-      <SearchParent defaultCity={filters.city} defaultSonAge={filters.sonAge} />
-      <h2 className="mt-4">Kandydaci na zięciów:</h2>
-      <ParentsList city={filters.city} sonAge={filters.sonAge}/>
-    </div>
-  )
+    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-serif text-gray-900 dark:text-gray-100">
+      {/* Container with max-width constraints for big screens */}
+      <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+        
+        {/* Search Panel Section */}
+        <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+          <SearchParent defaultCity={filters.city} defaultSonAge={filters.sonAge} />
+        </section>
+
+        {/* Header & List Section */}
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+              Kandydaci na zięciów
+            </h2>
+          </div>
+
+          {/* Results Area */}
+          <div className="w-full">
+            <ParentsList city={filters.city} sonAge={filters.sonAge} />
+          </div>
+        </section>
+
+      </div>
+    </main>
+  );
 }

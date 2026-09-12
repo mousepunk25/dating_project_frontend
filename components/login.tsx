@@ -1,7 +1,16 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+
+function Spinner({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg className={`animate-spin ${className}`} viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
+  );
+}
 
 function NotificationBanners() {
   const searchParams = useSearchParams();
@@ -14,7 +23,6 @@ function NotificationBanners() {
 
   return (
     <div className="mb-6 space-y-3">
-      {/* 1. Verification Sent */}
       {status === 'verification-sent' && (
         <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
           <p className="text-sm font-medium text-blue-800">
@@ -26,7 +34,6 @@ function NotificationBanners() {
         </div>
       )}
 
-      {/* 2. Successfully Verified */}
       {verified === 'true' && (
         <div className="rounded-md bg-green-50 p-4 border border-green-200">
           <p className="text-sm font-medium text-green-800">
@@ -38,7 +45,6 @@ function NotificationBanners() {
         </div>
       )}
 
-      {/* 3. Missing Token */}
       {error === 'missing-token' && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm font-medium text-red-800">
@@ -50,19 +56,17 @@ function NotificationBanners() {
         </div>
       )}
 
-      {/* 4. Invalid or Expired Token */}
       {error === 'invalid-or-expired-token' && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm font-medium text-red-800">
             Link się przedawnił lub jest nieprawidłowy.
           </p>
           <p className="mt-1 text-sm text-red-700">
-            Twoj link weryfikacyjny się przedawnił. Zaloguj się albo poproś o wysłanie nowego linku.
+            Twój link weryfikacyjny się przedawnił. Zaloguj się albo poproś o wysłanie nowego linku.
           </p>
         </div>
       )}
 
-      {/* 5. Unverified Account Error on Login Attempt */}
       {error === 'email-not-verified' && (
         <div className="rounded-md bg-amber-50 p-4 border border-amber-200">
           <p className="text-sm font-medium text-amber-800">
@@ -74,7 +78,6 @@ function NotificationBanners() {
         </div>
       )}
 
-      {/* 6. Invalid Credentials Error */}
       {error === 'invalid-credentials' && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm font-medium text-red-800">
@@ -90,6 +93,8 @@ function NotificationBanners() {
 }
 
 export default function Login() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
     ? process.env.NEXT_PUBLIC_DEV_API_URL 
     : process.env.NEXT_PUBLIC_PROD_API_URL;
@@ -107,7 +112,12 @@ export default function Login() {
           <NotificationBanners />
         </Suspense>
 
-        <form action={`${url}/login`} method="POST" className="space-y-6">
+        <form 
+          action={`${url}/login`} 
+          method="POST" 
+          onSubmit={() => setIsSubmitting(true)} 
+          className="space-y-6"
+        >
           <div>
             <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
               Email
@@ -150,9 +160,17 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Zaloguj
+              {isSubmitting ? (
+                <>
+                  <Spinner className="size-4 text-white" />
+                  <span>Logowanie...</span>
+                </>
+              ) : (
+                'Zaloguj'
+              )}
             </button>
           </div>
         </form>

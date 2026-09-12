@@ -1,5 +1,3 @@
-import SaveButton from '@/components/save-button';
-import AddFriendButton from '@/components/add-friend-button';
 import ParentProfile from '@/components/parent-profile';
 
 export default async function Page({

@@ -28,6 +28,10 @@ export default function RegisterUser() {
     const [aboutYou, setAboutYou] = useState<string>('');
     const [cities, setCities] = useState<string[]>([]);
 
+    // Loading & Submission States
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
+
     // Image state (stores Base64 string and preview URL)
     const [imageBase64, setImageBase64] = useState<string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -84,12 +88,17 @@ export default function RegisterUser() {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        setIsImageLoading(true);
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onloadend = () => {
             const base64 = reader.result as string;
             setImageBase64(base64);
             setImagePreview(base64);
+            setIsImageLoading(false);
+        };
+        reader.onerror = () => {
+            setIsImageLoading(false);
         };
     };
 
@@ -142,6 +151,10 @@ export default function RegisterUser() {
         if (Object.keys(newErrors).length > 0) {
             e.preventDefault();
             setErrors(newErrors);
+            setIsSubmitting(false);
+        } else {
+            // Enable submitting state to disable button and show spinner
+            setIsSubmitting(true);
         }
     };
 
@@ -275,7 +288,9 @@ export default function RegisterUser() {
                             Zdjęcie profilowe (opcjonalnie):
                         </label>
                         <div className="mt-2 flex items-center gap-x-4">
-                            {imagePreview ? (
+                            {isImageLoading ? (
+                                <div className="h-16 w-16 rounded-full border-2 border-gray-300 border-t-indigo-600 animate-spin" />
+                            ) : imagePreview ? (
                                 <img
                                     src={imagePreview}
                                     alt="Profile Preview"
@@ -288,7 +303,7 @@ export default function RegisterUser() {
                                 htmlFor="file-upload"
                                 className="cursor-pointer rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                             >
-                                <span>Wybierze zdjęcie</span>
+                                <span>Wybierz zdjęcie</span>
                                 <input
                                     id="file-upload"
                                     type="file"
@@ -369,14 +384,13 @@ export default function RegisterUser() {
                                 name="aboutYou"
                                 rows={4}
                                 maxLength={1000}
-                                required
                                 value={aboutYou}
                                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setAboutYou(e.target.value)}
-                                placeholder="Tell us about yourself..."
+                                placeholder="Opisz siebie..."
                                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                             />
                             <p className="mt-1 text-right text-xs text-gray-500">
-                                {aboutYou.length}/1000 characters
+                                {aboutYou.length}/1000 znaków
                             </p>
                         </div>
                     </div>
@@ -390,7 +404,6 @@ export default function RegisterUser() {
                                 id="jobSon"
                                 name="jobSon"
                                 type="text"
-                                required
                                 maxLength={50}
                                 value={formData.jobSon}
                                 onChange={handleChange}
@@ -485,9 +498,17 @@ export default function RegisterUser() {
             <div>
                 <button
                     type="submit"
-                    className="flex w-full justify-center rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    disabled={isSubmitting}
+                    className="flex w-full justify-center items-center gap-2 rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Zarejestruj się
+                    {isSubmitting ? (
+                        <>
+                            <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                            <span>Rejestrowanie...</span>
+                        </>
+                    ) : (
+                        <span>Zarejestruj się</span>
+                    )}
                 </button>
             </div>
         </form>

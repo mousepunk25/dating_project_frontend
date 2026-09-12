@@ -73,7 +73,9 @@ export default async function Page({
     params: Promise<{ son: string }>
 }) {
     const { son } = await params;
-    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
+    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
+        ? process.env.NEXT_PUBLIC_DEV_API_URL 
+        : process.env.NEXT_PUBLIC_PROD_API_URL;
     const data = await fetch(`${url}/sons/${son}`);
     const candidate: Candidate = await data.json();
     const age = calculateAge(candidate.dateOfBirth);
@@ -93,65 +95,112 @@ export default async function Page({
     const decodedCompanyName = decodeHTMLEntities(candidate.job?.companyName);
 
     return (
-        <div className='mt-6 font-serif'>
-            <div className='flex flex-col'>
-                <div className='flex justify-center w-full'>
-                    <Image
-                        src={candidate.image.url}
-                        width={400}
-                        height={400}
-                        alt="Picture of the candidate"
-                        className="max-h-[400px] max-w-[400px] w-full h-auto object-cover rounded-md"
-                    />
-                </div>
-                <div className='mt-3 block'>
-                    <h1 className='text-xl font-bold'>{decodedFullName}, wiek: {age}, miasto: {candidate.address.city}</h1>
-                </div>
-                <div>
-                    {hasSocialMedia && (
-                        <div>
-                            {validSocialMedia.map((sMedia: SocialMedia) => {
-                                return (
-                                    <a
-                                        key={sMedia._id}
-                                        href={sMedia.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className='underline m-4 inline-block'
-                                    >
-                                        <h3 className='text-lg'>
-                                            Mój profil {sMedia.website} - kliknij tutaj.
-                                        </h3>
-                                    </a>
-                                )
-                            })}
+        <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-serif text-gray-900 dark:text-gray-100 py-8 md:py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                {/* 2-Column Responsive Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    {/* Left Column: Media & Actions (Expanded column width to 5/12 on large screens) */}
+                    <div className="lg:col-span-5 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6 lg:sticky lg:top-8">
+                        {/* 
+                          Increased photo container size:
+                          - Aspect ratio changed from square (1:1) to tall portrait (3:4 on mobile, 4:5 on desktop)
+                          - Height scales up to 550px / 650px maximum for full portrait prominence
+                        */}
+                        <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[380px] max-h-[650px] overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800">
+                            <Image
+                                src={candidate.image.url}
+                                fill
+                                priority
+                                sizes="(max-width: 1024px) 100vw, 600px"
+                                alt={`Zdjęcie kandydata - ${decodedFullName}`}
+                                className="object-cover transition-transform duration-300 hover:scale-105"
+                            />
                         </div>
-                    )}
-                    <SaveButton sonProfileId={candidate._id} />
-                    <AddFriendButton sonProfileId={candidate._id} />
-                </div>
-            </div>
-            <div className="mt-2">
-                O mnie:
-            </div>
-            <div className="italic pb-2 border-b-1">
-                {decodedAboutYou}
-            </div>
-            
-            {hasJob && (
-                <div className="text-lg mt-2 flex">
-                    <h3 className="font-bold">Praca: </h3> 
-                    <span className="ml-2">
-                        {decodedJobPosition}
-                        {decodedJobPosition && decodedCompanyName ? ' at ' : ''}
-                        {decodedCompanyName}
-                    </span>
-                </div>
-            )}
 
-            <div className="text-lg mt-2 flex">
-                <h3 className="font-bold">Wykształcenie: </h3> <span className="ml-2">{decodedEducation}</span>
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row lg:flex-col gap-3 pt-2">
+                            <SaveButton sonProfileId={candidate._id} />
+                            <AddFriendButton sonProfileId={candidate._id} />
+                        </div>
+                    </div>
+
+                    {/* Right Column: Candidate Profile Information */}
+                    <div className="lg:col-span-7 space-y-6">
+                        
+                        {/* Header Details */}
+                        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+                            <div>
+                                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                                    {decodedFullName}
+                                </h1>
+                                <p className="text-lg text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
+                                    <span>Wiek: <strong className="text-gray-900 dark:text-gray-200">{age} lat</strong></span>
+                                    <span>•</span>
+                                    <span>Miasto: <strong className="text-gray-900 dark:text-gray-200">{candidate.address.city}</strong></span>
+                                </p>
+                            </div>
+
+                            {/* Social Media Links */}
+                            {hasSocialMedia && (
+                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-2">
+                                    {validSocialMedia.map((sMedia: SocialMedia) => (
+                                        <a
+                                            key={sMedia._id}
+                                            href={sMedia.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline underline-offset-4"
+                                        >
+                                            Profil {sMedia.website} →
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* About Me Section */}
+                        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 pb-3">
+                                O mnie
+                            </h2>
+                            <p className="italic text-gray-700 dark:text-gray-300 leading-relaxed text-base sm:text-lg">
+                                {decodedAboutYou || 'Brak opisu.'}
+                            </p>
+                        </div>
+
+                        {/* Professional & Education Details */}
+                        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 pb-3">
+                                Szczegóły
+                            </h2>
+                            
+                            <div className="space-y-3">
+                                {hasJob && (
+                                    <div className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center">
+                                        <span className="font-bold text-gray-900 dark:text-gray-100 sm:w-36">Praca:</span> 
+                                        <span className="text-gray-700 dark:text-gray-300">
+                                            {decodedJobPosition}
+                                            {decodedJobPosition && decodedCompanyName ? ' w ' : ''}
+                                            {decodedCompanyName}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {decodedEducation && (
+                                    <div className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center">
+                                        <span className="font-bold text-gray-900 dark:text-gray-100 sm:w-36">Wykształcenie:</span> 
+                                        <span className="text-gray-700 dark:text-gray-300">{decodedEducation}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
             </div>
-        </div>
-    )
+        </main>
+    );
 }

@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 
 export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
-    // Check if user has already made a choice
+    setHasMounted(true)
     const consent = localStorage.getItem('cookieConsent')
     if (!consent) {
       setIsVisible(true)
@@ -18,15 +19,11 @@ export default function CookieConsent() {
     setIsVisible(false)
   }
 
-  const handleDecline = () => {
-    localStorage.setItem('cookieConsent', 'declined')
-    setIsVisible(false)
-  }
-
-  if (!isVisible) return null
+  // Prevent SSR/Hydration mismatches entirely
+  if (!hasMounted || !isVisible) return null
 
   return (
-    <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:max-w-md z-50 p-6 rounded-xl bg-white shadow-2xl border border-cahir-armor/20 backdrop-blur-md">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:max-w-md z-50 p-6 rounded-xl bg-white shadow-2xl border border-cahir-armor/20 backdrop-blur-md transition-all">
       <div className="flex flex-col gap-4">
         <div>
           <h3 className="text-lg font-bold text-gray-900 font-serif">
@@ -40,16 +37,10 @@ export default function CookieConsent() {
         <div className="flex items-center gap-3 justify-end sm:justify-start">
           <button
             onClick={handleAccept}
-            className="rounded-full bg-cahir-armor px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-cahir-blood focus:ring-offset-2"
+            className="rounded-full bg-cahir-armor px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-cahir-blood focus:ring-offset-2 cursor-pointer"
           >
             Zamknij
           </button>
-          {/* <button
-            onClick={handleDecline}
-            className="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none"
-          >
-            Decline
-          </button> */}
         </div>
       </div>
     </div>

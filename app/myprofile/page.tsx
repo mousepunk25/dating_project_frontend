@@ -1,26 +1,28 @@
 import Dashboard from "@/components/dashboard"
 import { cookies } from 'next/headers';
 
+type Role = 'son' | 'parent';
+
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
   const params = await searchParams;
-  const profileIdCookie = (await cookies()).get('profileId')?.value;
-  const roleCookie = (await cookies()).get('role')?.value;
-  const roleArray = ['son', 'parent'];
-  if (params && params.profileid) {
-    const profileId = params.profileid;
-    return (
-      <Dashboard profileId={profileId} logout={params.logout} role={params && params.role && roleArray.includes(params.role) && (params.role === 'son' || params.role === 'parent') ? params.role : undefined} />
-    )
-  } else if (profileIdCookie) {
-    return (
-      <Dashboard profileId={profileIdCookie} logout={params.logout} role={roleCookie === 'son' || roleCookie === 'parent' ? roleCookie : undefined} />
-    )
-  }
+  const cookieStore = await cookies();
+
+  // Validate role
+  const rawRole = params.role || cookieStore.get('role')?.value;
+  const role: Role | undefined = rawRole === 'son' || rawRole === 'parent' ? rawRole : undefined;
+
+  // Resolve profile ID with query params prioritizing cookie fallback
+  const profileId = params.profileid || cookieStore.get('profileId')?.value;
+
   return (
-    <Dashboard profileId={undefined} logout={params.logout} role={undefined}/>
-  )
+    <Dashboard 
+      profileId={profileId} 
+      logout={params.logout} 
+      role={role} 
+    />
+  );
 }

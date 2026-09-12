@@ -1,10 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, ReactNode } from 'react';
-import {
-    Dialog,
-    DialogPanel
-} from '@headlessui/react';
+import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
+import { Dialog, DialogPanel } from '@headlessui/react';
 import {
     XMarkIcon,
     PencilSquareIcon,
@@ -51,33 +48,29 @@ interface PulpitProps {
     role: 'son' | 'parent';
 }
 
-export default function Pulpit({
-    profileId,
-    role
-}: PulpitProps) {
+export default function Pulpit({ profileId, role }: PulpitProps) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
     const [panel, setPanel] = useState<PanelStatus>('friends-list');
     const [selectedChat, setSelectedChat] = useState<string>('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [conversationsNotRead, setConversationsNotRead] = useState<Conversation[]>([]);
-    const [unreadCount, setUnreadCount] = useState<number>(0);
 
-    function selectChat(friend: string) {
+    // Derived state (no extra useState or useEffect needed)
+    const unreadCount = conversationsNotRead.length;
+
+    const selectChat = useCallback((friend: string) => {
         if (selectedChat.length > 0) {
             setSelectedChat('');
         } else {
-            console.log(conversations);
-            console.log(friend);
             const conversationWithFriend = conversations.find(
                 (c) => c.participantParent._id === friend || c.participantSon._id === friend
             );
             if (conversationWithFriend) {
-                console.log(conversationWithFriend);
                 setConversationsNotRead((prev) => prev.filter((c) => c._id !== conversationWithFriend._id));
                 setSelectedChat(conversationWithFriend._id);
             }
         }
-    }
+    }, [conversations, selectedChat]);
 
     function panelToRender(currentPanel: PanelStatus): ReactNode {
         switch (currentPanel) {
@@ -145,23 +138,14 @@ export default function Pulpit({
             }
         }
 
-        // Fetch immediately
         fetchUserConversations();
-
-        // Set up 20-second interval polling
-        const intervalId = setInterval(() => {
-            fetchUserConversations();
-        }, 20000);
+        const intervalId = setInterval(fetchUserConversations, 20000);
 
         return () => {
             ignore = true;
             clearInterval(intervalId);
         };
     }, [profileId]);
-
-    useEffect(() => {
-        setUnreadCount(conversationsNotRead.length);
-    }, [conversationsNotRead]);
 
     const scroll = (direction: 'left' | 'right') => {
         if (!scrollRef.current) return;
@@ -258,6 +242,7 @@ export default function Pulpit({
                         </button>
                     )}
                 </nav>
+
                 <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
                     <div className="fixed inset-0 z-50" />
                     <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
@@ -315,6 +300,7 @@ export default function Pulpit({
                     </DialogPanel>
                 </Dialog>
             </header>
+
             <div>
                 {panelToRender(panel)}
             </div>
@@ -322,7 +308,6 @@ export default function Pulpit({
             {/* Bottom Right Floating Chat Component */}
             {selectedChat.length > 0 && (
                 <div className="fixed bottom-1 right-1 z-40">
-                    {/* ✅ Wrap it in a zero-argument function */}
                     <Chat selectedChat={selectedChat} user={profileId} onClose={() => selectChat('')} />
                 </div>
             )}

@@ -5,6 +5,15 @@ import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 
+function Spinner({ className = "size-5" }: { className?: string }) {
+    return (
+        <svg className={`animate-spin ${className}`} viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+    );
+}
+
 interface UserDetails {
     aboutYou?: string;
     fullName: string;
@@ -24,6 +33,8 @@ interface UserDetails {
         url: string;
         filename: string;
     };
+    sonAgeMin?: number;
+    sonAgeMax?: number;
 }
 
 function getFormString(formData: FormData, key: string): string {
@@ -31,7 +42,6 @@ function getFormString(formData: FormData, key: string): string {
     return typeof value === 'string' ? value : '';
 }
 
-// Calculate min and max dates for birthdate boundaries (18 to 100 years old)
 function getDobLimits() {
     const today = new Date();
 
@@ -52,6 +62,7 @@ export default function EditUserProfile({
     role: 'son' | 'parent';
 }) {
     const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+    const [isLoadingData, setIsLoadingData] = useState<boolean>(true); // 1. Initial Load Tracker
 
     // Validation & State Management
     const [validCities, setValidCities] = useState<string[]>([]);
@@ -105,46 +116,50 @@ export default function EditUserProfile({
     useEffect(() => {
         let ignore = false;
         async function fetchUserDetails() {
-            const endpoint = role === 'son' ? `/sons/${profileId}` : `/parents/${profileId}`;
-            const options: RequestInit = role === 'son' ? {} : { credentials: 'include' };
+            setIsLoadingData(true);
+            try {
+                const endpoint = role === 'son' ? `/sons/${profileId}` : `/parents/${profileId}`;
+                const options: RequestInit = role === 'son' ? {} : { credentials: 'include' };
 
-            const response = await fetch(`${url}${endpoint}`, options);
-            const data = await response.json();
+                const response = await fetch(`${url}${endpoint}`, options);
+                const data = await response.json();
 
-            if (!ignore && data) {
-                setUserDetails(data);
-                setAgeMin(data.sonAgeMin ?? 18);
-                setAgeMax(data.sonAgeMax ?? 80);
-                if (data.fullName) setFullName(decodeHTMLEntities(data.fullName));
+                if (!ignore && data) {
+                    setUserDetails(data);
+                    setAgeMin(data.sonAgeMin ?? 18);
+                    setAgeMax(data.sonAgeMax ?? 80);
+                    if (data.fullName) setFullName(decodeHTMLEntities(data.fullName));
 
-                // Decode HTML entities for aboutYou here
-                if (data.aboutYou) setAboutYou(decodeHTMLEntities(data.aboutYou));
+                    if (data.aboutYou) setAboutYou(decodeHTMLEntities(data.aboutYou));
 
-                // Handle job parsing depending on data format (string vs object)
-                if (data.job) {
-                    const parsedJob = typeof data.job === 'string' ? data.job : data.job.position;
-                    if (parsedJob) setJobPosition(decodeHTMLEntities(parsedJob));
+                    if (data.job) {
+                        const parsedJob = typeof data.job === 'string' ? data.job : data.job.position;
+                        if (parsedJob) setJobPosition(decodeHTMLEntities(parsedJob));
+                    }
+
+                    if (data.address?.city) setCityInput(data.address.city);
+                    if (data.dateOfBirth) setDob(String(data.dateOfBirth).slice(0, 10));
+
+                    if (data.education?.educationLevel) {
+                        setEducationLevel(decodeHTMLEntities(data.education.educationLevel));
+                    }
                 }
-
-                if (data.address?.city) setCityInput(data.address.city);
-                if (data.dateOfBirth) setDob(String(data.dateOfBirth).slice(0, 10));
-
-                if (data.education?.educationLevel) {
-                    setEducationLevel(decodeHTMLEntities(data.education.educationLevel));
-                }
+            } catch (error) {
+                console.error("Failed to load profile details:", error);
+            } finally {
+                if (!ignore) setIsLoadingData(false);
             }
         }
         fetchUserDetails();
         return () => { ignore = true; };
     }, [profileId, role, url]);
 
-    // Handle Image Selection and Conversion to Base64 (Son only)
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         if (file.size > 5 * 1024 * 1024) {
-            setErrors(prev => ({ ...prev, image: 'Image size should be less than 5MB.' }));
+            setErrors(prev => ({ ...prev, image: 'Rozmiar zdjęcia musi być mniejszy niż 5MB.' }));
             return;
         }
 
@@ -158,7 +173,6 @@ export default function EditUserProfile({
         reader.readAsDataURL(file);
     };
 
-    // Handle City Input & Autocomplete
     const handleCityChange = (val: string) => {
         setCityInput(val);
         setErrors(prev => ({ ...prev, city: '' }));
@@ -173,11 +187,9 @@ export default function EditUserProfile({
         }
     };
 
-    // Form Validation Rules
     const validateForm = (formData: FormData): boolean => {
         const newErrors: Record<string, string> = {};
 
-        // Full Name Validation (max 50 chars)
         const nameVal = getFormString(formData, 'full-name').trim();
         if (!nameVal) {
             newErrors.fullName = 'Imię jest wymagane.';
@@ -185,9 +197,7 @@ export default function EditUserProfile({
             newErrors.fullName = 'Imię nie może przekraczać 50 znaków.';
         }
 
-        // Son Specific Validations
         if (role === 'son') {
-            // DOB Validation (18 to 100 years old)
             const dobVal = formData.get('dob') as string;
             if (!dobVal) {
                 newErrors.dob = 'Data urodzenia jest wymagana.';
@@ -206,22 +216,19 @@ export default function EditUserProfile({
                 }
             }
 
-            // About You Validation (max 1000 chars)
             const aboutVal = getFormString(formData, 'about');
             if (aboutVal.length > 1000) {
                 newErrors.about = 'Tekst w sekcji O mnie nie może być dłuższy niż 1000 znaków.';
             }
         }
 
-        // City Validation
         const city = cityInput.trim();
         if (!city) {
-            newErrors.city = 'City is required.';
+            newErrors.city = 'Miasto jest wymagane.';
         } else if (validCities.length > 0 && !validCities.some(c => c.toLowerCase() === city.toLowerCase())) {
-            newErrors.city = 'Wybierze prawidłowe miasto z listy, która się pojawi, gdy zaczniesz wpisywać swoje miasto.';
+            newErrors.city = 'Wybierz prawidłowe miasto z listy, która się pojawi.';
         }
 
-        // Parent Age Range Validation
         if (role === 'parent' && ageMin > ageMax) {
             newErrors.age = 'Wiek minimalny nie może być większy niż wiek maksymalny.';
         }
@@ -262,7 +269,6 @@ export default function EditUserProfile({
             ]
         };
 
-        // Pass Base64 string if son selected a new image
         if (selectedImageBase64) {
             payload.image = selectedImageBase64;
         }
@@ -328,17 +334,26 @@ export default function EditUserProfile({
 
     const currentPhotoSrc = previewUrl || userDetails?.image?.url;
 
+    // 2. Initial Loading Indicator View
+    if (isLoadingData) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
+                <Spinner className="size-8 text-indigo-600" />
+                <span className="text-sm font-medium text-gray-600">Ładowanie danych profilu...</span>
+            </div>
+        );
+    }
+
     if (role === 'son') {
         return (
             <form onSubmit={handleSonSubmit}>
                 <div className="space-y-12">
                     <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Profile</h2>
+                        <h2 className="text-base/7 font-semibold text-gray-900">Profil</h2>
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
-                            {/* Date of Birth Input */}
                             <div className="col-span-full">
-                                <label htmlFor="dob" className="block text-sm/6 font-medium text-gray-900">Date of Birth</label>
+                                <label htmlFor="dob" className="block text-sm/6 font-medium text-gray-900">Data urodzenia</label>
                                 <input
                                     type="date"
                                     id="dob"
@@ -356,7 +371,6 @@ export default function EditUserProfile({
                                 {errors.dob && <p className="mt-1 text-xs text-red-500">{errors.dob}</p>}
                             </div>
 
-                            {/* About You Input with 1000 char counter */}
                             <div className="col-span-full">
                                 <div className="flex justify-between items-center">
                                     <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">O mnie</label>
@@ -377,7 +391,6 @@ export default function EditUserProfile({
                                 {errors.about && <p className="mt-1 text-xs text-red-500">{errors.about}</p>}
                             </div>
 
-                            {/* Son Profile Image Picker */}
                             <div className="col-span-full">
                                 <label className="block text-sm/6 font-medium text-gray-900">Zdjęcie</label>
                                 <div className="mt-2 flex items-center gap-x-3">
@@ -406,7 +419,6 @@ export default function EditUserProfile({
                         <h2 className="text-base/7 font-semibold text-gray-900">Informacje szczegółowe</h2>
                         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
-                            {/* Full Name Input (max 50 chars) */}
                             <div className="sm:col-span-3">
                                 <div className="flex justify-between items-center">
                                     <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię i nazwisko</label>
@@ -462,7 +474,7 @@ export default function EditUserProfile({
                                     value={cityInput}
                                     onChange={(e) => handleCityChange(e.target.value)}
                                     className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                    placeholder="Start typing your city..."
+                                    placeholder="Zacznij wpisywać miasto..."
                                 />
                                 {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
                                 {citySuggestions.length > 0 && (
@@ -487,8 +499,20 @@ export default function EditUserProfile({
 
                     <div className="mt-6 flex items-center justify-end gap-x-6">
                         <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
-                        <button type="submit" disabled={isSubmitting} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50">
-                            {isSubmitting ? 'Zaspisuję...' : 'Zapisz'}
+                        {/* 3. Submit Button Loading Feedback */}
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting} 
+                            className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Spinner className="size-4 text-white" />
+                                    <span>Zapisuję...</span>
+                                </>
+                            ) : (
+                                'Zapisz'
+                            )}
                         </button>
                     </div>
                 </div>
@@ -518,7 +542,6 @@ export default function EditUserProfile({
                             </select>
                         </div>
 
-                        {/* Full Name Input (max 50 chars) */}
                         <div className="sm:col-span-3 col-start-1">
                             <div className="flex justify-between items-center">
                                 <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię</label>
@@ -539,7 +562,6 @@ export default function EditUserProfile({
                             {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
                         </div>
 
-                        {/* Parent Job Position Input */}
                         <div className="sm:col-span-3">
                             <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
                                 Praca
@@ -551,12 +573,12 @@ export default function EditUserProfile({
                                 value={jobPosition}
                                 onChange={(e) => setJobPosition(e.target.value)}
                                 className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                placeholder="e.g. Inżynie, Nauczyciel, Emeryt..."
+                                placeholder="np. Inżynier, Nauczyciel, Emeryt..."
                             />
                         </div>
 
                         <div className="sm:col-span-2 sm:col-start-1 relative">
-                            <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">City</label>
+                            <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">Miasto</label>
                             <input
                                 id="city"
                                 name="city"
@@ -588,8 +610,20 @@ export default function EditUserProfile({
 
                 <div className="mt-6 flex items-center justify-end gap-x-6">
                     <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
-                    <button type="submit" disabled={isSubmitting} className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50">
-                        {isSubmitting ? 'Zapisuję...' : 'Zapisz'}
+                    {/* Submit Button Loading Feedback */}
+                    <button 
+                        type="submit" 
+                        disabled={isSubmitting} 
+                        className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Spinner className="size-4 text-white" />
+                                <span>Zapisuję...</span>
+                            </>
+                        ) : (
+                            'Zapisz'
+                        )}
                     </button>
                 </div>
             </div>

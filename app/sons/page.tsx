@@ -1,5 +1,6 @@
 import SearchSon from '../../components/search-son';
 import SonsList from '@/components/sons-list';
+import { cookies } from 'next/headers';
 
 interface Candidate {
   _id: string;
@@ -36,29 +37,64 @@ export default async function Page({
   searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
   const filters = await searchParams;
-  const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
+  
+  // Read parent profile ID from cookies or query params
+  const cookieStore = await cookies();
+  const parentProfileId = filters.profileid || cookieStore.get('profileId')?.value;
+
+  const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
+    ? process.env.NEXT_PUBLIC_DEV_API_URL 
+    : process.env.NEXT_PUBLIC_PROD_API_URL;
   
   // Provide fallbacks to avoid passing "undefined" as string parameters to the API
   const cityParam = filters.city ? encodeURIComponent(filters.city) : '';
   const ageMinParam = filters.ageMin ?? '';
   const ageMaxParam = filters.ageMax ?? '';
 
-  const data = await fetch(`${url}/sons?city=${cityParam}&ageMin=${ageMinParam}&ageMax=${ageMaxParam}`);
+  const data = await fetch(
+    `${url}/sons?city=${cityParam}&ageMin=${ageMinParam}&ageMax=${ageMaxParam}`
+  );
   const candidates: Array<Candidate> = await data.json();
 
   const hasCandidates = Array.isArray(candidates) && candidates.length > 0;
 
   return (
-    <div className='font-serif'>
-      <SearchSon defaultCity={filters.city} defaultAgeMin={filters.ageMin} defaultAgeMax={filters.ageMax} />
-      
-      {hasCandidates ? (
-        <SonsList sons={candidates} />
-      ) : (
-        <div className="mt-8 text-center text-lg text-gray-600">
-          Nie znaleziono kandydatów :(. Spróbuj zmienić kryteria wyszukiwania.
-        </div>
-      )}
-    </div>
+    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-serif text-gray-900 dark:text-gray-100">
+      {/* Max-width container prevents content stretching on 1440p+ & 4K displays */}
+      <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+        
+        {/* Search Panel Card */}
+        <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+          <SearchSon 
+            defaultCity={filters.city} 
+            defaultAgeMin={filters.ageMin} 
+            defaultAgeMax={filters.ageMax} 
+          />
+        </section>
+
+        {/* Candidate Results Section */}
+        <section className="space-y-6">
+          <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+              Wyniki wyszukiwania
+            </h2>
+          </div>
+
+          {hasCandidates ? (
+            <SonsList sons={candidates} parentProfileId={parentProfileId} />
+          ) : (
+            <div className="py-16 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm space-y-2">
+              <p className="text-lg md:text-xl font-medium text-gray-700 dark:text-gray-300">
+                Nie znaleziono kandydatów :(
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Spróbuj zmienić kryteria wyszukiwania.
+              </p>
+            </div>
+          )}
+        </section>
+
+      </div>
+    </main>
   );
 }

@@ -20,7 +20,7 @@ interface ParentCartProps {
   parentJob: string;
   showChat?: (parentId: string) => void;
   unreadConversations?: UnreadConversation[];
-  addedStatus?: 'friend' | 'request-received' | 'saved' | 'request-sent'
+  addedStatus?: 'friend' | 'request-received' | 'saved' | 'request-sent';
 }
 
 export default function ParentCart({
@@ -30,48 +30,57 @@ export default function ParentCart({
   parentJob,
   showChat,
   unreadConversations,
-  addedStatus
+  addedStatus,
 }: ParentCartProps) {
   const isUnreadConversation = unreadConversations?.some(
     (u) => u.participantSon._id === parentId || u.participantParent._id === parentId
   );
 
   return (
-    <Link
-      href={`/parents/${parentId}`}
-      aria-current="false"
-    >
-      <div className="border-3 text-lg m-2">
-        <h2 className="mt-2 ml-2 font-bold">
-          {parentFullName}
-        </h2>
-        <h3 className="ml-2 border-b border-gray-900/10">{parentCity}</h3>
-        <h3 className="flex items-center ml-1">
-          <BriefcaseIcon className="size-8" />
-          {parentJob}
+    <div className="relative border-2 rounded-lg text-lg m-2 bg-white shadow-sm hover:shadow-md transition-shadow">
+      {/* Badge for added status */}
+      {addedStatus && (
+        <span className="absolute top-2 right-2 text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700 capitalize">
+          {addedStatus.replace('-', ' ')}
+        </span>
+      )}
+
+      {/* Main card navigation container */}
+      <Link href={`/parents/${parentId}`} className="block p-4">
+        <h2 className="font-bold text-gray-900">{parentFullName}</h2>
+        <h3 className="text-gray-600 border-b border-gray-900/10 pb-2 mb-2">
+          {parentCity}
         </h3>
-        {showChat && (
-          <div
-            className={`flex items-center justify-between border-t border-gray-900/10 font-bold py-3 px-1 cursor-pointer ${
-              isUnreadConversation ? 'text-cahir-blood' : 'px-4'
-            }`}
-            onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-              console.log('clicked');
-              e.preventDefault();  // Prevents Next.js Link navigation
-              e.stopPropagation(); // Stops the event from reaching the parent Link element
-              showChat(parentId);
-            }}
-          >
+        <h3 className="flex items-center text-gray-700 gap-2">
+          <BriefcaseIcon className="size-6 text-gray-500 shrink-0" />
+          <span>{parentJob}</span>
+        </h3>
+      </Link>
+
+      {/* Chat Action Button */}
+      {showChat && (
+        <button
+          type="button"
+          className={`w-full flex items-center justify-between border-t border-gray-900/10 font-bold py-3 px-4 transition-colors hover:bg-gray-50 rounded-b-lg ${
+            isUnreadConversation ? 'text-cahir-blood' : 'text-gray-700'
+          }`}
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
+            showChat(parentId);
+          }}
+        >
+          <div className="flex items-center gap-2">
             <ChatBubbleLeftRightIcon className="size-5" />
-            <h4>Otwórz czat</h4>
-            {isUnreadConversation && (
-              <div className="border-2 px-1 rounded-lg">
-                1
-              </div>
-            )}
+            <span>Otwórz czat</span>
           </div>
-        )}
-      </div>
-    </Link>
+          {isUnreadConversation && (
+            <span className="border-2 border-current px-2 py-0.5 text-xs rounded-lg font-bold">
+              1
+            </span>
+          )}
+        </button>
+      )}
+    </div>
   );
 }

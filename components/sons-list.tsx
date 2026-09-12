@@ -42,7 +42,7 @@ interface SonsListProps {
   showChat?: (candidateId: string) => void;
   unreadConversations?: ChatConversation[];
   addedStatus?: 'friend' | 'request-received' | 'saved' | 'request-sent';
-  parentProfileId: string
+  parentProfileId: string | undefined
 }
 
 export default function SonsList({ sons, showChat, unreadConversations, addedStatus, parentProfileId }: SonsListProps) {
