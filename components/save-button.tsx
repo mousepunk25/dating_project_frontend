@@ -21,38 +21,54 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
         const roleCookieValue = roleCookie ? roleCookie.split("=")[1] : null;
 
         const oppositeRole = roleCookieValue === 'son' ? 'parents' : 'sons';
-        const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' ? process.env.NEXT_PUBLIC_DEV_API_URL : process.env.NEXT_PUBLIC_PROD_API_URL;
+        const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
+            ? process.env.NEXT_PUBLIC_DEV_API_URL 
+            : process.env.NEXT_PUBLIC_PROD_API_URL;
 
-        if (profileIdCookieValue && roleCookieValue) {
-            try {
-                const response = await fetch(`${url}/${roleCookieValue}s/${profileIdCookieValue}/${oppositeRole}saved/${sonProfileId}`, {
-                    method: "POST",
-                    credentials: 'include'
-                });
-                const responseMessage = await response.json();
-                if (response.status === 200) {
-                    setStatusMessage(responseMessage.message);
-                    setIsSuccess(true);
-                } else {
-                    setStatusMessage("User was not successfully saved.");
-                    setIsSuccess(false);
-                }
-            } catch (error) {
-                console.error(error);
-                setStatusMessage("A network error occurred. Please try again.");
-                setIsSuccess(false);
-            } finally {
-                setIsLoading(false);
-            }
-        } else {
-            setStatusMessage('You have to be logged in!');
+        if (!profileIdCookieValue || !roleCookieValue) {
+            setStatusMessage('Musisz być zalogowany!');
             setIsSuccess(false);
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${url}/${roleCookieValue}s/${profileIdCookieValue}/${oppositeRole}saved/${sonProfileId}`, {
+                method: "POST",
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setStatusMessage(data.message || "Profil został pomyślnie zapisany!");
+                setIsSuccess(true);
+            } else {
+                // Parse error format: single string ({ error: "..." }), array ({ errors: [...] }), or fallback message
+                let messageToDisplay = "Profil nie został zapisany.";
+
+                if (typeof data.error === 'string') {
+                    messageToDisplay = data.error;
+                } else if (Array.isArray(data.errors) && data.errors.length > 0) {
+                    messageToDisplay = data.errors.map((e: { msg?: string }) => e.msg).join(', ');
+                } else if (typeof data.message === 'string') {
+                    messageToDisplay = data.message;
+                }
+
+                setStatusMessage(messageToDisplay);
+                setIsSuccess(false);
+            }
+        } catch (error) {
+            console.error(error);
+            setStatusMessage("Wystąpił problem z połączeniem. Proszę spróbować później.");
+            setIsSuccess(false);
+        } finally {
             setIsLoading(false);
         }
     }
 
     return (
-        <div className="flex flex-col items-start">
+        <div className="flex flex-col items-start w-full">
             <button 
                 onClick={saveFriend} 
                 disabled={isLoading}
@@ -68,7 +84,7 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
                 )}
             </button>
             {statusMessage && (
-                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {statusMessage}
                 </p>
             )}

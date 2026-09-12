@@ -95,20 +95,15 @@ export default async function Page({
     const decodedCompanyName = decodeHTMLEntities(candidate.job?.companyName);
 
     return (
-        <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-serif text-gray-900 dark:text-gray-100 py-8 md:py-12">
+        <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900 py-8 md:py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* 2-Column Responsive Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
-                    {/* Left Column: Media & Actions (Expanded column width to 5/12 on large screens) */}
-                    <div className="lg:col-span-5 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-6 lg:sticky lg:top-8">
-                        {/* 
-                          Increased photo container size:
-                          - Aspect ratio changed from square (1:1) to tall portrait (3:4 on mobile, 4:5 on desktop)
-                          - Height scales up to 550px / 650px maximum for full portrait prominence
-                        */}
-                        <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[380px] max-h-[650px] overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-100 dark:border-gray-800">
+                    {/* Left Column: Media & Actions */}
+                    <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6 lg:sticky lg:top-8">
+                        <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[380px] max-h-[650px] overflow-hidden rounded-xl bg-gray-100 border border-gray-100">
                             <Image
                                 src={candidate.image.url}
                                 fill
@@ -130,28 +125,28 @@ export default async function Page({
                     <div className="lg:col-span-7 space-y-6">
                         
                         {/* Header Details */}
-                        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+                        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                             <div>
-                                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
                                     {decodedFullName}
                                 </h1>
-                                <p className="text-lg text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
-                                    <span>Wiek: <strong className="text-gray-900 dark:text-gray-200">{age} lat</strong></span>
+                                <p className="text-lg text-gray-600 mt-2 flex items-center gap-2">
+                                    <span>Wiek: <strong className="text-gray-900">{age} lat</strong></span>
                                     <span>•</span>
-                                    <span>Miasto: <strong className="text-gray-900 dark:text-gray-200">{candidate.address.city}</strong></span>
+                                    <span>Miasto: <strong className="text-gray-900">{candidate.address.city}</strong></span>
                                 </p>
                             </div>
 
                             {/* Social Media Links */}
                             {hasSocialMedia && (
-                                <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-2">
+                                <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-2">
                                     {validSocialMedia.map((sMedia: SocialMedia) => (
                                         <a
                                             key={sMedia._id}
                                             href={sMedia.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline underline-offset-4"
+                                            className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-4"
                                         >
                                             Profil {sMedia.website} →
                                         </a>
@@ -161,26 +156,26 @@ export default async function Page({
                         </div>
 
                         {/* About Me Section */}
-                        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 pb-3">
+                        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-3">
+                            <h2 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">
                                 O mnie
                             </h2>
-                            <p className="italic text-gray-700 dark:text-gray-300 leading-relaxed text-base sm:text-lg">
+                            <p className="italic text-gray-700 leading-relaxed text-base sm:text-lg">
                                 {decodedAboutYou || 'Brak opisu.'}
                             </p>
                         </div>
 
                         {/* Professional & Education Details */}
-                        <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 border-b border-gray-100 dark:border-gray-800 pb-3">
+                        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                            <h2 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">
                                 Szczegóły
                             </h2>
                             
                             <div className="space-y-3">
                                 {hasJob && (
                                     <div className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center">
-                                        <span className="font-bold text-gray-900 dark:text-gray-100 sm:w-36">Praca:</span> 
-                                        <span className="text-gray-700 dark:text-gray-300">
+                                        <span className="font-bold text-gray-900 sm:w-36">Praca:</span> 
+                                        <span className="text-gray-700">
                                             {decodedJobPosition}
                                             {decodedJobPosition && decodedCompanyName ? ' w ' : ''}
                                             {decodedCompanyName}
@@ -190,8 +185,8 @@ export default async function Page({
 
                                 {decodedEducation && (
                                     <div className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center">
-                                        <span className="font-bold text-gray-900 dark:text-gray-100 sm:w-36">Wykształcenie:</span> 
-                                        <span className="text-gray-700 dark:text-gray-300">{decodedEducation}</span>
+                                        <span className="font-bold text-gray-900 sm:w-36">Wykształcenie:</span> 
+                                        <span className="text-gray-700">{decodedEducation}</span>
                                     </div>
                                 )}
                             </div>

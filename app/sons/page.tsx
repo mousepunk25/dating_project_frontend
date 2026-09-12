@@ -59,12 +59,12 @@ export default async function Page({
   const hasCandidates = Array.isArray(candidates) && candidates.length > 0;
 
   return (
-    <main className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-serif text-gray-900 dark:text-gray-100">
+    <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900">
       {/* Max-width container prevents content stretching on 1440p+ & 4K displays */}
       <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         
         {/* Search Panel Card */}
-        <section className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+        <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
           <SearchSon 
             defaultCity={filters.city} 
             defaultAgeMin={filters.ageMin} 
@@ -74,8 +74,8 @@ export default async function Page({
 
         {/* Candidate Results Section */}
         <section className="space-y-6">
-          <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+          <div className="border-b border-gray-200 pb-4">
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
               Wyniki wyszukiwania
             </h2>
           </div>
@@ -83,11 +83,11 @@ export default async function Page({
           {hasCandidates ? (
             <SonsList sons={candidates} parentProfileId={parentProfileId} />
           ) : (
-            <div className="py-16 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm space-y-2">
-              <p className="text-lg md:text-xl font-medium text-gray-700 dark:text-gray-300">
+            <div className="py-16 text-center bg-white border border-gray-200 rounded-2xl shadow-sm space-y-2">
+              <p className="text-lg md:text-xl font-medium text-gray-700">
                 Nie znaleziono kandydatów :(
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-500">
                 Spróbuj zmienić kryteria wyszukiwania.
               </p>
             </div>

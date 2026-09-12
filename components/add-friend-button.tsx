@@ -5,12 +5,12 @@ import { useState } from 'react';
 export default function AddFriendButton({ sonProfileId }: { sonProfileId: string }) {
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState<boolean | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false); // 1. Track loading state
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     async function sendFriendRequest() {
         setStatusMessage(null);
         setIsSuccess(null);
-        setIsLoading(true); // 2. Start loading
+        setIsLoading(true);
 
         const cookies = document.cookie.split("; ");
         const profileIdCookie = cookies.find(row => row.startsWith("profileId="));
@@ -23,31 +23,46 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
             ? process.env.NEXT_PUBLIC_DEV_API_URL 
             : process.env.NEXT_PUBLIC_PROD_API_URL;
 
-        if (profileIdCookieValue && roleCookieValue) {
-            try {
-                const response = await fetch(`${url}/${roleCookieValue}s/${profileIdCookieValue}/${oppositeRole}withrequestsent/${sonProfileId}`, {
-                    method: "POST",
-                    credentials: 'include'
-                });
-                const responseMessage = await response.json();
-
-                if (response.status === 200) {
-                    setStatusMessage(responseMessage.message);
-                    setIsSuccess(true);
-                } else {
-                    setStatusMessage(responseMessage.message || "Coś poszło nie tak. Użytkownik nie został dodany.");
-                    setIsSuccess(false);
-                }
-            } catch (error) {
-                console.error(error);
-                setStatusMessage("Wystąpił problem. Proszę spróbować później.");
-                setIsSuccess(false);
-            } finally {
-                setIsLoading(false); // 3. Always reset loading state
-            }
-        } else {
+        if (!profileIdCookieValue || !roleCookieValue) {
             setStatusMessage('Musisz być zalogowany!');
             setIsSuccess(false);
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${url}/${roleCookieValue}s/${profileIdCookieValue}/${oppositeRole}withrequestsent/${sonProfileId}`, {
+                method: "POST",
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Extracts explicit response message (e.g. "Friend request sent successfully.")
+                setStatusMessage(data.message || "Zaproszenie zostało wysłane!");
+                setIsSuccess(true);
+            } else {
+                // Parses error formats: single error string ({ error: "..." }), 
+                // array of validation errors ({ errors: [{ msg: "..." }] }), or raw string
+                let messageToDisplay = "Coś poszło nie tak. Użytkownik nie został dodany.";
+
+                if (typeof data.error === 'string') {
+                    messageToDisplay = data.error;
+                } else if (Array.isArray(data.errors) && data.errors.length > 0) {
+                    messageToDisplay = data.errors.map((e: { msg?: string }) => e.msg).join(', ');
+                } else if (typeof data.message === 'string') {
+                    messageToDisplay = data.message;
+                }
+
+                setStatusMessage(messageToDisplay);
+                setIsSuccess(false);
+            }
+        } catch (error) {
+            console.error(error);
+            setStatusMessage("Wystąpił problem z połączeniem. Proszę spróbować później.");
+            setIsSuccess(false);
+        } finally {
             setIsLoading(false);
         }
     }
@@ -56,7 +71,7 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
         <div className="flex flex-col items-start w-full">
             <button
                 onClick={sendFriendRequest}
-                disabled={isLoading} // 4. Disable interaction while pending
+                disabled={isLoading}
                 className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-2 w-full flex items-center justify-center transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {isLoading ? (
