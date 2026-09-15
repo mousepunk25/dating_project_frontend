@@ -8,10 +8,9 @@ import { PhotoIcon } from '@heroicons/react/24/solid';
 interface FormDataState {
     fullNameParent: string;
     cityParent: string;
-    jobParent: string;
     fullNameSon: string;
     citySon: string;
-    jobSon: string;
+    job: string;
     email: string;
     password: string;
     educationLevel: string;
@@ -46,10 +45,9 @@ export default function RegisterUser() {
     const [formData, setFormData] = useState<FormDataState>({
         fullNameParent: '',
         cityParent: '',
-        jobParent: '',
         fullNameSon: '',
         citySon: '',
-        jobSon: '',
+        job: '',
         email: '',
         password: '',
         educationLevel: 'High School'
@@ -103,7 +101,7 @@ export default function RegisterUser() {
     };
 
     const validateField = (name: keyof FormDataState, value: string): string => {
-        const textOnlyFields: (keyof FormDataState)[] = ['fullNameParent', 'fullNameSon', 'jobParent', 'jobSon'];
+        const textOnlyFields: (keyof FormDataState)[] = ['fullNameParent', 'fullNameSon', 'job'];
 
         if (textOnlyFields.includes(name)) {
             if (/\d/.test(value)) return 'Nie może zawierać liczb ani znaków specjalnych';
@@ -139,8 +137,8 @@ export default function RegisterUser() {
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         const fieldsToValidate: (keyof FormDataState)[] = isParent
-            ? ['fullNameParent', 'cityParent', 'jobParent']
-            : ['fullNameSon', 'citySon', 'jobSon'];
+            ? ['fullNameParent', 'cityParent', 'job']
+            : ['fullNameSon', 'citySon', 'job'];
 
         const newErrors: FormErrors = {};
         fieldsToValidate.forEach((field) => {
@@ -153,7 +151,6 @@ export default function RegisterUser() {
             setErrors(newErrors);
             setIsSubmitting(false);
         } else {
-            // Enable submitting state to disable button and show spinner
             setIsSubmitting(true);
         }
     };
@@ -177,8 +174,14 @@ export default function RegisterUser() {
                 ))}
             </datalist>
 
-            {/* Hidden input to transmit base64 string during normal form POST */}
+            {/* Hidden inputs to transmit extra form values during native POST submit */}
             <input type="hidden" name="image" value={imageBase64} />
+            {!isParent && (
+                <>
+                    <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
+                    <input type="hidden" name="aboutYou" value={aboutYou} />
+                </>
+            )}
 
             <fieldset>
                 <legend>Wybierz swoją rolę:</legend>
@@ -253,28 +256,6 @@ export default function RegisterUser() {
                         </div>
                         {errors.cityParent && (
                             <p className="mt-1 text-xs text-red-600">{errors.cityParent}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label htmlFor="jobParent" className="block text-sm/6 font-medium text-gray-900">
-                            Praca (opcjonalnie):
-                        </label>
-                        <div className="mt-2">
-                            <input
-                                id="jobParent"
-                                name="jobParent"
-                                type="text"
-                                maxLength={50}
-                                value={formData.jobParent}
-                                onChange={handleChange}
-                                autoComplete="organization-title"
-                                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 ${errors.jobParent ? 'outline-red-500' : 'outline-gray-300'
-                                    } placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6`}
-                            />
-                        </div>
-                        {errors.jobParent && (
-                            <p className="mt-1 text-xs text-red-600">{errors.jobParent}</p>
                         )}
                     </div>
                 </div>
@@ -365,7 +346,6 @@ export default function RegisterUser() {
                         <label htmlFor="dateOfBirth" className="text-lg">Data urodzenia (wymagane):</label>
                         <input
                             type="date"
-                            name="dateOfBirth"
                             id="dateOfBirth"
                             value={dateOfBirth}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setDateOfBirth(e.target.value)}
@@ -381,7 +361,6 @@ export default function RegisterUser() {
                         <div className="mt-2">
                             <textarea
                                 id="aboutYou"
-                                name="aboutYou"
                                 rows={4}
                                 maxLength={1000}
                                 value={aboutYou}
@@ -396,28 +375,6 @@ export default function RegisterUser() {
                     </div>
 
                     <div>
-                        <label htmlFor="jobSon" className="block text-sm/6 font-medium text-gray-900">
-                            Praca (opcjonalnie):
-                        </label>
-                        <div className="mt-2">
-                            <input
-                                id="jobSon"
-                                name="jobSon"
-                                type="text"
-                                maxLength={50}
-                                value={formData.jobSon}
-                                onChange={handleChange}
-                                autoComplete="organization-title"
-                                className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 ${errors.jobSon ? 'outline-red-500' : 'outline-gray-300'
-                                    } placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6`}
-                            />
-                        </div>
-                        {errors.jobSon && (
-                            <p className="mt-1 text-xs text-red-600">{errors.jobSon}</p>
-                        )}
-                    </div>
-
-                    <div>
                         <label htmlFor="education-level" className="block text-sm/6 font-medium text-gray-900">
                             Wykształcenie (wymagane):
                         </label>
@@ -429,12 +386,12 @@ export default function RegisterUser() {
                                 onChange={handleChange}
                                 className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                             >
-                                <option>Podstawowe</option>
-                                <option>Średnie</option>
-                                <option>Średnie techniczne</option>
-                                <option>Licencjat/Inżynier</option>
-                                <option>Magister</option>
-                                <option>Doktor</option>
+                                <option value="Elementary">Podstawowe</option>
+                                <option value="High School">Średnie</option>
+                                <option value="Certificate">Średnie techniczne</option>
+                                <option value="Bachelor's Degree">Licencjat/Inżynier</option>
+                                <option value="Master's Degree">Magister</option>
+                                <option value="Doctorate/Ph.D">Doktor</option>
                             </select>
                             <ChevronDownIcon
                                 aria-hidden="true"
@@ -444,6 +401,29 @@ export default function RegisterUser() {
                     </div>
                 </div>
             )}
+
+            {/* Common Job Input Field */}
+            <div>
+                <label htmlFor="job" className="block text-sm/6 font-medium text-gray-900">
+                    Praca (opcjonalnie):
+                </label>
+                <div className="mt-2">
+                    <input
+                        id="job"
+                        name="job"
+                        type="text"
+                        maxLength={50}
+                        value={formData.job}
+                        onChange={handleChange}
+                        autoComplete="organization-title"
+                        className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 ${errors.job ? 'outline-red-500' : 'outline-gray-300'
+                            } placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6`}
+                    />
+                </div>
+                {errors.job && (
+                    <p className="mt-1 text-xs text-red-600">{errors.job}</p>
+                )}
+            </div>
 
             <div>
                 <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">

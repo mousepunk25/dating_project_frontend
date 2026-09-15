@@ -2,7 +2,7 @@
 
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import { useEffect, useState, useRef, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 
 function Spinner({ className = "size-5" }: { className?: string }) {
@@ -22,8 +22,8 @@ interface UserDetails {
         city: string;
     };
     job?: string | {
-        position: string;
-        companyName: string;
+        position?: string;
+        companyName?: string;
     };
     education?: {
         educationLevel: string;
@@ -62,7 +62,10 @@ export default function EditUserProfile({
     role: 'son' | 'parent';
 }) {
     const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
-    const [isLoadingData, setIsLoadingData] = useState<boolean>(true); // 1. Initial Load Tracker
+    const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
+
+    // Ref for smooth auto-scrolling on error/success feedback
+    const feedbackRef = useRef<HTMLDivElement>(null);
 
     // Validation & State Management
     const [validCities, setValidCities] = useState<string[]>([]);
@@ -70,6 +73,10 @@ export default function EditUserProfile({
     const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Feedback States
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
     // Son Image Upload State
     const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(null);
@@ -79,7 +86,7 @@ export default function EditUserProfile({
         ? process.env.NEXT_PUBLIC_DEV_API_URL
         : process.env.NEXT_PUBLIC_PROD_API_URL;
 
-    const ageRange = Array.from({ length: 83 }, (_, i) => i + 18); // 18 to 100
+    const ageRange = Array.from({ length: 83 }, (_, i) => i + 18);
     const [ageMin, setAgeMin] = useState(18);
     const [ageMax, setAgeMax] = useState(80);
 
@@ -88,7 +95,14 @@ export default function EditUserProfile({
     const [aboutYou, setAboutYou] = useState('');
     const [fullName, setFullName] = useState('');
     const [jobPosition, setJobPosition] = useState('');
+    const [companyName, setCompanyName] = useState('');
     const [educationLevel, setEducationLevel] = useState<string>('High School');
+
+    const scrollToFeedback = () => {
+        setTimeout(() => {
+            feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50);
+    };
 
     // Load CSV for City Validation
     useEffect(() => {
@@ -133,8 +147,12 @@ export default function EditUserProfile({
                     if (data.aboutYou) setAboutYou(decodeHTMLEntities(data.aboutYou));
 
                     if (data.job) {
-                        const parsedJob = typeof data.job === 'string' ? data.job : data.job.position;
-                        if (parsedJob) setJobPosition(decodeHTMLEntities(parsedJob));
+                        if (typeof data.job === 'string') {
+                            setJobPosition(decodeHTMLEntities(data.job));
+                        } else {
+                            if (data.job.position) setJobPosition(decodeHTMLEntities(data.job.position));
+                            if (data.job.companyName) setCompanyName(decodeHTMLEntities(data.job.companyName));
+                        }
                     }
 
                     if (data.address?.city) setCityInput(data.address.city);
@@ -158,8 +176,8 @@ export default function EditUserProfile({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.size > 5 * 1024 * 1024) {
-            setErrors(prev => ({ ...prev, image: 'Rozmiar zdjęcia musi być mniejszy niż 5MB.' }));
+        if (file.size > 10 * 1024 * 1024) {
+            setErrors(prev => ({ ...prev, image: 'Rozmiar zdjęcia musi być mniejszy niż 10MB.' }));
             return;
         }
 
@@ -169,6 +187,7 @@ export default function EditUserProfile({
             setSelectedImageBase64(base64String);
             setPreviewUrl(base64String);
             setErrors(prev => ({ ...prev, image: '' }));
+            setSubmitError(null);
         };
         reader.readAsDataURL(file);
     };
@@ -220,6 +239,16 @@ export default function EditUserProfile({
             if (aboutVal.length > 1000) {
                 newErrors.about = 'Tekst w sekcji O mnie nie może być dłuższy niż 1000 znaków.';
             }
+
+            const jobPos = getFormString(formData, 'job-position');
+            if (jobPos.length > 200) {
+                newErrors.jobPosition = 'Stanowisko pracy nie może przekraczać 200 znaków.';
+            }
+
+            const compName = getFormString(formData, 'company');
+            if (compName.length > 200) {
+                newErrors.companyName = 'Nazwa firmy nie może przekraczać 200 znaków.';
+            }
         }
 
         const city = cityInput.trim();
@@ -234,17 +263,24 @@ export default function EditUserProfile({
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+
+        if (Object.keys(newErrors).length > 0) {
+            scrollToFeedback();
+            return false;
+        }
+
+        return true;
     };
 
     async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        setSubmitError(null);
+        setSubmitSuccess(null);
+
         const formData = new FormData(e.currentTarget);
 
         if (!validateForm(formData)) return;
         setIsSubmitting(true);
-
-        const jobData = typeof userDetails?.job === 'object' && userDetails.job !== null ? { ...userDetails.job } : {};
 
         const payload: Record<string, unknown> = {
             ...userDetails,
@@ -253,7 +289,6 @@ export default function EditUserProfile({
             dateOfBirth: formData.get('dob') ? new Date(formData.get('dob') as string) : null,
             address: { ...userDetails?.address, city: cityInput },
             job: {
-                ...jobData,
                 position: getFormString(formData, 'job-position'),
                 companyName: getFormString(formData, 'company'),
             },
@@ -280,12 +315,25 @@ export default function EditUserProfile({
                 credentials: 'include',
                 body: JSON.stringify(payload),
             });
+
             const data = await res.json();
+
+            if (!res.ok) {
+                setSubmitError(data.error || 'Wystąpił błąd podczas aktualizacji profilu.');
+                scrollToFeedback();
+                return;
+            }
+
             if (data.profile) {
                 setUserDetails(data.profile);
+                setSelectedImageBase64(null);
+                setSubmitSuccess('Profil został pomyślnie zaktualizowany!');
+                scrollToFeedback();
             }
         } catch (err) {
             console.error(err);
+            setSubmitError('Wystąpił błąd połączenia z serwerem.');
+            scrollToFeedback();
         } finally {
             setIsSubmitting(false);
         }
@@ -293,6 +341,9 @@ export default function EditUserProfile({
 
     async function handleParentSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        setSubmitError(null);
+        setSubmitSuccess(null);
+
         const formData = new FormData(e.currentTarget);
 
         if (!validateForm(formData)) return;
@@ -314,12 +365,24 @@ export default function EditUserProfile({
                 credentials: 'include',
                 body: JSON.stringify(payload),
             });
+
             const data = await res.json();
+
+            if (!res.ok) {
+                setSubmitError(data.error || 'Wystąpił błąd podczas aktualizacji profilu.');
+                scrollToFeedback();
+                return;
+            }
+
             if (data.profile) {
                 setUserDetails(data.profile);
+                setSubmitSuccess('Profil został pomyślnie zaktualizowany!');
+                scrollToFeedback();
             }
         } catch (err) {
             console.error(err);
+            setSubmitError('Wystąpił błąd połączenia z serwerem.');
+            scrollToFeedback();
         } finally {
             setIsSubmitting(false);
         }
@@ -334,7 +397,6 @@ export default function EditUserProfile({
 
     const currentPhotoSrc = previewUrl || userDetails?.image?.url;
 
-    // 2. Initial Loading Indicator View
     if (isLoadingData) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
@@ -344,289 +406,354 @@ export default function EditUserProfile({
         );
     }
 
-    if (role === 'son') {
-        return (
-            <form onSubmit={handleSonSubmit}>
-                <div className="space-y-12">
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Profil</h2>
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+    return (
+        <div className="max-w-4xl mx-auto p-4">
+            {/* Scroll Anchor Target */}
+            <div ref={feedbackRef}>
+                {submitError && (
+                    <div className="mb-6 rounded-md bg-red-50 p-4 border border-red-200">
+                        <div className="flex">
+                            <div className="text-sm text-red-700 font-medium">{submitError}</div>
+                        </div>
+                    </div>
+                )}
 
-                            <div className="col-span-full">
-                                <label htmlFor="dob" className="block text-sm/6 font-medium text-gray-900">Data urodzenia</label>
-                                <input
-                                    type="date"
-                                    id="dob"
-                                    name="dob"
-                                    min={minDob}
-                                    max={maxDob}
-                                    value={dob}
-                                    onChange={(e) => {
-                                        setDob(e.target.value);
-                                        setErrors(prev => ({ ...prev, dob: '' }));
-                                    }}
-                                    className="mt-2 block rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                    required
-                                />
-                                {errors.dob && <p className="mt-1 text-xs text-red-500">{errors.dob}</p>}
-                            </div>
+                {submitSuccess && (
+                    <div className="mb-6 rounded-md bg-green-50 p-4 border border-green-200">
+                        <div className="flex">
+                            <div className="text-sm text-green-700 font-medium">{submitSuccess}</div>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-                            <div className="col-span-full">
-                                <div className="flex justify-between items-center">
-                                    <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">O mnie</label>
-                                    <span className="text-xs text-gray-500">{aboutYou.length}/1000</span>
+            {role === 'son' ? (
+                <form onSubmit={handleSonSubmit}>
+                    <div className="space-y-12">
+                        <div className="border-b border-gray-900/10 pb-12">
+                            <h2 className="text-base/7 font-semibold text-gray-900">Profil</h2>
+                            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                                <div className="col-span-full">
+                                    <label htmlFor="dob" className="block text-sm/6 font-medium text-gray-900">Data urodzenia</label>
+                                    <input
+                                        type="date"
+                                        id="dob"
+                                        name="dob"
+                                        min={minDob}
+                                        max={maxDob}
+                                        value={dob}
+                                        onChange={(e) => {
+                                            setDob(e.target.value);
+                                            setErrors(prev => ({ ...prev, dob: '' }));
+                                        }}
+                                        className="mt-2 block rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                        required
+                                    />
+                                    {errors.dob && <p className="mt-1 text-xs text-red-500">{errors.dob}</p>}
                                 </div>
-                                <textarea
-                                    id="about"
-                                    name="about"
-                                    rows={4}
-                                    maxLength={1000}
-                                    value={aboutYou}
-                                    onChange={(e) => {
-                                        setAboutYou(e.target.value);
-                                        setErrors(prev => ({ ...prev, about: '' }));
-                                    }}
-                                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                />
-                                {errors.about && <p className="mt-1 text-xs text-red-500">{errors.about}</p>}
-                            </div>
 
-                            <div className="col-span-full">
-                                <label className="block text-sm/6 font-medium text-gray-900">Zdjęcie</label>
-                                <div className="mt-2 flex items-center gap-x-3">
-                                    {currentPhotoSrc ? (
-                                        <Image src={currentPhotoSrc} width={100} height={100} alt="Profile" className="size-24 rounded-full object-cover" />
-                                    ) : (
-                                        <PhotoIcon className="size-16 text-gray-300" />
+                                <div className="col-span-full">
+                                    <div className="flex justify-between items-center">
+                                        <label htmlFor="about" className="block text-sm/6 font-medium text-gray-900">O mnie</label>
+                                        <span className="text-xs text-gray-500">{aboutYou.length}/1000</span>
+                                    </div>
+                                    <textarea
+                                        id="about"
+                                        name="about"
+                                        rows={4}
+                                        maxLength={1000}
+                                        value={aboutYou}
+                                        onChange={(e) => {
+                                            setAboutYou(e.target.value);
+                                            setErrors(prev => ({ ...prev, about: '' }));
+                                        }}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    />
+                                    {errors.about && <p className="mt-1 text-xs text-red-500">{errors.about}</p>}
+                                </div>
+
+                                <div className="col-span-full">
+                                    <label className="block text-sm/6 font-medium text-gray-900">Zdjęcie</label>
+                                    <div className="mt-2 flex items-center gap-x-3">
+                                        {currentPhotoSrc ? (
+                                            <Image src={currentPhotoSrc} width={100} height={100} alt="Profile" className="size-24 rounded-full object-cover" />
+                                        ) : (
+                                            <PhotoIcon className="size-16 text-gray-300" />
+                                        )}
+                                        <label htmlFor="photo-upload" className="cursor-pointer rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">
+                                            Zmień
+                                        </label>
+                                        <input
+                                            id="photo-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className="hidden"
+                                        />
+                                    </div>
+                                    {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-b border-gray-900/10 pb-12">
+                            <h2 className="text-base/7 font-semibold text-gray-900">Informacje szczegółowe</h2>
+                            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                                <div className="sm:col-span-3">
+                                    <div className="flex justify-between items-center">
+                                        <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię i nazwisko</label>
+                                        <span className="text-xs text-gray-500">{fullName.length}/50</span>
+                                    </div>
+                                    <input
+                                        id="full-name"
+                                        name="full-name"
+                                        type="text"
+                                        maxLength={50}
+                                        value={fullName}
+                                        onChange={(e) => {
+                                            setFullName(e.target.value);
+                                            setErrors(prev => ({ ...prev, fullName: '' }));
+                                        }}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    />
+                                    {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="education-level" className="block text-sm/6 font-medium text-gray-900">
+                                        Wykształcenie
+                                    </label>
+                                    <div className="mt-2 grid grid-cols-1">
+                                        <select
+                                            id="education-level"
+                                            name="education-level"
+                                            value={educationLevel}
+                                            onChange={(e) => setEducationLevel(e.target.value)}
+                                            className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white border border-gray-300 py-1.5 pr-8 pl-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                                        >
+                                            <option value="Elementary">Podstawowe</option>
+                                            <option value="High School">Średnie</option>
+                                            <option value="Certificate">Średnie techniczne</option>
+                                            <option value="Bachelor's Degree">Licencjat/Inżynier</option>
+                                            <option value="Master's Degree">Magister</option>
+                                            <option value="Doctorate/Ph.D">Doktor</option>
+                                        </select>
+                                        <ChevronDownIcon
+                                            aria-hidden="true"
+                                            className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Son Job - Position */}
+                                <div className="sm:col-span-3">
+                                    <div className="flex justify-between items-center">
+                                        <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
+                                            Stanowisko zawodowe
+                                        </label>
+                                        <span className="text-xs text-gray-500">{jobPosition.length}/200</span>
+                                    </div>
+                                    <input
+                                        id="job-position"
+                                        name="job-position"
+                                        type="text"
+                                        maxLength={200}
+                                        value={jobPosition}
+                                        onChange={(e) => {
+                                            setJobPosition(e.target.value);
+                                            setErrors(prev => ({ ...prev, jobPosition: '' }));
+                                        }}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                        placeholder="np. Programista, Inżynier..."
+                                    />
+                                    {errors.jobPosition && <p className="mt-1 text-xs text-red-500">{errors.jobPosition}</p>}
+                                </div>
+
+                                {/* Son Job - Company Name */}
+                                <div className="sm:col-span-3">
+                                    <div className="flex justify-between items-center">
+                                        <label htmlFor="company" className="block text-sm/6 font-medium text-gray-900">
+                                            Firma / Pracodawca
+                                        </label>
+                                        <span className="text-xs text-gray-500">{companyName.length}/200</span>
+                                    </div>
+                                    <input
+                                        id="company"
+                                        name="company"
+                                        type="text"
+                                        maxLength={200}
+                                        value={companyName}
+                                        onChange={(e) => {
+                                            setCompanyName(e.target.value);
+                                            setErrors(prev => ({ ...prev, companyName: '' }));
+                                        }}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                        placeholder="np. Acme Corp..."
+                                    />
+                                    {errors.companyName && <p className="mt-1 text-xs text-red-500">{errors.companyName}</p>}
+                                </div>
+
+                                <div className="sm:col-span-2 sm:col-start-1 relative">
+                                    <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">Miasto</label>
+                                    <input
+                                        id="city"
+                                        name="city"
+                                        type="text"
+                                        value={cityInput}
+                                        onChange={(e) => handleCityChange(e.target.value)}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                        placeholder="Zacznij wpisywać miasto..."
+                                    />
+                                    {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
+                                    {citySuggestions.length > 0 && (
+                                        <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto mt-1">
+                                            {citySuggestions.map((suggestion) => (
+                                                <li
+                                                    key={suggestion}
+                                                    onClick={() => {
+                                                        setCityInput(suggestion);
+                                                        setCitySuggestions([]);
+                                                    }}
+                                                    className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     )}
-                                    <label htmlFor="photo-upload" className="cursor-pointer rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">
-                                        Zmień
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex items-center justify-end gap-x-6">
+                            <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
+                            <button 
+                                type="submit" 
+                                disabled={isSubmitting} 
+                                className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Spinner className="size-4 text-white" />
+                                        <span>Zapisuję...</span>
+                                    </>
+                                ) : (
+                                    'Zapisz'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            ) : (
+                <form onSubmit={handleParentSubmit}>
+                    <div className="space-y-12">
+                        <div className="border-b border-gray-900/10 pb-12">
+                            <h2 className="text-base/7 font-semibold text-gray-900">Informacje o Tobie</h2>
+                            {errors.age && <p className="mt-2 text-sm text-red-500">{errors.age}</p>}
+
+                            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Minimalny wiek zięcia:</label>
+                                    <select id="ageMin" name="ageMin" value={ageMin} onChange={e => setAgeMin(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
+                                        {ageRange.map(a => <option key={`min_${a}`} value={a}>{a}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="sm:col-span-2">
+                                    <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Maksymalny wiek zięcia:</label>
+                                    <select id="ageMax" name="ageMax" value={ageMax} onChange={e => setAgeMax(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
+                                        {ageRange.map(a => <option key={`max_${a}`} value={a}>{a}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="sm:col-span-3 col-start-1">
+                                    <div className="flex justify-between items-center">
+                                        <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię</label>
+                                        <span className="text-xs text-gray-500">{fullName.length}/50</span>
+                                    </div>
+                                    <input
+                                        id="full-name"
+                                        name="full-name"
+                                        type="text"
+                                        maxLength={50}
+                                        value={fullName}
+                                        onChange={(e) => {
+                                            setFullName(e.target.value);
+                                            setErrors(prev => ({ ...prev, fullName: '' }));
+                                        }}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    />
+                                    {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
+                                </div>
+
+                                <div className="sm:col-span-3">
+                                    <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
+                                        Praca
                                     </label>
                                     <input
-                                        id="photo-upload"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="hidden"
+                                        id="job-position"
+                                        name="job-position"
+                                        type="text"
+                                        value={jobPosition}
+                                        onChange={(e) => setJobPosition(e.target.value)}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                        placeholder="np. Inżynier, Nauczyciel, Emeryt..."
                                     />
                                 </div>
-                                {errors.image && <p className="mt-1 text-xs text-red-500">{errors.image}</p>}
+
+                                <div className="sm:col-span-2 sm:col-start-1 relative">
+                                    <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">Miasto</label>
+                                    <input
+                                        id="city"
+                                        name="city"
+                                        type="text"
+                                        value={cityInput}
+                                        onChange={(e) => handleCityChange(e.target.value)}
+                                        className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
+                                    />
+                                    {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
+                                    {citySuggestions.length > 0 && (
+                                        <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto mt-1">
+                                            {citySuggestions.map((suggestion) => (
+                                                <li
+                                                    key={suggestion}
+                                                    onClick={() => {
+                                                        setCityInput(suggestion);
+                                                        setCitySuggestions([]);
+                                                    }}
+                                                    className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="border-b border-gray-900/10 pb-12">
-                        <h2 className="text-base/7 font-semibold text-gray-900">Informacje szczegółowe</h2>
-                        <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-
-                            <div className="sm:col-span-3">
-                                <div className="flex justify-between items-center">
-                                    <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię i nazwisko</label>
-                                    <span className="text-xs text-gray-500">{fullName.length}/50</span>
-                                </div>
-                                <input
-                                    id="full-name"
-                                    name="full-name"
-                                    type="text"
-                                    maxLength={50}
-                                    value={fullName}
-                                    onChange={(e) => {
-                                        setFullName(e.target.value);
-                                        setErrors(prev => ({ ...prev, fullName: '' }));
-                                    }}
-                                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                />
-                                {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
-                            </div>
-
-                            <div className="sm:col-span-3">
-                                <label htmlFor="education-level" className="block text-sm/6 font-medium text-gray-900">
-                                    Wykształcenie
-                                </label>
-                                <div className="mt-2 grid grid-cols-1">
-                                    <select
-                                        id="education-level"
-                                        name="education-level"
-                                        value={educationLevel}
-                                        onChange={(e) => setEducationLevel(e.target.value)}
-                                        className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white border border-gray-300 py-1.5 pr-8 pl-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                                    >
-                                        <option value="Elementary">Podstawowe</option>
-                                        <option value="High School">Średnie</option>
-                                        <option value="Certificate">Średnie techniczne</option>
-                                        <option value="Bachelor's Degree">Licencjat/Inżynier</option>
-                                        <option value="Master's Degree">Magister</option>
-                                        <option value="Doctorate/Ph.D">Doktor</option>
-                                    </select>
-                                    <ChevronDownIcon
-                                        aria-hidden="true"
-                                        className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-2 sm:col-start-1 relative">
-                                <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">Miasto</label>
-                                <input
-                                    id="city"
-                                    name="city"
-                                    type="text"
-                                    value={cityInput}
-                                    onChange={(e) => handleCityChange(e.target.value)}
-                                    className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                    placeholder="Zacznij wpisywać miasto..."
-                                />
-                                {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
-                                {citySuggestions.length > 0 && (
-                                    <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto mt-1">
-                                        {citySuggestions.map((suggestion) => (
-                                            <li
-                                                key={suggestion}
-                                                onClick={() => {
-                                                    setCityInput(suggestion);
-                                                    setCitySuggestions([]);
-                                                }}
-                                                className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
-                                            >
-                                                {suggestion}
-                                            </li>
-                                        ))}
-                                    </ul>
+                        <div className="mt-6 flex items-center justify-end gap-x-6">
+                            <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
+                            <button 
+                                type="submit" 
+                                disabled={isSubmitting} 
+                                className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Spinner className="size-4 text-white" />
+                                        <span>Zapisuję...</span>
+                                    </>
+                                ) : (
+                                    'Zapisz'
                                 )}
-                            </div>
+                            </button>
                         </div>
                     </div>
-
-                    <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
-                        {/* 3. Submit Button Loading Feedback */}
-                        <button 
-                            type="submit" 
-                            disabled={isSubmitting} 
-                            className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Spinner className="size-4 text-white" />
-                                    <span>Zapisuję...</span>
-                                </>
-                            ) : (
-                                'Zapisz'
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </form>
-        );
-    }
-
-    return (
-        <form onSubmit={handleParentSubmit}>
-            <div className="space-y-12">
-                <div className="border-b border-gray-900/10 pb-12">
-                    <h2 className="text-base/7 font-semibold text-gray-900">Informacje o Tobie</h2>
-                    {errors.age && <p className="mt-2 text-sm text-red-500">{errors.age}</p>}
-
-                    <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                        <div className="sm:col-span-2">
-                            <label htmlFor="ageMin" className="block text-sm/6 font-medium text-gray-900">Minimalny wiek zięcia:</label>
-                            <select id="ageMin" name="ageMin" value={ageMin} onChange={e => setAgeMin(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
-                                {ageRange.map(a => <option key={`min_${a}`} value={a}>{a}</option>)}
-                            </select>
-                        </div>
-
-                        <div className="sm:col-span-2">
-                            <label htmlFor="ageMax" className="block text-sm/6 font-medium text-gray-900">Maksymalny wiek zięcia:</label>
-                            <select id="ageMax" name="ageMax" value={ageMax} onChange={e => setAgeMax(Number(e.target.value))} className="mt-2 block w-full rounded-md border border-gray-300 p-2">
-                                {ageRange.map(a => <option key={`max_${a}`} value={a}>{a}</option>)}
-                            </select>
-                        </div>
-
-                        <div className="sm:col-span-3 col-start-1">
-                            <div className="flex justify-between items-center">
-                                <label htmlFor="full-name" className="block text-sm/6 font-medium text-gray-900">Imię</label>
-                                <span className="text-xs text-gray-500">{fullName.length}/50</span>
-                            </div>
-                            <input
-                                id="full-name"
-                                name="full-name"
-                                type="text"
-                                maxLength={50}
-                                value={fullName}
-                                onChange={(e) => {
-                                    setFullName(e.target.value);
-                                    setErrors(prev => ({ ...prev, fullName: '' }));
-                                }}
-                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                            />
-                            {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
-                        </div>
-
-                        <div className="sm:col-span-3">
-                            <label htmlFor="job-position" className="block text-sm/6 font-medium text-gray-900">
-                                Praca
-                            </label>
-                            <input
-                                id="job-position"
-                                name="job-position"
-                                type="text"
-                                value={jobPosition}
-                                onChange={(e) => setJobPosition(e.target.value)}
-                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                                placeholder="np. Inżynier, Nauczyciel, Emeryt..."
-                            />
-                        </div>
-
-                        <div className="sm:col-span-2 sm:col-start-1 relative">
-                            <label htmlFor="city" className="block text-sm/6 font-medium text-gray-900">Miasto</label>
-                            <input
-                                id="city"
-                                name="city"
-                                type="text"
-                                value={cityInput}
-                                onChange={(e) => handleCityChange(e.target.value)}
-                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-base text-gray-900"
-                            />
-                            {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
-                            {citySuggestions.length > 0 && (
-                                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto mt-1">
-                                    {citySuggestions.map((suggestion) => (
-                                        <li
-                                            key={suggestion}
-                                            onClick={() => {
-                                                setCityInput(suggestion);
-                                                setCitySuggestions([]);
-                                            }}
-                                            className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 cursor-pointer"
-                                        >
-                                            {suggestion}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
-                    {/* Submit Button Loading Feedback */}
-                    <button 
-                        type="submit" 
-                        disabled={isSubmitting} 
-                        className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <Spinner className="size-4 text-white" />
-                                <span>Zapisuję...</span>
-                            </>
-                        ) : (
-                            'Zapisz'
-                        )}
-                    </button>
-                </div>
-            </div>
-        </form>
+                </form>
+            )}
+        </div>
     );
 }
