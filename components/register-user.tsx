@@ -13,6 +13,7 @@ interface FormDataState {
     job: string;
     email: string;
     password: string;
+    confirmPassword: string;
     educationLevel: string;
 }
 
@@ -50,6 +51,7 @@ export default function RegisterUser() {
         job: '',
         email: '',
         password: '',
+        confirmPassword: '',
         educationLevel: 'High School'
     });
 
@@ -118,6 +120,20 @@ export default function RegisterUser() {
             }
         }
 
+        if (name === 'confirmPassword') {
+            if (value !== formData.password) {
+                return 'Hasła muszą być identyczne.';
+            }
+        }
+
+        if (name === 'password') {
+            if (formData.confirmPassword && value !== formData.confirmPassword) {
+                setErrors((prev) => ({ ...prev, confirmPassword: 'Hasła muszą być identyczne.' }));
+            } else {
+                setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+            }
+        }
+
         return '';
     };
 
@@ -137,10 +153,16 @@ export default function RegisterUser() {
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         const fieldsToValidate: (keyof FormDataState)[] = isParent
-            ? ['fullNameParent', 'cityParent', 'job']
-            : ['fullNameSon', 'citySon', 'job'];
+            ? ['fullNameParent', 'cityParent', 'job', 'confirmPassword']
+            : ['fullNameSon', 'citySon', 'job', 'confirmPassword'];
 
         const newErrors: FormErrors = {};
+
+        // Check if confirmPassword matches password explicitly on submit
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'Hasła muszą być identyczne.';
+        }
+
         fieldsToValidate.forEach((field) => {
             const err = validateField(field, formData[field]);
             if (err) newErrors[field] = err;
@@ -461,6 +483,28 @@ export default function RegisterUser() {
                         className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                     />
                 </div>
+            </div>
+
+            <div>
+                <label htmlFor="confirmPassword" className="block text-sm/6 font-medium text-gray-900">
+                    Potwierdź hasło (wymagane):
+                </label>
+                <div className="mt-2">
+                    <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                        className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 ${errors.confirmPassword ? 'outline-red-500' : 'outline-gray-300'
+                            } placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6`}
+                    />
+                </div>
+                {errors.confirmPassword && (
+                    <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>
+                )}
             </div>
 
             <div>

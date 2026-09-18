@@ -96,13 +96,13 @@ export default async function Page({
 
     return (
         <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900 py-8 md:py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
                 
                 {/* 2-Column Responsive Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
                     {/* Left Column: Media & Actions */}
-                    <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6 lg:sticky lg:top-8">
+                    <div className="lg:col-span-5 bg-white p-2 rounded-2xl border border-gray-200 shadow-sm space-y-2 lg:sticky lg:top-8">
                         <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[380px] max-h-[650px] overflow-hidden rounded-xl bg-gray-100 border border-gray-100">
                             <Image
                                 src={candidate.image.url}

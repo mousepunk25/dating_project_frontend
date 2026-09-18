@@ -8,6 +8,8 @@ interface Parent {
     _id: string;
     fullName: string;
     job: string;
+    sonAgeMin?: number;
+    sonAgeMax?: number;
     address: {
         _id: string;
         city: string;
@@ -50,6 +52,7 @@ export default function ParentProfile({
                 const parentJSON = await parentResponse.json();
                 
                 if (!ignore) {
+                    console.log(parentJSON);
                     setParent(parentJSON);
                 }
             } catch (err) {
@@ -100,7 +103,7 @@ export default function ParentProfile({
                 <div className="mt-3 block">
                     <h1 className="text-xl font-bold">{parent.fullName}, miasto: {parent.address?.city}</h1>
                 </div>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 pt-2">
                     <SaveButton sonProfileId={parent._id} />
                     <AddFriendButton sonProfileId={parent._id} />
                 </div>
@@ -108,6 +111,14 @@ export default function ParentProfile({
             <div className="text-lg mt-2 flex">
                 <h3 className="font-bold">Praca: </h3> 
                 <span className="ml-2">{parent.job}</span>
+            </div>
+            <div className="text-lg mt-2 flex">
+                <h3 className="font-bold">Minimalny wiek kandydata: </h3> 
+                <span className="ml-2">{parent.sonAgeMin ?? 'Brak danych'}</span>
+            </div>
+            <div className="text-lg mt-2 flex">
+                <h3 className="font-bold">Maksymalny wiek kandydata: </h3> 
+                <span className="ml-2">{parent.sonAgeMax ?? 'Brak danych'}</span>
             </div>
         </div>
     );

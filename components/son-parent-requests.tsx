@@ -53,7 +53,11 @@ export default function SonParentRequests({
 
                 const data = await response.json();
                 if (!ignore && Array.isArray(data)) {
-                    setUserFriendsWhoWantToBeAdded(data);
+                    if (role === 'parent') {
+                        setUserFriendsWhoWantToBeAdded(data.map(d => d.son));
+                    } else {
+                        setUserFriendsWhoWantToBeAdded(data.map(d => d.parent));
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching requests:', error);

@@ -72,7 +72,11 @@ export default function SonParentFriends({
         const userFriendsJSON = await userFriendsResponse.json();
 
         if (!ignore && Array.isArray(userFriendsJSON)) {
-          setUserFriends(userFriendsJSON);
+          if (role === 'parent') {
+            setUserFriends(userFriendsJSON.map(uFJ => uFJ.son));
+          } else {
+            setUserFriends(userFriendsJSON.map(uFJ => uFJ.parent));
+          }
         }
       } catch (error) {
         console.error('Error fetching friends:', error);

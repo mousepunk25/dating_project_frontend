@@ -59,7 +59,7 @@ export default function HomePage() {
         return (
             <div className="space-y-2 font-serif">
                 <p className="text-gray-900 text-xl">
-                    Stwórz rodzinę
+                    Szukasz żony?
                 </p>
                 <SearchParent />
             </div>
@@ -69,7 +69,7 @@ export default function HomePage() {
     return (
         <div className="space-y-2 font-serif">
             <p className="text-gray-900 text-xl">
-                Znajdź perfekcyjnego zięcia
+                Znajdź wymarzonego zięcia
             </p>
             
             <h2 className="text-gray-600 text-2xl font-bold flex items-center min-h-[36px]">
@@ -79,7 +79,6 @@ export default function HomePage() {
                 ) : (
                     <>
                         <span>{sonCount ?? 'Wielu'} wspaniałych kandydatów czeka</span>
-                        <FaceSmileIcon aria-hidden="true" className="size-6 inline ml-2 text-amber-500" />
                     </>
                 )}
             </h2>

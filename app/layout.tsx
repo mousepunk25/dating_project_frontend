@@ -18,8 +18,8 @@ export default function RootLayout({
         <Disclosure as="nav" className="relative bg-white font-serif text-base font-semibold">
           <div className="mx-auto">
             <div className="relative flex h-16 items-center justify-between border-b-1 border-cahir-armor/25 shadow-md px-2 sm:px-6 lg:px-8">
-              <div className="absolute flex items-center sm:hidden">
-                {/* Mobile menu button*/}
+              {/* Mobile menu button aligned to the right */}
+              <div className="absolute right-2 flex items-center sm:hidden">
                 <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-cahir-armor hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-cahir-blood">
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Otwórz menu główne</span>

@@ -173,7 +173,7 @@ export default function CandidateCart({
         )}
 
         {/* Updated photo container with rounded top corners */}
-        <div className="relative w-full aspect-4/5 bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div className="relative w-full bg-gray-100 flex items-center justify-center overflow-hidden">
           <Image
             src={candidateImage}
             width={500}
@@ -184,10 +184,10 @@ export default function CandidateCart({
         </div>
 
         {/* Card Text Content with padding and modern spacing */}
-        <div className="p-4 sm:p-5 space-y-1.5">
+        <div className="p-2 sm:p-2">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-950">
             {candidateFullName}
-            <span className="font-normal text-gray-700">, wiek: <strong className="font-bold">{age} lat</strong></span>
+            <span className="font-normal text-gray-700">, {age} lat</span>
           </h2>
 
           <h3 className="text-lg text-gray-600 pb-2 border-b border-gray-100">{candidateCity}</h3>

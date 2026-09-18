@@ -61,10 +61,10 @@ export default async function Page({
   return (
     <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900">
       {/* Max-width container prevents content stretching on 1440p+ & 4K displays */}
-      <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+      <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-2 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         
         {/* Search Panel Card */}
-        <section className="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
+        <section className="bg-white p-2 md:p-2 rounded-2xl border border-gray-200 shadow-sm">
           <SearchSon 
             defaultCity={filters.city} 
             defaultAgeMin={filters.ageMin} 
