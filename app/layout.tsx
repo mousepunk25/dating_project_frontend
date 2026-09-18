@@ -5,6 +5,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import NavigationButtons from '@/components/navigation-buttons';
 import CookieConsent from '@/components/cookie-consent';
 import Link from 'next/link';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export default function RootLayout({
   children,
@@ -52,7 +53,7 @@ export default function RootLayout({
           {children}
         </div>
         <CookieConsent />
-
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID!} />
         <footer className="mt-8 border-t-1 border-cahir-armor/20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <small className='px-3 py-2'>
             Wszystkie prawa zastrzeżone.
