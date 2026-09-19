@@ -127,6 +127,7 @@ export default function SonParentRequests({
                         parentCity={parent.address?.city}
                         parentJob={jobTitle}
                         addedStatus='request-received'
+                        sonProfileId={profileId}
                     />
                 );
             })}

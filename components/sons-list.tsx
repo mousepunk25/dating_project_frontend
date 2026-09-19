@@ -47,7 +47,7 @@ interface SonsListProps {
 
 export default function SonsList({ sons, showChat, unreadConversations, addedStatus, parentProfileId }: SonsListProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 my-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-6 my-6">
       {Array.isArray(sons) &&
         sons.map((candidate) => {
           const jobTitle =

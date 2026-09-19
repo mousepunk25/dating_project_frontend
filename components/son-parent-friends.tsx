@@ -150,6 +150,7 @@ export default function SonParentFriends({
             showChat={showChat}
             unreadConversations={unreadConversations}
             addedStatus='friend'
+            sonProfileId={profileId}
           />
         );
       })}

@@ -123,6 +123,7 @@ export default function SonParentWaiting({
                         parentCity={parent.address?.city}
                         parentJob={jobTitle}
                         addedStatus='request-sent'
+                        sonProfileId={profileId}
                     />
                 );
             })}

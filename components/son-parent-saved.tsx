@@ -123,6 +123,7 @@ export default function SonParentSaved({
                         parentCity={parent.address?.city}
                         parentJob={jobTitle}
                         addedStatus='saved'
+                        sonProfileId={profileId}
                     />
                 );
             })}

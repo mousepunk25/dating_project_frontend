@@ -14,7 +14,7 @@ export default function SearchSon({ defaultCity = '', defaultAgeMin = '18', defa
 
     return (
         <form action="/sons">
-            <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-6">
                 <div className="sm:col-span-4">
                     <div className="mt-2 sm:flex">
                         <div className='shadow-xl'>
@@ -34,10 +34,10 @@ export default function SearchSon({ defaultCity = '', defaultAgeMin = '18', defa
                             {/* Min Age Field */}
                             <label htmlFor="ageMin" className="relative flex items-center bg-white pl-3 outline-1 -outline-offset-1 outline-cahir-armor focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-cahir-blood cursor-pointer">
                                 <span className="text-lg pointer-events-none">Wiek minimum:</span>
-                                <select 
-                                    name="ageMin" 
-                                    id="ageMin" 
-                                    value={ageMin} 
+                                <select
+                                    name="ageMin"
+                                    id="ageMin"
+                                    value={ageMin}
                                     onChange={e => setAgeMin(e.target.value)}
                                     className="grow bg-white py-4 mr-4 pl-1 text-lg text-gray-900 focus:outline-none font-bold cursor-pointer"
                                 >
@@ -50,10 +50,10 @@ export default function SearchSon({ defaultCity = '', defaultAgeMin = '18', defa
                             {/* Max Age Field */}
                             <label htmlFor="ageMax" className="relative flex items-center rounded-b-md bg-white pl-3 outline-1 -outline-offset-1 outline-cahir-armor focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-cahir-blood cursor-pointer">
                                 <span className="text-lg pointer-events-none">Wiek maksimum:</span>
-                                <select 
-                                    name="ageMax" 
-                                    id="ageMax" 
-                                    value={ageMax} 
+                                <select
+                                    name="ageMax"
+                                    id="ageMax"
+                                    value={ageMax}
                                     onChange={e => setAgeMax(e.target.value)}
                                     className="grow bg-white py-4 mr-4 pl-1 text-lg text-gray-900 focus:outline-none font-bold cursor-pointer"
                                 >
@@ -63,13 +63,14 @@ export default function SearchSon({ defaultCity = '', defaultAgeMin = '18', defa
                                 </select>
                             </label>
                         </div>
-
-                        <button
-                            type="submit"
-                            className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cahir-blood sm:ml-2 mt-5 w-full"
-                        >
-                            Szukaj
-                        </button>
+                        <div className="w-full flex flex-col items-center h-full">
+                            <button
+                                type="submit"
+                                className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-cahir-blood focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cahir-blood sm:ml-2 mt-5 w-full sm:h-16 sm:mt-12"
+                            >
+                                Szukaj
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
