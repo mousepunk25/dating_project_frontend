@@ -35,6 +35,7 @@ export default function RegisterUser() {
     // Image state (stores Base64 string and preview URL)
     const [imageBase64, setImageBase64] = useState<string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string>('');
 
     const getDefault30YearsOldDate = (): string => {
         const today = new Date();
@@ -83,12 +84,24 @@ export default function RegisterUser() {
         fetchCities();
     }, []);
 
-    // Convert file input to Base64 string for direct submission to Cloudinary backend
+    // Convert file input to Base64 string with 2MB size limit validation
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB in bytes
+
+        if (file.size > MAX_FILE_SIZE) {
+            setImageError('Zdjęcie nie może być większe niż 2 MB.');
+            setImageBase64('');
+            setImagePreview(null);
+            e.target.value = ''; // Reset input selection
+            return;
+        }
+
+        setImageError('');
         setIsImageLoading(true);
+
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onloadend = () => {
@@ -99,6 +112,7 @@ export default function RegisterUser() {
         };
         reader.onerror = () => {
             setIsImageLoading(false);
+            setImageError('Wystąpił błąd podczas wczytywania zdjęcia.');
         };
     };
 
@@ -288,7 +302,7 @@ export default function RegisterUser() {
                     {/* Profile Image Upload Field */}
                     <div>
                         <label className="block text-sm/6 font-medium text-gray-900">
-                            Zdjęcie profilowe (opcjonalnie):
+                            Zdjęcie profilowe (opcjonalnie, maks. 2 MB):
                         </label>
                         <div className="mt-2 flex items-center gap-x-4">
                             {isImageLoading ? (
@@ -316,6 +330,9 @@ export default function RegisterUser() {
                                 />
                             </label>
                         </div>
+                        {imageError && (
+                            <p className="mt-1 text-xs text-red-600">{imageError}</p>
+                        )}
                     </div>
 
                     <div>
