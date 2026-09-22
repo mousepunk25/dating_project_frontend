@@ -4,6 +4,7 @@ import { PhotoIcon } from '@heroicons/react/24/solid';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useEffect, useState, useRef, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 function Spinner({ className = "size-5" }: { className?: string }) {
     return (
@@ -73,6 +74,8 @@ export default function EditUserProfile({
     const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const router = useRouter();
 
     // Feedback States
     const [submitError, setSubmitError] = useState<string | null>(null);
@@ -388,6 +391,43 @@ export default function EditUserProfile({
         }
     }
 
+    const handleDeleteUser = async () => {
+        const confirmed = window.confirm(
+            "Czy na pewno chcesz usunąć swoje konto? Ta akcja jest nieodwracalna."
+        );
+
+        if (!confirmed) return;
+
+        setIsDeleting(true);
+
+        try {
+            const response = await fetch(`${url}/users/${profileId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Wystąpił błąd podczas usuwania konta.');
+            }
+
+            alert(data.message || 'Konto zostało pomyślnie usunięte.');
+
+            // Redirect to home page or login page after successful deletion
+            router.push('/myprofile?logout=true');
+            router.refresh();
+        } catch (error: any) {
+            console.error('Delete user error:', error);
+            alert(error.message || 'Nie udało się usunąć konta. Spróbuj ponownie.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     function decodeHTMLEntities(text: string): string {
         if (!text) return '';
         const parser = new DOMParser();
@@ -627,22 +667,42 @@ export default function EditUserProfile({
                             </div>
                         </div>
 
-                        <div className="mt-6 flex items-center justify-end gap-x-6">
-                            <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
-                            <button 
-                                type="submit" 
-                                disabled={isSubmitting} 
-                                className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        <div className="mt-6 flex items-center justify-between gap-x-6">
+                            <button
+                                type="button"
+                                onClick={handleDeleteUser}
+                                disabled={isDeleting}
+                                className="flex items-center gap-2 rounded-md bg-cahir-blood px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-cahir-blood focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cahir-blood disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {isSubmitting ? (
+                                {isDeleting ? (
                                     <>
                                         <Spinner className="size-4 text-white" />
-                                        <span>Zapisuję...</span>
+                                        <span>Usuwanie...</span>
                                     </>
                                 ) : (
-                                    'Zapisz'
+                                    'Usuń konto'
                                 )}
                             </button>
+
+                            <div className="flex items-center gap-x-6">
+                                <button type="button" className="text-sm/6 font-semibold text-gray-900">
+                                    Anuluj
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="flex items-center gap-2 rounded-md bg-cahir-armor px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-cahir-armor disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Spinner className="size-4 text-white" />
+                                            <span>Zapisuję...</span>
+                                        </>
+                                    ) : (
+                                        'Zapisz'
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -735,21 +795,38 @@ export default function EditUserProfile({
                         </div>
 
                         <div className="mt-6 flex items-center justify-end gap-x-6">
-                            <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
-                            <button 
-                                type="submit" 
-                                disabled={isSubmitting} 
-                                className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            <button
+                                type="button"
+                                onClick={handleDeleteUser}
+                                disabled={isDeleting}
+                                className="flex items-center gap-2 rounded-md bg-cahir-blood px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cahir-blood disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {isSubmitting ? (
+                                {isDeleting ? (
                                     <>
                                         <Spinner className="size-4 text-white" />
-                                        <span>Zapisuję...</span>
+                                        <span>Usuwanie...</span>
                                     </>
                                 ) : (
-                                    'Zapisz'
+                                    'Usuń konto'
                                 )}
                             </button>
+                            <div>
+                                <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="flex items-center gap-2 rounded-md bg-cahir-armor px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-cahir-armor disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Spinner className="size-4 text-white" />
+                                            <span>Zapisuję...</span>
+                                        </>
+                                    ) : (
+                                        'Zapisz'
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>

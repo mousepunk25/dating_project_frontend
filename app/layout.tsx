@@ -6,6 +6,15 @@ import NavigationButtons from '@/components/navigation-buttons';
 import CookieConsent from '@/components/cookie-consent';
 import Link from 'next/link';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Kawaliry - znajdź wymarzonego zięcia.', // Title for the homepage
+    template: '%s | Kawaliry', // %s is replaced by the page's title
+  },
+  description: 'Znajdź wymarzonego zięcia.',
+};
 
 export default function RootLayout({
   children,
@@ -28,13 +37,16 @@ export default function RootLayout({
                 </DisclosureButton>
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                <div className="flex shrink-0 items-center text-red-600 text-2xl tracking-wide">
+                <div className="flex shrink-0 items-center text-red-600 tracking-wide">
                   <Link
                     key='title'
                     href='/'
-                    className='rounded-md px-3 py-2 font-semibold sm:text-white'
+                    className='flex flex-col rounded-md px-3 py-1 font-semibold sm:text-white'
                   >
-                    Kawaliry
+                    <span className="text-2xl leading-none">Kawaliry</span>
+                    <span className="text-[10px] font-normal opacity-80 leading-tight">
+                      (wersja beta, zgłoś uwagi na: kontakt@kawaliry.pl)
+                    </span>
                   </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:block absolute right-0 bg-cahir-armor">
@@ -58,6 +70,9 @@ export default function RootLayout({
           <small className='px-3 py-2'>
             Wszystkie prawa zastrzeżone.
           </small>
+          <div className='px-3 py-2 font-semibold text-cahir-blood'>
+            Kontakt: kontakt@kawaliry.com
+          </div>
           <div>
             <Link
               key='rules'
