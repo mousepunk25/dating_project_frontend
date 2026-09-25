@@ -1,5 +1,10 @@
 import SearchParent from '../../components/search-parent';
 import ParentsList from '@/components/parents-list';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Wyniki wyszukiwania teściów',
+};
 
 export default async function Page({
   searchParams,
@@ -22,7 +27,7 @@ export default async function Page({
         <section className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-4">
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
-              Kandydaci na zięciów
+              Kandydaci na teściów
             </h2>
           </div>
 

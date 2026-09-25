@@ -5,6 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useEffect, useState, useRef, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { sendGAEvent } from '@next/third-parties/google';
 
 function Spinner({ className = "size-5" }: { className?: string }) {
     return (
@@ -275,7 +276,7 @@ export default function EditUserProfile({
         return true;
     };
 
-    async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
+async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setSubmitError(null);
         setSubmitSuccess(null);
@@ -328,6 +329,13 @@ export default function EditUserProfile({
             }
 
             if (data.profile) {
+                // Send profile update event to GA4
+                sendGAEvent('event', 'profile_update', {
+                    category: 'user_management',
+                    role: 'son',
+                    has_image_uploaded: Boolean(selectedImageBase64),
+                });
+
                 setUserDetails(data.profile);
                 setSelectedImageBase64(null);
                 setSubmitSuccess('Profil został pomyślnie zaktualizowany!');
@@ -378,6 +386,12 @@ export default function EditUserProfile({
             }
 
             if (data.profile) {
+                // Send profile update event to GA4
+                sendGAEvent('event', 'profile_update', {
+                    category: 'user_management',
+                    role: 'parent',
+                });
+
                 setUserDetails(data.profile);
                 setSubmitSuccess('Profil został pomyślnie zaktualizowany!');
                 scrollToFeedback();

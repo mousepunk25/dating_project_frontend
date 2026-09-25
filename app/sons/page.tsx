@@ -1,6 +1,11 @@
 import SearchSon from '../../components/search-son';
 import SonsList from '@/components/sons-list';
 import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Wyniki wyszukiwania kandydatów na zięciów',
+};
 
 interface Candidate {
   _id: string;

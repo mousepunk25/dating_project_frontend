@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent, ChangeEvent } from 'react';
+import { sendGAEvent } from '@next/third-parties/google';
 
 interface StatusState {
     loading: boolean;
@@ -36,6 +37,11 @@ export default function ForgotPasswordPage() {
             if (!res.ok) {
                 throw new Error(data.error || 'Failed to process request.');
             }
+
+            // Track password reset request event in Google Analytics
+            sendGAEvent('event', 'password_reset_request', {
+                category: 'account_recovery',
+            });
 
             setStatus({
                 loading: false,

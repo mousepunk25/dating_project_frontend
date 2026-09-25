@@ -13,7 +13,11 @@ export const metadata: Metadata = {
     default: 'Kawaliry - znajdź wymarzonego zięcia.', // Title for the homepage
     template: '%s | Kawaliry', // %s is replaced by the page's title
   },
-  description: 'Znajdź wymarzonego zięcia.',
+  description: `Kawaliry.pl to portal łączący tradycyjne wartości rodzinne z nowoczesnym swataniem.
+  Stworzyliśmy przestrzeń dla rodziców i rodzin, którzy chcą aktywnie wspierać swoje córki w znalezieniu wartościowego, odpowiedzialnego i dojrzałego 
+  partnera na całe życie. Nasza platforma umożliwia przeglądanie zweryfikowanych profili mężczyzn poszukujących poważnego związku i 
+  gotowych do założenia rodziny. Pomagamy odnaleźć idealnego kandydata na męża i zięcia. Dbamy o kulturę serwisu, aby proces 
+  poszukiwań przebiegał w atmosferze zaufania i wzajemnego szacunku.`
 };
 
 export default function RootLayout({
@@ -44,7 +48,7 @@ export default function RootLayout({
                     className='flex flex-col rounded-md px-3 py-1 font-semibold sm:text-white'
                   >
                     <span className="text-2xl leading-none">Kawaliry</span>
-                    <span className="text-[10px] font-normal opacity-80 leading-tight">
+                    <span className="text-[11px] font-normal opacity-80 leading-tight">
                       (wersja beta, zgłoś uwagi na: kontakt@kawaliry.pl)
                     </span>
                   </Link>
@@ -56,7 +60,7 @@ export default function RootLayout({
             </div>
           </div>
           <DisclosurePanel className="sm:hidden border-1 bg-cahir-armor">
-            <NavigationButtons version='mobile'/>
+            <NavigationButtons version='mobile' />
           </DisclosurePanel>
         </Disclosure>
 

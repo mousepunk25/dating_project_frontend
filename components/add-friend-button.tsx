@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react';
+import { sendGAEvent } from '@next/third-parties/google';
 
 export default function AddFriendButton({ sonProfileId }: { sonProfileId: string }) {
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -39,6 +40,12 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
             const data = await response.json();
 
             if (response.ok) {
+                // Track successful friend request in Google Analytics
+                sendGAEvent('event', 'send_friend_request', {
+                    category: 'social_interaction',
+                    sender_role: roleCookieValue,
+                });
+
                 // Extracts explicit response message (e.g. "Friend request sent successfully.")
                 setStatusMessage(data.message || "Zaproszenie zostało wysłane!");
                 setIsSuccess(true);

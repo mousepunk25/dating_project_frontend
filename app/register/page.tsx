@@ -1,4 +1,9 @@
 import RegisterUser from "@/components/register-user";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Utwórz konto',
+};
 
 export default function Page() {
   return (

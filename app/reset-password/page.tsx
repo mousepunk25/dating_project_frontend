@@ -1,5 +1,10 @@
 import { Suspense } from 'react';
 import ResetPasswordForm from '@/components/reset-password';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Resetuj hasło',
+};
 
 function ResetPasswordFallback() {
     return (

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { PhotoIcon } from '@heroicons/react/24/solid';
+import { sendGAEvent } from '@next/third-parties/google';
 
 interface FormDataState {
     fullNameParent: string;
@@ -187,6 +188,13 @@ export default function RegisterUser() {
             setErrors(newErrors);
             setIsSubmitting(false);
         } else {
+            // Track standard GA4 registration event upon valid submission
+            sendGAEvent('event', 'sign_up', {
+                method: 'credentials',
+                role: isParent ? 'parent' : 'son',
+                has_image: Boolean(imageBase64),
+            });
+
             setIsSubmitting(true);
         }
     };

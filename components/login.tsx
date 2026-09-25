@@ -161,7 +161,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-cahir-armor px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-cahir-blood focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cahir-blood disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -173,6 +173,11 @@ export default function Login() {
               )}
             </button>
           </div>
+          <div className="text-sm mt-4">
+              <a href="/register" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                Nie masz konta? - załóż je
+              </a>
+            </div>
         </form>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, FormEvent } from "react";
 import { PaperAirplaneIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { sendGAEvent } from '@next/third-parties/google';
 
 const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
     ? process.env.NEXT_PUBLIC_DEV_API_URL
@@ -151,6 +152,12 @@ export default function Chat({ selectedChat, user, onClose }: ChatProps) {
             const data = await response.json();
 
             if (response.ok && data.success) {
+                // Send custom chat event to Google Analytics
+                sendGAEvent('event', 'send_message', {
+                    category: 'chat_engagement',
+                    message_length: trimmedText.length,
+                });
+
                 setMessages((prev) => [...prev, data.message]);
                 setText('');
             } else {

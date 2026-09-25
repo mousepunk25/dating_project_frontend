@@ -1,6 +1,11 @@
 import Image from 'next/image';
 import SaveButton from '@/components/save-button';
 import AddFriendButton from '@/components/add-friend-button';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Profil kandydata na zięcia',
+};
 
 // Helper function to decode standard HTML entities on the server or client
 function decodeHTMLEntities(text?: string): string {
