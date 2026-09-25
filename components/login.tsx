@@ -29,7 +29,7 @@ function NotificationBanners() {
             Wiadomość z weryfikacją adresu email została wysłana!
           </p>
           <p className="mt-1 text-sm text-blue-700">
-            Sprawdź swoją skrzynkę i kliknij link potwierdzający Twój adres email zanim się zalogujesz.
+            Sprawdź swoją skrzynkę i kliknij link potwierdzający Twój adres email zanim się zalogujesz. Jeśli nie widzisz maila, sprawdź folder SPAM.
           </p>
         </div>
       )}
