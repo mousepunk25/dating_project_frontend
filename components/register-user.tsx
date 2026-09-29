@@ -135,17 +135,23 @@ export default function RegisterUser() {
             }
         }
 
-        if (name === 'confirmPassword') {
-            if (value !== formData.password) {
-                return 'Hasła muszą być identyczne.';
+        if (name === 'password') {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+            
+            if (!passwordRegex.test(value)) {
+                return 'Hasło musi mieć co najmniej 8 znaków, 1 wielką literę, 1 małą literę, 1 cyfrę i 1 znak specjalny.';
+            }
+
+            if (formData.confirmPassword && value !== formData.confirmPassword) {
+                setErrors((prev) => ({ ...prev, confirmPassword: 'Hasła muszą być identyczne.' }));
+            } else if (formData.confirmPassword) {
+                setErrors((prev) => ({ ...prev, confirmPassword: '' }));
             }
         }
 
-        if (name === 'password') {
-            if (formData.confirmPassword && value !== formData.confirmPassword) {
-                setErrors((prev) => ({ ...prev, confirmPassword: 'Hasła muszą być identyczne.' }));
-            } else {
-                setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+        if (name === 'confirmPassword') {
+            if (value !== formData.password) {
+                return 'Hasła muszą być identyczne.';
             }
         }
 
@@ -168,15 +174,10 @@ export default function RegisterUser() {
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         const fieldsToValidate: (keyof FormDataState)[] = isParent
-            ? ['fullNameParent', 'cityParent', 'job', 'confirmPassword']
-            : ['fullNameSon', 'citySon', 'job', 'confirmPassword'];
+            ? ['fullNameParent', 'cityParent', 'job', 'password', 'confirmPassword']
+            : ['fullNameSon', 'citySon', 'job', 'password', 'confirmPassword'];
 
         const newErrors: FormErrors = {};
-
-        // Check if confirmPassword matches password explicitly on submit
-        if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Hasła muszą być identyczne.';
-        }
 
         fieldsToValidate.forEach((field) => {
             const err = validateField(field, formData[field]);
@@ -504,10 +505,14 @@ export default function RegisterUser() {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        autoComplete="current-password"
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                        autoComplete="new-password"
+                        className={`block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 ${errors.password ? 'outline-red-500' : 'outline-gray-300'
+                            } placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6`}
                     />
                 </div>
+                {errors.password && (
+                    <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                )}
             </div>
 
             <div>

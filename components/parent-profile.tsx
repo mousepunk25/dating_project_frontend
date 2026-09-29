@@ -52,7 +52,6 @@ export default function ParentProfile({
                 const parentJSON = await parentResponse.json();
                 
                 if (!ignore) {
-                    console.log(parentJSON);
                     setParent(parentJSON);
                 }
             } catch (err) {

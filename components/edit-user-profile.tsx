@@ -180,8 +180,8 @@ export default function EditUserProfile({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.size > 10 * 1024 * 1024) {
-            setErrors(prev => ({ ...prev, image: 'Rozmiar zdjęcia musi być mniejszy niż 10MB.' }));
+        if (file.size > 2 * 1024 * 1024) {
+            setErrors(prev => ({ ...prev, image: 'Rozmiar zdjęcia musi być mniejszy niż 2MB.' }));
             return;
         }
 
@@ -276,7 +276,7 @@ export default function EditUserProfile({
         return true;
     };
 
-async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
+    async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setSubmitError(null);
         setSubmitSuccess(null);
@@ -357,7 +357,9 @@ async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
 
         const formData = new FormData(e.currentTarget);
 
-        if (!validateForm(formData)) return;
+        if (!validateForm(formData)) {
+            return;
+        }
         setIsSubmitting(true);
 
         const payload = {
@@ -385,8 +387,7 @@ async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
                 return;
             }
 
-            if (data.profile) {
-                // Send profile update event to GA4
+            if (data.success === true) {
                 sendGAEvent('event', 'profile_update', {
                     category: 'user_management',
                     role: 'parent',
@@ -808,7 +809,7 @@ async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
                             </div>
                         </div>
 
-                        <div className="mt-6 flex items-center justify-end gap-x-6">
+                        <div className="mt-6 flex items-center justify-between gap-x-6">
                             <button
                                 type="button"
                                 onClick={handleDeleteUser}
@@ -824,7 +825,7 @@ async function handleSonSubmit(e: FormEvent<HTMLFormElement>) {
                                     'Usuń konto'
                                 )}
                             </button>
-                            <div>
+                            <div className="flex items-center gap-x-6">
                                 <button type="button" className="text-sm/6 font-semibold text-gray-900">Anuluj</button>
                                 <button
                                     type="submit"

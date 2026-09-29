@@ -160,6 +160,8 @@ export default function CandidateCart({
       if (response.ok) {
         if (onDeleteSuccess) {
           onDeleteSuccess(candidateId);
+        } else {
+          window.location.reload();
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
