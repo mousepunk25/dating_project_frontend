@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { PhotoIcon } from '@heroicons/react/24/solid';
@@ -21,6 +22,8 @@ interface FormDataState {
 type FormErrors = Partial<Record<keyof FormDataState, string>>;
 
 export default function RegisterUser() {
+    const router = useRouter();
+
     const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
         ? process.env.NEXT_PUBLIC_DEV_API_URL
         : process.env.NEXT_PUBLIC_PROD_API_URL;
@@ -32,6 +35,9 @@ export default function RegisterUser() {
     // Loading & Submission States
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
+
+    // API Error Message State
+    const [apiError, setApiError] = useState<string>('');
 
     // Image state (stores Base64 string and preview URL)
     const [imageBase64, setImageBase64] = useState<string>('');
@@ -137,7 +143,7 @@ export default function RegisterUser() {
 
         if (name === 'password') {
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-            
+
             if (!passwordRegex.test(value)) {
                 return 'Hasło musi mieć co najmniej 8 znaków, 1 wielką literę, 1 małą literę, 1 cyfrę i 1 znak specjalny.';
             }
@@ -170,9 +176,13 @@ export default function RegisterUser() {
     const handleRoleChange = (parentSelected: boolean) => {
         setIsParent(parentSelected);
         setErrors({});
+        setApiError('');
     };
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setApiError('');
+
         const fieldsToValidate: (keyof FormDataState)[] = isParent
             ? ['fullNameParent', 'cityParent', 'job', 'password', 'confirmPassword']
             : ['fullNameSon', 'citySon', 'job', 'password', 'confirmPassword'];
@@ -185,10 +195,37 @@ export default function RegisterUser() {
         });
 
         if (Object.keys(newErrors).length > 0) {
-            e.preventDefault();
             setErrors(newErrors);
-            setIsSubmitting(false);
-        } else {
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        const payload = {
+            ...formData,
+            role: isParent ? 'parent' : 'son',
+            image: imageBase64,
+            dateOfBirth: !isParent ? dateOfBirth : undefined,
+            aboutYou: !isParent ? aboutYou : undefined,
+        };
+
+        try {
+            const response = await fetch(`${url}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                setApiError(data.message || 'Rejestracja nie powiodła się. Spróbuj ponownie.');
+                setIsSubmitting(false);
+                return;
+            }
+
             // Track standard GA4 registration event upon valid submission
             sendGAEvent('event', 'sign_up', {
                 method: 'credentials',
@@ -196,7 +233,13 @@ export default function RegisterUser() {
                 has_image: Boolean(imageBase64),
             });
 
-            setIsSubmitting(true);
+            // Redirect on success
+            router.push('/myprofile?status=verification-sent');
+
+        } catch (error) {
+            console.error('Registration fetch error:', error);
+            setApiError('Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.');
+            setIsSubmitting(false);
         }
     };
 
@@ -208,8 +251,6 @@ export default function RegisterUser() {
 
     return (
         <form
-            action={`${url}/register`}
-            method="POST"
             onSubmit={handleSubmit}
             className="space-y-6 mt-6"
         >
@@ -219,13 +260,11 @@ export default function RegisterUser() {
                 ))}
             </datalist>
 
-            {/* Hidden inputs to transmit extra form values during native POST submit */}
-            <input type="hidden" name="image" value={imageBase64} />
-            {!isParent && (
-                <>
-                    <input type="hidden" name="dateOfBirth" value={dateOfBirth} />
-                    <input type="hidden" name="aboutYou" value={aboutYou} />
-                </>
+            {/* Display Server API Error Message */}
+            {apiError && (
+                <div className="rounded-md bg-red-50 p-4 border border-red-200">
+                    <p className="text-sm text-red-700 font-medium">{apiError}</p>
+                </div>
             )}
 
             <fieldset>

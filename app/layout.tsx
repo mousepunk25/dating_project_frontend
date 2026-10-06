@@ -75,7 +75,7 @@ export default function RootLayout({
             Wszystkie prawa zastrzeżone.
           </small>
           <div className='px-3 py-2 font-semibold text-cahir-blood'>
-            Kontakt: kontakt@kawaliry.com
+            Kontakt: kontakt@kawaliry.pl
           </div>
           <div>
             <Link

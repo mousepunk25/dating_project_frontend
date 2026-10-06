@@ -1,11 +1,63 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    // States for checking saved status
+    const [isAlreadySaved, setIsAlreadySaved] = useState<boolean>(false);
+    const [isCheckingSaved, setIsCheckingSaved] = useState<boolean>(true);
+
+    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
+        ? process.env.NEXT_PUBLIC_DEV_API_URL 
+        : process.env.NEXT_PUBLIC_PROD_API_URL;
+
+    // Check if the candidate is already on the saved list
+    useEffect(() => {
+        async function checkSavedStatus() {
+            const cookies = document.cookie.split("; ");
+            const profileIdCookie = cookies.find(row => row.startsWith("profileId="));
+            const roleCookie = cookies.find(row => row.startsWith("role="));
+
+            const profileId = profileIdCookie ? profileIdCookie.split("=")[1] : null;
+            const role = roleCookie ? roleCookie.split("=")[1] : null;
+
+            if (!profileId || !role) {
+                setIsCheckingSaved(false);
+                return;
+            }
+
+            const oppositeRole = role === 'son' ? 'parents' : 'sons';
+
+            try {
+                const response = await fetch(`${url}/${role}s/${profileId}/${oppositeRole}saved`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const savedList = await response.json();
+
+                    // Check if candidate exists in array (handles populated objects or plain string IDs)
+                    const isSaved = Array.isArray(savedList) && savedList.some((item: any) => {
+                        const savedId = typeof item === 'object' ? item?._id : item;
+                        return savedId === sonProfileId;
+                    });
+
+                    setIsAlreadySaved(isSaved);
+                }
+            } catch (error) {
+                console.error("Błąd podczas sprawdzania zapisanych profili:", error);
+            } finally {
+                setIsCheckingSaved(false);
+            }
+        }
+
+        checkSavedStatus();
+    }, [sonProfileId, url]);
 
     async function saveFriend() {
         if (isLoading) return; // Guard against rapid multi-clicks
@@ -21,9 +73,6 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
         const roleCookieValue = roleCookie ? roleCookie.split("=")[1] : null;
 
         const oppositeRole = roleCookieValue === 'son' ? 'parents' : 'sons';
-        const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
-            ? process.env.NEXT_PUBLIC_DEV_API_URL 
-            : process.env.NEXT_PUBLIC_PROD_API_URL;
 
         if (!profileIdCookieValue || !roleCookieValue) {
             setStatusMessage('Musisz być zalogowany!');
@@ -43,8 +92,8 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
             if (response.ok) {
                 setStatusMessage(data.message || "Profil został pomyślnie zapisany!");
                 setIsSuccess(true);
+                setIsAlreadySaved(true);
             } else {
-                // Parse error format: single string ({ error: "..." }), array ({ errors: [...] }), or fallback message
                 let messageToDisplay = "Profil nie został zapisany.";
 
                 if (typeof data.error === 'string') {
@@ -65,6 +114,22 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    if (isCheckingSaved) {
+        return (
+            <div className="py-2 text-sm text-gray-500">
+                Sprawdzanie statusu profilu...
+            </div>
+        );
+    }
+
+    if (isAlreadySaved) {
+        return (
+            <div className="my-2 w-full rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-2 text-center text-sm font-semibold text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+                Ten profil znajduje się już na Twojej liście zapisanych.
+            </div>
+        );
     }
 
     return (
