@@ -13,10 +13,10 @@ function VerifyEmailLoadingUI({ message = 'Weryfikowanie twojego adresu email...
         >
           <span className="sr-only">Ładowanie...</span>
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-xl font-semibold text-gray-900">
           {message}
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-gray-500">
           Proszę czekać, trwa przekierowanie do serwisu.
         </p>
       </div>
