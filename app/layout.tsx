@@ -79,11 +79,20 @@ export default function RootLayout({
           </div>
           <div>
             <Link
+              key='blog'
+              href='/blog'
+              className='px-3 py-2 font-semibold text-cahir-blood'
+            >
+              Blog
+            </Link>
+          </div>
+          <div>
+            <Link
               key='rules'
               href='/rules'
               className='px-3 py-2 font-semibold text-cahir-blood'
             >
-              Zasady korzystania z portalu.
+              Zasady korzystania z portalu
             </Link>
           </div>
         </footer>
