@@ -151,7 +151,7 @@ export default async function Page({
                                             href={sMedia.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-4"
+                                            className="inline-flex items-center text-sm font-medium text-cahir-blood hover:text-cahir-blood-800 underline underline-offset-4"
                                         >
                                             Profil {sMedia.website} →
                                         </a>

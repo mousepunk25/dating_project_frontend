@@ -8,7 +8,7 @@ function VerifyEmailLoadingUI({ message = 'Weryfikowanie twojego adresu email...
     <div className="flex min-h-[60vh] flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm text-center space-y-4">
         <div
-          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent align-[-0.125em]"
+          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-cahir-blood border-r-transparent align-[-0.125em]"
           role="status"
         >
           <span className="sr-only">Ładowanie...</span>

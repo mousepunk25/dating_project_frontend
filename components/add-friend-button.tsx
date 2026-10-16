@@ -162,7 +162,7 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
             <button
                 onClick={sendFriendRequest}
                 disabled={isLoading}
-                className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 my-2 w-full flex items-center justify-center transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-full bg-cahir-armor px-3 py-2 text-lg font-semibold text-white shadow-xs hover:bg-cahir-blood focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cahir-blood my-2 w-full flex items-center justify-center transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {isLoading ? (
                     <span className="flex items-center gap-2">

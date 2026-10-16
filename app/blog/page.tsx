@@ -59,7 +59,7 @@ export default function BlogPage() {
                 <div className="space-y-3">
                   {/* Metadata */}
                   <div className="flex items-center gap-2 text-xs text-gray-500 font-sans">
-                    <span className="bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded">
+                    <span className="text-cahir-blood font-semibold px-2 py-0.5 rounded">
                       {article.category}
                     </span>
                     <span>•</span>
@@ -73,7 +73,7 @@ export default function BlogPage() {
                     <h3 className="text-xl font-bold text-gray-900 leading-snug">
                       <Link
                         href={`/blog/${article.slug}`}
-                        className="hover:text-indigo-600 transition-colors"
+                        className="hover:text-cahir-blood transition-colors"
                       >
                         {article.title}
                       </Link>
@@ -88,7 +88,7 @@ export default function BlogPage() {
                 <div className="pt-4 border-t border-gray-100">
                   <Link
                     href={`/blog/${article.slug}`}
-                    className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-4"
+                    className="inline-flex items-center text-sm font-medium text-cahir-blood hover:text-cahir-blood-400 underline underline-offset-4"
                   >
                     Czytaj więcej →
                   </Link>

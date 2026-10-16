@@ -455,7 +455,7 @@ export default function EditUserProfile({
     if (isLoadingData) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[300px] gap-3">
-                <Spinner className="size-8 text-indigo-600" />
+                <Spinner className="size-8 text-cahir-blood" />
                 <span className="text-sm font-medium text-gray-600">Ładowanie danych profilu...</span>
             </div>
         );
@@ -586,7 +586,7 @@ export default function EditUserProfile({
                                             name="education-level"
                                             value={educationLevel}
                                             onChange={(e) => setEducationLevel(e.target.value)}
-                                            className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white border border-gray-300 py-1.5 pr-8 pl-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                                            className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white border border-gray-300 py-1.5 pr-8 pl-3 text-base text-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-cahir-blood sm:text-sm/6"
                                         >
                                             <option value="Elementary">Podstawowe</option>
                                             <option value="High School">Średnie</option>

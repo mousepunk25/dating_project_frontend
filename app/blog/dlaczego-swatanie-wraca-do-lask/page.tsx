@@ -16,7 +16,7 @@ export default function ArticlePage() {
         <div>
           <Link 
             href="/blog"
-            className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-4 font-sans"
+            className="inline-flex items-center text-sm font-medium text-cahir-blood hover:text-cahir-blood-400 underline underline-offset-4 font-sans"
           >
             ← Powrót do listy artykułów
           </Link>
@@ -25,7 +25,7 @@ export default function ArticlePage() {
         {/* Article Header Card */}
         <header className="bg-white p-6 sm:p-10 rounded-2xl border border-gray-200 shadow-sm space-y-4">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 font-sans">
-            <span className="bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md">
+            <span className="bg-cahir-blood-50 text-cahir-blood font-semibold px-2.5 py-1 rounded-md">
               Relacje & Socjologia
             </span>
             <span>•</span>
@@ -38,7 +38,7 @@ export default function ArticlePage() {
             Dlaczego swatanie wraca do łask?
           </h1>
 
-          <p className="text-lg sm:text-xl italic text-gray-600 border-l-4 border-indigo-600 pl-4 py-1 leading-relaxed">
+          <p className="text-lg sm:text-xl italic text-gray-600 border-l-4 border-cahir-blood pl-4 py-1 leading-relaxed">
             Od kryzysu dopaminowego w aplikacjach randkowych po głód autentyczności. Dlaczego zmęczeni cyfrowym szumem Polacy wracają do świadomego pośrednictwa i osobistych rekomendacji?
           </p>
         </header>
@@ -59,7 +59,7 @@ export default function ArticlePage() {
             </p>
 
             {/* Quote 1 */}
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-indigo-600 border-gray-100 space-y-2 my-6 font-serif">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-cahir-blood border-gray-100 space-y-2 my-6 font-serif">
               <p className="italic text-gray-700">
                 „Aplikacje randkowe wrzucają nas w kulturę opcji. Zaczynamy traktować relacje jak katalog produktów. Niewłaściwy profil wymieniamy tak łatwo jak ubranie z dostawą online — ale w prawdziwych relacjach to po prostu nie działa.”
               </p>
@@ -69,7 +69,7 @@ export default function ArticlePage() {
                   href="https://spidersweb.pl/plus/2026/02/epoka-singli-ksiazka-randki-kto-placi"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+                  className="text-cahir-blood hover:text-cahir-blood-800 underline font-medium"
                 >
                   Spider’s Web
                 </a>
@@ -90,7 +90,7 @@ export default function ArticlePage() {
             </p>
 
             {/* Quote 2 */}
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-indigo-600 border-gray-100 space-y-2 my-6 font-serif">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-cahir-blood border-gray-100 space-y-2 my-6 font-serif">
               <p className="italic text-gray-700">
                 „W wielu przypadkach znalezienie partnera czy partnerki nie jest już celem. Staje się nim sam swipe, bo on daje nam szybki strzał dopaminy.”
               </p>
@@ -100,7 +100,7 @@ export default function ArticlePage() {
                   href="https://wydarzenia.interia.pl/kraj/news-mlodzi-polacy-nie-wiedza-gdzie-szukac-partnerow-osiagnelismy,nId,23518479"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+                  className="text-cahir-blood hover:text-cahir-blood-800 underline font-medium"
                 >
                   Interia Wydarzenia
                 </a>
@@ -118,7 +118,7 @@ export default function ArticlePage() {
             </p>
 
             {/* Quote 3 */}
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-indigo-600 border-gray-100 space-y-2 my-6 font-serif">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-cahir-blood border-gray-100 space-y-2 my-6 font-serif">
               <p className="italic text-gray-700">
                 „Technologia nie stworzyła w nas lęku przed bliskością, ale bardzo ułatwiła jego realizowanie. Teraz czasem możemy zniknąć jednym kliknięciem. Nie musimy się tłumaczyć ani stawiać czoła emocjom.”
               </p>
@@ -128,7 +128,7 @@ export default function ArticlePage() {
                   href="https://porady.sympatia.onet.pl/sympatia-radzi/joanna-godecka-jesli-nie-masz-szacunku-do-siebie-pokazujesz-innym-ze-nie-oczekujesz/t25xc59"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+                  className="text-cahir-blood hover:text-cahir-blood-800 underline font-medium"
                 >
                   Sympatia Onet
                 </a>
@@ -136,7 +136,7 @@ export default function ArticlePage() {
             </div>
 
             {/* Quote 4 */}
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-indigo-600 border-gray-100 space-y-2 my-6 font-serif">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-cahir-blood border-gray-100 space-y-2 my-6 font-serif">
               <p className="italic text-gray-700">
                 „Ludzie tworzący profile w sieci stosują elementy marketingu. Prezentują tam najlepszą wersję siebie, co sprzyja zakochaniu się jedynie w projekcji własnego wyobrażenia.”
               </p>
@@ -146,7 +146,7 @@ export default function ArticlePage() {
                   href="https://www.pap.pl/aktualnosci/seksuolog-dla-niektorych-szukanie-partnerki-lub-partnera-przez-internet-jest-prostsze"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+                  className="text-cahir-blood hover:text-cahir-blood-800 underline font-medium"
                 >
                   Polska Agencja Prasowa (PAP)
                 </a>
@@ -167,7 +167,7 @@ export default function ArticlePage() {
             </p>
 
             {/* Quote 5 */}
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-indigo-600 border-gray-100 space-y-2 my-6 font-serif">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-cahir-blood border-gray-100 space-y-2 my-6 font-serif">
               <p className="italic text-gray-700">
                 „Poznając kogoś poza internetem — w kręgach znajomych czy przez rekomendację — dokonujemy świadomej, bardziej weryfikowalnej selekcji. Możemy zaciągnąć opinii od osób, które daną osobę naprawdę znają.”
               </p>
@@ -177,7 +177,7 @@ export default function ArticlePage() {
                   href="https://www.pap.pl/aktualnosci/seksuolog-dla-niektorych-szukanie-partnerki-lub-partnera-przez-internet-jest-prostsze"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+                  className="text-cahir-blood hover:text-cahir-blood-800 underline font-medium"
                 >
                   PAP
                 </a>
@@ -195,7 +195,7 @@ export default function ArticlePage() {
             </p>
 
             {/* Quote 6 */}
-            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-indigo-600 border-gray-100 space-y-2 my-6 font-serif">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl border-l-4 border-cahir-blood border-gray-100 space-y-2 my-6 font-serif">
               <p className="italic text-gray-700">
                 „Ludzie są zmęczeni tym przewijaniem, pisaniem i udawaniem. Osiągnęliśmy apogeum — po prostu przestaliśmy wierzyć w cyfrowe obietnice i szukamy powrotu do spotkań twarzą w twarz.”
               </p>
@@ -205,7 +205,7 @@ export default function ArticlePage() {
                   href="https://wydarzenia.interia.pl/kraj/news-mlodzi-polacy-nie-wiedza-gdzie-szukac-partnerow-osiagnelismy,nId,23518479"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline font-medium"
+                  className="text-cahir-blood hover:text-cahir-blood-800 underline font-medium"
                 >
                   Interia.pl
                 </a>
@@ -223,7 +223,7 @@ export default function ArticlePage() {
         <div className="pt-2 text-center">
           <Link
             href="/blog"
-            className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-4 font-sans"
+            className="inline-flex items-center text-sm font-medium text-cahir-blood hover:text-cahir-blood-800 underline underline-offset-4 font-sans"
           >
             ← Powrót do pozostałych artykułów
           </Link>
