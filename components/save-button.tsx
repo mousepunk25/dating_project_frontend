@@ -126,7 +126,7 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
 
     if (isAlreadySaved) {
         return (
-            <div className="my-2 w-full rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-2 text-center text-sm font-semibold text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
+            <div className="my-2 w-full rounded-full bg-blue-100 px-3 py-2 text-center text-sm font-semibold text-blue-700 border border-blue-300">
                 Ten profil znajduje się już na Twojej liście zapisanych.
             </div>
         );
@@ -149,7 +149,7 @@ export default function SaveButton({ sonProfileId }: { sonProfileId: string }) {
                 )}
             </button>
             {statusMessage && (
-                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
                     {statusMessage}
                 </p>
             )}

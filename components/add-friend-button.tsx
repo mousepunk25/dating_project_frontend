@@ -143,7 +143,7 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
 
     if (isAlreadyFriend) {
         return (
-            <div className="my-2 w-full rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-2 text-center text-sm font-semibold text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700">
+            <div className="my-2 w-full rounded-full bg-green-100 px-3 py-2 text-center text-sm font-semibold text-green-700 border border-green-300">
                 Ten profil znajduje się już na Twojej liście znajomych.
             </div>
         );
@@ -151,7 +151,7 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
 
     if (isRequestSent) {
         return (
-            <div className="my-2 w-full rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-2 text-center text-sm font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+            <div className="my-2 w-full rounded-full bg-amber-100 px-3 py-2 text-center text-sm font-semibold text-amber-700 border border-amber-300">
                 Zaproszenie zostało już wysłane.
             </div>
         );
@@ -178,7 +178,7 @@ export default function AddFriendButton({ sonProfileId }: { sonProfileId: string
             </button>
 
             {statusMessage && (
-                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <p className={`mt-1 text-sm sm:ml-2 font-medium ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
                     {statusMessage}
                 </p>
             )}
