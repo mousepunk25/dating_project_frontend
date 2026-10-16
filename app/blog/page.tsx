@@ -14,7 +14,6 @@ interface Article {
   category: string;
   publishedAt: string;
   readTime: string;
-  featured?: boolean;
 }
 
 // Sample articles list — you can easily replace this with dynamic fetching later
@@ -27,14 +26,10 @@ const articles: Article[] = [
     category: 'Relacje',
     publishedAt: '16 Października 2026',
     readTime: '10 min czytania',
-    featured: true,
-  }
+  },
 ];
 
 export default function BlogPage() {
-  const featuredArticle = articles.find((a) => a.featured) || articles[0];
-  const regularArticles = articles.filter((a) => a.slug !== featuredArticle.slug);
-
   return (
     <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900 py-8 md:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -49,45 +44,6 @@ export default function BlogPage() {
           </p>
         </header>
 
-        {/* Featured Article Section */}
-        {featuredArticle && (
-          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500 font-sans">
-              <span className="bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md">
-                Wyróżniony artykuł
-              </span>
-              <span>•</span>
-              <span className="font-medium text-gray-700">{featuredArticle.category}</span>
-              <span>•</span>
-              <span>{featuredArticle.publishedAt}</span>
-              <span>•</span>
-              <span>{featuredArticle.readTime}</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight leading-snug">
-              <Link
-                href={`/blog/${featuredArticle.slug}`}
-                className="hover:text-indigo-600 transition-colors"
-              >
-                {featuredArticle.title}
-              </Link>
-            </h2>
-
-            <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
-              {featuredArticle.description}
-            </p>
-
-            <div className="pt-2">
-              <Link
-                href={`/blog/${featuredArticle.slug}`}
-                className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-4"
-              >
-                Przeczytaj cały artykuł →
-              </Link>
-            </div>
-          </section>
-        )}
-
         {/* Article Grid */}
         <section className="space-y-6">
           <h2 className="text-xl font-bold text-gray-900 border-b border-gray-200 pb-3">
@@ -95,7 +51,7 @@ export default function BlogPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {regularArticles.map((article) => (
+            {articles.map((article) => (
               <article
                 key={article.slug}
                 className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-gray-300 transition-all space-y-4"
@@ -106,6 +62,8 @@ export default function BlogPage() {
                     <span className="bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded">
                       {article.category}
                     </span>
+                    <span>•</span>
+                    <span>{article.publishedAt}</span>
                     <span>•</span>
                     <span>{article.readTime}</span>
                   </div>
