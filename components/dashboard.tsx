@@ -21,7 +21,7 @@ export default function Dashboard({
 
         if (isLoggedIn) {
             const date = new Date();
-            date.setDate(date.getDate() + 7);
+            date.setDate(date.getDate() + 1);
             const cookieDate = date.toUTCString();
             document.cookie = `profileId=${profileId}; expires=${cookieDate}; SameSite=None; Secure; path=/`;
             document.cookie = `role=${role}; expires=${cookieDate}; SameSite=None; Secure; path=/`;

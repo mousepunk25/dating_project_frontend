@@ -19,6 +19,15 @@ interface Article {
 // Sample articles list — you can easily replace this with dynamic fetching later
 const articles: Article[] = [
   {
+    slug: 'rola-rodziny-w-wyborze-partnera',
+    title: 'Rola rodziny i bliskich w wyborze partnera',
+    description:
+      'Czy warto słuchać rad najbliższych przy wyborze drugiej połówki? Analizujemy perspektywę tradycyjną i nowoczesną.',
+    category: 'Tradycja',
+    publishedAt: '20 Października 2026',
+    readTime: '10 min czytania',
+  },
+  {
     slug: 'dlaczego-swatanie-wraca-do-lask',
     title: 'Dlaczego swatanie wraca do łask?',
     description:
@@ -26,7 +35,7 @@ const articles: Article[] = [
     category: 'Relacje',
     publishedAt: '16 Października 2026',
     readTime: '10 min czytania',
-  },
+  }
 ];
 
 export default function BlogPage() {
