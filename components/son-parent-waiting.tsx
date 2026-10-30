@@ -91,7 +91,7 @@ export default function SonParentWaiting({
     // 3. Empty State
     if (userFriendsWithRequestSent.length === 0) {
         return (
-            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+            <div className="mt-6 text-center text-gray-600 text-lg">
                 Nie ma tutaj żadnych zaproszeń do listy znajomych. Możesz raz dziennie wysłać je dowolnemu kandydatowi :)
             </div>
         );

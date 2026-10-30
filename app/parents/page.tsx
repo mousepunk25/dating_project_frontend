@@ -14,7 +14,7 @@ export default async function Page({
   const filters = await searchParams;
 
   return (
-    <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900">
+    <main className="min-h-screen bg-gray-50/50 text-gray-900">
       {/* Container with max-width constraints for big screens */}
       <div className="max-w-7xl xl:max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         

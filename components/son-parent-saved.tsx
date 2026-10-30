@@ -91,7 +91,7 @@ export default function SonParentSaved({
     // 3. Empty State
     if (userFriendsSaved.length === 0) {
         return (
-            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+            <div className="mt-6 text-center text-gray-600 text-lg">
                 Nie masz jeszcze nikogo zapisanego. Możesz to zrobić w każdej chwili odwiedzając profil kandydata.
             </div>
         );

@@ -114,7 +114,7 @@ export default function SonParentFriends({
   // 3. Empty State
   if (userFriends.length === 0) {
     return (
-      <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+      <div className="mt-6 text-center text-gray-600 text-lg">
         Wciąż nie masz dodanych znajomych :/ Wyślij komuś zaproszenie i zaczekaj aż zostanie zaakceptowane.
       </div>
     );

@@ -27,8 +27,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light">
-      <body className="tracking-wide font-serif min-h-screen flex flex-col">
-        <Disclosure as="nav" className="relative bg-white sm:bg-cahir-armor font-serif text-base font-semibold">
+      <body className="tracking-wide min-h-screen flex flex-col">
+        <Disclosure as="nav" className="relative bg-white sm:bg-cahir-armor text-base font-semibold">
           <div className="mx-auto">
             <div className="relative flex h-16 items-center justify-between border-b-1 border-cahir-armor/25 shadow-md px-2 sm:px-6 lg:px-8">
               {/* Mobile menu button aligned to the right */}
@@ -45,7 +45,7 @@ export default function RootLayout({
                   <Link
                     key='title'
                     href='/'
-                    className='flex flex-col rounded-md px-3 py-1 font-semibold sm:text-white'
+                    className='flex flex-col rounded-md px-3 py-1 sm:text-white'
                   >
                     <span className="text-2xl leading-none">Kawaliry</span>
                     <span className="text-[11px] font-normal opacity-80 leading-tight">
@@ -74,23 +74,21 @@ export default function RootLayout({
           <small className='px-3 py-2'>
             Wszystkie prawa zastrzeżone.
           </small>
-          <div className='px-3 py-2 font-semibold text-cahir-blood'>
+          <div className='px-3 py-1 font-semibold text-cahir-blood'>
             Kontakt: kontakt@kawaliry.pl
           </div>
-          <div>
+          <div className='px-3 py-1 font-semibold text-cahir-blood'>
             <Link
               key='blog'
               href='/blog'
-              className='px-3 py-2 font-semibold text-cahir-blood'
             >
               Blog
             </Link>
           </div>
-          <div>
+          <div className='px-3 py-1 font-semibold text-cahir-blood'>
             <Link
               key='rules'
               href='/rules'
-              className='px-3 py-2 font-semibold text-cahir-blood'
             >
               Zasady korzystania z portalu
             </Link>

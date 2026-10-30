@@ -4,7 +4,7 @@ import AddFriendButton from '@/components/add-friend-button';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Profil kandydata na zięcia',
+    title: 'Profil kandydata na zięcia',
 };
 
 // Helper function to decode standard HTML entities on the server or client
@@ -78,8 +78,8 @@ export default async function Page({
     params: Promise<{ son: string }>
 }) {
     const { son } = await params;
-    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev' 
-        ? process.env.NEXT_PUBLIC_DEV_API_URL 
+    const url = process.env.NEXT_PUBLIC_ENVIRONMENT === 'dev'
+        ? process.env.NEXT_PUBLIC_DEV_API_URL
         : process.env.NEXT_PUBLIC_PROD_API_URL;
     const data = await fetch(`${url}/sons/${son}`);
     const candidate: Candidate = await data.json();
@@ -100,12 +100,12 @@ export default async function Page({
     const decodedCompanyName = decodeHTMLEntities(candidate.job?.companyName);
 
     return (
-        <main className="min-h-screen bg-gray-50/50 font-serif text-gray-900 py-8 md:py-12">
+        <main className="min-h-screen bg-gray-50/50 text-gray-900 py-8 md:py-12">
             <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-                
+
                 {/* 2-Column Responsive Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
+
                     {/* Left Column: Media & Actions */}
                     <div className="lg:col-span-5 bg-white p-2 rounded-2xl border border-gray-200 shadow-sm space-y-2 lg:sticky lg:top-8">
                         <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[380px] max-h-[650px] overflow-hidden rounded-xl bg-gray-100 border border-gray-100">
@@ -128,7 +128,7 @@ export default async function Page({
 
                     {/* Right Column: Candidate Profile Information */}
                     <div className="lg:col-span-7 space-y-6">
-                        
+
                         {/* Header Details */}
                         <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-4">
                             <div>
@@ -136,8 +136,8 @@ export default async function Page({
                                     {decodedFullName}
                                 </h1>
                                 <p className="text-lg text-gray-600 mt-2 flex items-center gap-2">
-                                    <span>Wiek: <strong className="text-gray-900">{age} lat</strong></span>
-                                    <span>•</span>
+                                    <span>Wiek: <strong className="text-gray-900">{age} lat</strong>,</span>
+
                                     <span>Miasto: <strong className="text-gray-900">{candidate.address.city}</strong></span>
                                 </p>
                             </div>
@@ -172,14 +172,10 @@ export default async function Page({
 
                         {/* Professional & Education Details */}
                         <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-4">
-                            <h2 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">
-                                Szczegóły
-                            </h2>
-                            
                             <div className="space-y-3">
                                 {hasJob && (
                                     <div className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center">
-                                        <span className="font-bold text-gray-900 sm:w-36">Praca:</span> 
+                                        <span className="font-bold text-gray-900 sm:w-36">Praca:</span>
                                         <span className="text-gray-700">
                                             {decodedJobPosition}
                                             {decodedJobPosition && decodedCompanyName ? ' w ' : ''}
@@ -190,7 +186,7 @@ export default async function Page({
 
                                 {decodedEducation && (
                                     <div className="text-base sm:text-lg flex flex-col sm:flex-row sm:items-center">
-                                        <span className="font-bold text-gray-900 sm:w-36">Wykształcenie:</span> 
+                                        <span className="font-bold text-gray-900 sm:w-36">Wykształcenie:</span>
                                         <span className="text-gray-700">{decodedEducation}</span>
                                     </div>
                                 )}

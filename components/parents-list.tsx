@@ -102,7 +102,7 @@ export default function ParentsList({
     // 2. Error State
     if (error) {
         return (
-            <div className="my-6 text-center text-red-600 font-serif">
+            <div className="my-6 text-center text-red-600">
                 <p>{error}</p>
             </div>
         );
@@ -111,7 +111,7 @@ export default function ParentsList({
     // 3. Empty Results State
     if (parentsList.length === 0) {
         return (
-            <div className="my-6 text-center text-gray-500 font-serif">
+            <div className="my-6 text-center text-gray-500">
                 <h2>Brak kandydatów spełniających podane kryteria.</h2>
             </div>
         );

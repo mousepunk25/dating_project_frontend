@@ -75,7 +75,7 @@ export default function ParentProfile({
     // 1. Loading State
     if (isLoading) {
         return (
-            <div className="mt-6 font-serif animate-pulse space-y-4">
+            <div className="mt-6 animate-pulse space-y-4">
                 <div className="h-8 bg-gray-200 rounded w-2/3"></div>
                 <div className="flex gap-2">
                     <div className="h-10 bg-gray-200 rounded w-24"></div>
@@ -89,7 +89,7 @@ export default function ParentProfile({
     // 2. Error or Not Found State
     if (error || !parent) {
         return (
-            <div className="mt-6 font-serif text-red-600">
+            <div className="mt-6 text-red-600">
                 <h2>{error || 'Nie znaleziono użytkowników'}</h2>
             </div>
         );
@@ -97,7 +97,7 @@ export default function ParentProfile({
 
     // 3. Success State
     return (
-        <div className="mt-6 font-serif">
+        <div className="mt-6">
             <div className="flex flex-col">
                 <div className="mt-3 block">
                     <h1 className="text-xl font-bold">{parent.fullName}, miasto: {parent.address?.city}</h1>

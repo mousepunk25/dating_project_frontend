@@ -95,7 +95,7 @@ export default function SonParentRequests({
     // 3. Empty State
     if (userFriendsWhoWantToBeAdded.length === 0) {
         return (
-            <div className="mt-6 text-center text-gray-600 font-serif text-lg">
+            <div className="mt-6 text-center text-gray-600 text-lg">
                 Nie masz nowych zaproszeń :/ Zaczekaj, aż ktoś przyśle Tobie zaproszenie, żeby dodać Cię do listy znajomych.
             </div>
         );

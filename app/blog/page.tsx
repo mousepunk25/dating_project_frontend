@@ -19,6 +19,15 @@ interface Article {
 // Sample articles list — you can easily replace this with dynamic fetching later
 const articles: Article[] = [
   {
+    slug: 'gdy-rodzice-szukaja-meza-dla-corki',
+    title: 'Gdy rodzice szukają męża dla córki',
+    description:
+      'Dlaczego współczesne rodziny wracają do tradycji aktywnego udziału w wyborze męża dla dorosłej córki?',
+    category: 'Tradycja & Rodzina',
+    publishedAt: '30 Października 2026',
+    readTime: '10 min czytania',
+  },
+  {
     slug: 'rola-rodziny-w-wyborze-partnera',
     title: 'Rola rodziny i bliskich w wyborze partnera',
     description:

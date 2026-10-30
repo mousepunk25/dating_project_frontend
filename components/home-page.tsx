@@ -57,7 +57,7 @@ export default function HomePage() {
 
     if (role === 'son') {
         return (
-            <div className="space-y-2 font-serif">
+            <div className="space-y-2">
                 <p className="text-gray-900 text-xl">
                     Szukasz żony?
                 </p>
@@ -67,7 +67,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="space-y-2 font-serif">
+        <div className="space-y-2">
             <p className="text-gray-900 text-xl">
                 Znajdź wymarzonego zięcia
             </p>
